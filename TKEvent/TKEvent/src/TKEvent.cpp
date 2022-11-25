@@ -37,6 +37,7 @@ TKEvent::TKEvent()
 {
 	OM_hits = std::vector<TKOMhit*>();
 	tr_hits = std::vector<TKtrhit*>();
+	tracks  = std::vector<TKtrack*>();
 }
 
 TKEvent::TKEvent(int _run_number ,int _event_number)
@@ -46,6 +47,7 @@ TKEvent::TKEvent(int _run_number ,int _event_number)
 
 	OM_hits = std::vector<TKOMhit*>();
 	tr_hits = std::vector<TKtrhit*>();
+	tracks  = std::vector<TKtrack*>();
 }
 
 TKEvent::~TKEvent()

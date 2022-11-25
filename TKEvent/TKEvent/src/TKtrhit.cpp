@@ -21,6 +21,7 @@ void TKtrhit::set_SRL_xy()
 
 TKtrhit::TKtrhit()
 {
+	//associated_OMhit = new 
 }
 
 TKtrhit::TKtrhit(int _cell_num)
