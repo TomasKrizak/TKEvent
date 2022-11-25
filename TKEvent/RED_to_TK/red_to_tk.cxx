@@ -26,11 +26,6 @@
 // TK headers
 #include "TKEvent.h"
 
-// dimensions in mm
-// origin in the center of detector
-const double tc_radius = 22.0;
-const double tc_sizez = 3030.0;
-
 int main (int argc, char *argv[])
 {
 	const char *red_path = getenv("RED_PATH");
@@ -58,8 +53,7 @@ int main (int argc, char *argv[])
 
 	if (event_number == -1)
 	{
-		std::cerr << "*** missing event_number (-e/--event EVENT_NUMBER)" << std::endl;
-		return 1;
+		event_number = INT_MAX;
 	}
 
 	if (input_filename.empty())
@@ -93,8 +87,6 @@ int main (int argc, char *argv[])
 	std::size_t red_counter = 0;
 	bool event_found = false;
 
-	std::cout << "Searching for event " << event_number << " ..." << std::endl;
-
 //MIROOOOOOOOOOOOOOOOOO 1
 
 	TFile* file;
@@ -102,7 +94,7 @@ int main (int argc, char *argv[])
 
 	TKEvent *event = new TKEvent();
 	 
-	file = new TFile(Form("Run-%d.root", run_number),"NEW");
+	file = new TFile(Form("Run-%d.root", run_number),"RECREATE");
 	tree = new TTree("Event","All data from event");
 	tree->Branch("Eventdata", &event);	
 
@@ -130,7 +122,7 @@ int main (int argc, char *argv[])
 
 		// Container of merged TriggerID(s) by event builder
 		const std::set<int32_t> & red_trigger_ids = red.get_origin_trigger_ids();
-	      
+	     
 	//-------------------------------------
 
 		const std::vector<snemo::datamodel::calo_digitized_hit> red_calo_hits = red.get_calo_hits();
@@ -184,11 +176,9 @@ int main (int argc, char *argv[])
 		{
 		  	const sncabling::gg_cell_id gg_id = red_tracker_hit.get_cell_id();
 			int srl[3] = {gg_id.get_side(), gg_id.get_row(), gg_id.get_layer()};
-
-			double height = tc_sizez;
-			double radius = tc_radius;
 			for(const snemo::datamodel::tracker_digitized_hit::gg_times & gg_timestamps : red_tracker_hit.get_times())
 			{
+				
 				int64_t tsp[7];
 		
 				for (int it = 0; it < 5; it++)
@@ -223,30 +213,30 @@ int main (int argc, char *argv[])
 		
 				// Tracker hit is added here
 				event->add_tracker_hit(srl, tsp);			
+				
 			}	
 		} 
-		
-		event->set_r("Manchester");
-		event->reconstruct_track();
+
+		//event->set_r("Manchester");
+		//event->reconstruct_track(0);
 		
 		//event->print();
 		//event->print_tracks();
 		//event->make_top_projection();
 		//event->build_event();
+		
 		tree->Fill();	
-
+		
 		if(red_event_id % 10000 == 0)
 		{
 			std::cout << "Event No. " << red_event_id << " converted!" << std::endl;
 		}
+		
 	} // (while red_source.has_record_tag())
 
 	tree->Write();
 	file->Close();	
 	//delete file;
-
-	if (!event_found)
-	std::cerr << "=> Event was not found ! (only " << red_counter <<  " RED in this file)" << std::endl;
 
 	snfee::terminate();
 
