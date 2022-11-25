@@ -16,6 +16,8 @@ echo " "
       	      rootcling -f ../lib/TKOMhitdict.cpp  TKOMhit.h+
 	echo "rootcling: ./include/TKtrhit.h         -> ./include/TKtrhitdict_rdict.pcm         + ./include/TKtrhitdict.cpp"
       	      rootcling -f ../lib/TKtrhitdict.cpp  TKtrhit.h+
+      	echo "rootcling: ./include/TKtrack.h         -> ./include/TKtrackdict_rdict.pcm         + ./include/TKtrackdict.cpp"
+      	      rootcling -f ../lib/TKtrackdict.cpp  TKtrack.h+
 	echo " "
 	echo "Dictionaries generated!"
 	echo " "
