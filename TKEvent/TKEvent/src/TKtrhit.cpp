@@ -21,11 +21,12 @@ void TKtrhit::set_SRL_xy()
 
 TKtrhit::TKtrhit()
 {
-	//associated_OMhit = new 
+	associated_OMhit = new TKOMhit();
 }
 
 TKtrhit::TKtrhit(int _cell_num)
 {
+	associated_OMhit = new TKOMhit();
 	if(_cell_num > 2033 || _cell_num < 0) std::cout << "ERROR TKtrhit::TKtrhit(int): " << _cell_num << " is not valid tracker cell number" << std::endl; 
 
 	cell_num = _cell_num;
@@ -34,6 +35,7 @@ TKtrhit::TKtrhit(int _cell_num)
 
 TKtrhit::TKtrhit(int _SRL[3])
 {
+	associated_OMhit = new TKOMhit();
 	cell_num = 113*9*_SRL[0] + 9*_SRL[1] + _SRL[2];
 
 //MIRO: TU ZMENIŤ TÚ PODMIENKU ABY TO BOLO VZHĽADOM NA _SRL, TAKTO TO JE NESPRÁVNE!
@@ -45,6 +47,7 @@ TKtrhit::TKtrhit(int _SRL[3])
 
 TKtrhit::TKtrhit(int _cell_num, int64_t _tsp[7])
 {
+	associated_OMhit = new TKOMhit();
 	if(_cell_num > 2033 || _cell_num < 0) std::cout << "ERROR TKtrhit::TKtrhit(int, int64_t, double, double): " << _cell_num << " is not valid tracker cell number" << std::endl; 
 
 	cell_num = _cell_num;
@@ -55,6 +58,7 @@ TKtrhit::TKtrhit(int _cell_num, int64_t _tsp[7])
 
 TKtrhit::TKtrhit(int _SRL[3], int64_t _tsp[7])
 {
+	associated_OMhit = new TKOMhit();
 	cell_num = 113*9*_SRL[0] + 9*_SRL[1] + _SRL[2];
 
 //MIRO: TU ZMENIŤ TÚ PODMIENKU ABY TO BOLO VZHĽADOM NA _SRL, TAKTO TO JE NESPRÁVNE!
