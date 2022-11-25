@@ -1,6 +1,8 @@
 // TK headers
 #include "TKOMhit.h"
 
+ClassImp(TKOMhit);
+
 void TKOMhit::set_SWCR_xyz()
 {
 	//mainwall IT

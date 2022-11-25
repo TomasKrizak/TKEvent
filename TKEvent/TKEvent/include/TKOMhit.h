@@ -1,3 +1,6 @@
+#ifndef _TKOMHIT_H_
+#define _TKOMHIT_H_
+
 // Standard headers
 #include <iostream>
 
@@ -45,3 +48,5 @@ class TKOMhit: public TObject
 		
 		ClassDef(TKOMhit,1);
 };
+
+#endif

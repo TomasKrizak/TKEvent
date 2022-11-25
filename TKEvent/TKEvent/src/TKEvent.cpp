@@ -52,12 +52,7 @@ TKEvent::~TKEvent()
 {
 	OM_hits.clear();
 	tr_hits.clear();
-	
-	rec_tracks_side.clear();
-	rec_tracks_a.clear();
-	rec_tracks_b.clear();
-	rec_tracks_c.clear();
-	rec_tracks_d.clear();
+	tracks.clear();
 }
 
 std::vector<TKOMhit*> TKEvent::get_OM_hits()
@@ -70,6 +65,11 @@ std::vector<TKtrhit*> TKEvent::get_tr_hits()
 	return tr_hits;
 }
 
+std::vector<TKtrack*> TKEvent::get_tracks()
+{
+	return tracks;
+}
+
 TKOMhit* TKEvent::get_OM_hit(int _i)
 {
 	return OM_hits[_i];
@@ -78,6 +78,11 @@ TKOMhit* TKEvent::get_OM_hit(int _i)
 TKtrhit* TKEvent::get_tr_hit(int _i)
 {
 	return tr_hits[_i];
+}
+
+TKtrack* TKEvent::get_track(int _i)
+{
+	return tracks[_i];
 }
 
 int TKEvent::get_run_number()
@@ -90,34 +95,9 @@ int TKEvent::get_event_number()
 	return event_number;
 }
 
-int TKEvent::get_track_side(int index)
-{
-	return rec_tracks_side.at(index);
-}
-
-double TKEvent::get_track_a(int index)
-{
-	return rec_tracks_a.at(index);
-}
-
-double TKEvent::get_track_b(int index)
-{
-	return rec_tracks_b.at(index);
-}
-
-double TKEvent::get_track_c(int index)
-{
-	return rec_tracks_c.at(index);
-}
-
-double TKEvent::get_track_d(int index)
-{
-	return rec_tracks_d.at(index);
-}
-
 int TKEvent::get_no_tracks()
 {
-	return rec_tracks_a.size();
+	return tracks.size();
 }
 		
 void TKEvent::print()
@@ -145,13 +125,9 @@ void TKEvent::print_tracks()
 {
 	std::cout << "*** Run: " << run_number << ", event: " << event_number << " ***" << std::endl;
 		
-	for (int i = 0; i < rec_tracks_side.size(); i++)
+	for (int i = 0; i < tracks.size(); i++)
 	{
-		cout << "Side: " << rec_tracks_side.at(i) << ", "
-		     << "a "     << rec_tracks_a.at(i) << ", "
-		     << "b "     << rec_tracks_b.at(i) << ", "
-		     << "c "     << rec_tracks_c.at(i) << ", "
-		     << "d "     << rec_tracks_d.at(i) << endl;
+		tracks[i]->print();
 	}
 }
 
@@ -175,7 +151,7 @@ void TKEvent::add_tracker_hit(int _SRL[3], int64_t _tsp[7])
 	tr_hits.push_back(new TKtrhit(_SRL, _tsp));
 }
 
-void TKEvent::reconstruct_track()
+void TKEvent::reconstruct_track(bool save_sinograms)
 {
 	// first basic tracking - work in progress
 	const int resolution = 250;
@@ -194,8 +170,8 @@ void TKEvent::reconstruct_track()
 				// not using broken or too big (wrongly associated) tracker hits
 				if( tr_hits[i]->get_r() != -1.0 && tr_hits[i]->get_r() < 35.0 )
 				{
-					hits_x.push_back( (2.0*tr_hits[i]->get_SRL('s')-1.0) * (tr_hits[i]->get_SRL('l')*2.0*tc_radius + tc_radius + foil_spacex/2.0) );
-					hits_y.push_back( (tr_hits[i]->get_SRL('r')-56.0) * 2.0 * tc_radius );
+					hits_x.push_back( tr_hits[i]->get_xy('x') );
+					hits_y.push_back( tr_hits[i]->get_xy('y') );
 					hits_z.push_back( tr_hits[i]->get_h() );
 					hits_r.push_back( tr_hits[i]->get_r() );
 				}
@@ -255,11 +231,13 @@ void TKEvent::reconstruct_track()
 			R1 = peak_R - 0.05*delta_R;
 			R2 = peak_R + 0.05*delta_R;
 
-
-			//TCanvas* c2 = new TCanvas("sinograms");
-			//sinograms->Draw("COLZ");
-			//c2->SaveAs(Form("sinograms-run-%d_event-%d_side-%d_zoom-%d.png", run_number, event_number, side, q));
-			//c2->Close();
+			if( save_sinograms == true ) 
+			{
+				TCanvas* c2 = new TCanvas("sinograms");
+				sinograms->Draw("COLZ");
+				c2->SaveAs(Form("sinograms-run-%d_event-%d_side-%d_zoom-%d.png", run_number, event_number, side, q));
+				c2->Close();
+			}
 			delete sinograms;
 		}
 			
@@ -324,12 +302,7 @@ void TKEvent::reconstruct_track()
 			d = (sum_PP*sum_Z - sum_P*sum_ZP) / denominator;
 		}
 		
-		
-		rec_tracks_side.push_back(side);
-		rec_tracks_a.push_back(a);
-		rec_tracks_b.push_back(b);
-		rec_tracks_c.push_back(c);
-		rec_tracks_d.push_back(d);
+		tracks.push_back(new TKtrack(side, a, b, c, d));
 		
 		hits_x.erase(hits_x.begin(), hits_x.end());
 		hits_y.erase(hits_y.begin(), hits_y.end());
@@ -482,31 +455,31 @@ void TKEvent::make_top_projection()
 	}
 	
 	// Drawing of tracks
-	for (int i = 0; i < rec_tracks_side.size(); i++)
+	for (int i = 0; i < tracks.size(); i++)
 	{
 		TLine *track;
 		double x, y;
 		
 		x = 435.0;
-		if( rec_tracks_side[i] == 0) 
+		if( tracks[i]->get_side() == 0) 
 		{
 			x = -x;
 		}		
-		y = rec_tracks_a[i]*x + rec_tracks_b[i];
+		y = tracks[i]->get_a()*x + tracks[i]->get_b();
 		
 		if( y > 2505.5 )
 		{
-			x = (2505.5-rec_tracks_b[i])/rec_tracks_a[i];
-			y = rec_tracks_a[i]*x + rec_tracks_b[i];
+			x = (2505.5-tracks[i]->get_b())/tracks[i]->get_a();
+			y = tracks[i]->get_a()*x + tracks[i]->get_b();
 			
 		}
 		else if( y < -2505.5 )
 		{
-			x = (-2505.5-rec_tracks_b[i])/rec_tracks_a[i];
-			y = rec_tracks_a[i]*x + rec_tracks_b[i];
+			x = (-2505.5-tracks[i]->get_b())/tracks[i]->get_a();
+			y = tracks[i]->get_a()*x + tracks[i]->get_b();
 		}
 		
-		track = new TLine(rec_tracks_b[i], 0.0, y, -x);			
+		track = new TLine(tracks[i]->get_b(), 0.0, y, -x);			
 		track->SetLineColor(kBlue);
 		track->SetLineWidth(1);
 		track->Draw("same");
@@ -668,43 +641,43 @@ void TKEvent::build_event()
 	TFile *file = new TFile(Form("./Events_visu/Run-%d_event-%d_3D.root", run_number, event_number), "RECREATE");
 	file->WriteObject(top, "demonstrator");
 
-	for(int i = 0; i < rec_tracks_side.size(); i++)
+	for(int i = 0; i < tracks.size(); i++)
 	{
 		TPolyLine3D *track = new TPolyLine3D();
-		track->SetPoint(0, 0.0, rec_tracks_b[i], rec_tracks_d[i]);
+		track->SetPoint(0, 0.0, tracks[i]->get_b(), tracks[i]->get_d());
 		double x,y,z;
 		
 		x = 435.0;
-		if( rec_tracks_side[i] == 0 ) 
+		if( tracks[i]->get_side() == 0 ) 
 		{
 			x = -x;
 		}		
-		y = rec_tracks_a[i]*x + rec_tracks_b[i];
+		y = tracks[i]->get_a()*x + tracks[i]->get_b();
 		
 		if( y > 2505.5 )
 		{
-			x = (2505.5-rec_tracks_b[i])/rec_tracks_a[i];
-			y = rec_tracks_a[i]*x + rec_tracks_b[i];
+			x = (2505.5-tracks[i]->get_b())/tracks[i]->get_a();
+			y = tracks[i]->get_a()*x + tracks[i]->get_b();
 			
 		}
 		else if( y < -2505.5 )
 		{
-			x = (-2505.5-rec_tracks_b[i])/rec_tracks_a[i];
-			y = rec_tracks_a[i]*x + rec_tracks_b[i];
+			x = (-2505.5-tracks[i]->get_b())/tracks[i]->get_a();
+			y = tracks[i]->get_a()*x + tracks[i]->get_b();
 		}
-		z = rec_tracks_c[i]*x + rec_tracks_d[i];
+		z = tracks[i]->get_c()*x + tracks[i]->get_d();
 		
 		if( z > 1550.0 )
 		{
-			x = (1550.0-rec_tracks_d[i])/rec_tracks_c[i];
-			y = rec_tracks_a[i]*x + rec_tracks_b[i];
-			z = rec_tracks_c[i]*x + rec_tracks_d[i];
+			x = (1550.0-tracks[i]->get_d())/tracks[i]->get_c();
+			y = tracks[i]->get_a()*x + tracks[i]->get_b();
+			z = tracks[i]->get_c()*x + tracks[i]->get_d();
 		}
 		else if( z < -1550.0 )
 		{
-			x = (-1550.0-rec_tracks_d[i])/rec_tracks_c[i];
-			y = rec_tracks_a[i]*x + rec_tracks_b[i];
-			z = rec_tracks_c[i]*x + rec_tracks_d[i];
+			x = (-1550.0-tracks[i]->get_d())/tracks[i]->get_c();
+			y = tracks[i]->get_a()*x + tracks[i]->get_b();
+			z = tracks[i]->get_c()*x + tracks[i]->get_d();
 		}
 		track->SetPoint(1, x, y, z);			
 
@@ -735,6 +708,7 @@ void TKEvent::set_r(std::string _model_n)
 				   double(TDC_diff) < min_time)
 				{
 					min_time = 6.25 * TDC_diff;
+					tr_hits[tr_hit]->set_associated_OMhit(OM_hits[om_hit]);
 				}
 			}
 

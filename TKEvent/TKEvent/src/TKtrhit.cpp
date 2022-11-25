@@ -1,6 +1,8 @@
 // TK headers
 #include "TKtrhit.h"
 
+ClassImp(TKtrhit);
+
 // dimensions in mm
 // origin in the center of detector
 static double foil_spacex = 58.0; // probably wrong
@@ -94,6 +96,11 @@ void TKtrhit::set_h()
 	}
 }
 
+void TKtrhit::set_associated_OMhit(TKOMhit *_associated_OMhit)
+{
+	associated_OMhit = _associated_OMhit;
+}
+
 int TKtrhit::get_cell_num()
 {
 	return cell_num;
@@ -172,6 +179,11 @@ double TKtrhit::get_r()
 double TKtrhit::get_h()
 {
 	return h;
+}
+
+TKOMhit* TKtrhit::get_associated_OMhit()
+{
+	return associated_OMhit;
 }
 
 void TKtrhit::print()

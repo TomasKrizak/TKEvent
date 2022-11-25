@@ -1,8 +1,12 @@
+#ifndef _TKTRHIT_H_
+#define _TKTRHIT_H_
+
 // Standard headers
 #include <iostream>
 
 // ROOT headers
 #include "TObject.h"
+#include "TKOMhit.h"
 
 class TKtrhit: public TObject
 {
@@ -14,6 +18,7 @@ class TKtrhit: public TObject
 		double xy [2];	// (x,y) coordinate of the tracker cell xy[0] = x, xy[1] = y
 
 		int64_t tsp[7]; // 0-4 = timestamp 0-4, 5 = cathode bottom, 6 = cathode top
+		TKOMhit *associated_OMhit;
 
 		double h;
 		double r;
@@ -30,10 +35,11 @@ class TKtrhit: public TObject
 		~TKtrhit();
 
 		void set_cell_num(int _cell_num);
-		void set_tsp	 (int64_t _tsp[7]); // sets timestamps
+		void set_tsp	  (int64_t _tsp[7]); // sets timestamps
 
 		void set_h();
 		void set_r(double _r);
+		void set_associated_OMhit(TKOMhit *_associated_OMhit);
 
 		int     get_cell_num  ();
 		int     get_SRL       (char _SRL_n);
@@ -41,8 +47,11 @@ class TKtrhit: public TObject
 		int64_t get_tsp       (char _tsp_n); // returns timestamp
 		double  get_r         ();
 		double  get_h         ();
-
+		TKOMhit* get_associated_OMhit();
+		
 		void print();
 		
 		ClassDef(TKtrhit,1);
 };
+
+#endif
