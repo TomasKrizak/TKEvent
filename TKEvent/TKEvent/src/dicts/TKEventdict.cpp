@@ -1,6 +1,7 @@
 // Do NOT change. Changes will be lost next time file is generated
 
 #define R__DICTIONARY_FILENAME dOdOdIlibdITKEventdict
+#define R__NO_DEPRECATION
 
 /*******************************************************************/
 #include <stddef.h>
@@ -33,13 +34,13 @@
 
 #include "TDataMember.h"
 
-// Since CINT ignores the std namespace, we need to do so in this file.
-namespace std {} using namespace std;
-
 // Header files passed as explicit arguments
 #include "TKEvent.h"
 
 // Header files passed via #pragma extra_include
+
+// The generated code does not explicitly qualify STL entities
+namespace std {} using namespace std;
 
 namespace ROOT {
    static void *new_TKEvent(void *p = 0);
@@ -156,7 +157,7 @@ namespace ROOT {
       vector<TKtrhit*> *ptr = 0;
       static ::TVirtualIsAProxy* isa_proxy = new ::TIsAProxy(typeid(vector<TKtrhit*>));
       static ::ROOT::TGenericClassInfo 
-         instance("vector<TKtrhit*>", -2, "vector", 216,
+         instance("vector<TKtrhit*>", -2, "vector", 386,
                   typeid(vector<TKtrhit*>), ::ROOT::Internal::DefineBehavior(ptr, ptr),
                   &vectorlETKtrhitmUgR_Dictionary, isa_proxy, 0,
                   sizeof(vector<TKtrhit*>) );
@@ -166,6 +167,8 @@ namespace ROOT {
       instance.SetDeleteArray(&deleteArray_vectorlETKtrhitmUgR);
       instance.SetDestructor(&destruct_vectorlETKtrhitmUgR);
       instance.AdoptCollectionProxyInfo(TCollectionProxyInfo::Generate(TCollectionProxyInfo::Pushback< vector<TKtrhit*> >()));
+
+      ::ROOT::AddClassAlternate("vector<TKtrhit*>","std::vector<TKtrhit*, std::allocator<TKtrhit*> >");
       return &instance;
    }
    // Static variable to force the class initialization
@@ -219,7 +222,7 @@ namespace ROOT {
       vector<TKtrack*> *ptr = 0;
       static ::TVirtualIsAProxy* isa_proxy = new ::TIsAProxy(typeid(vector<TKtrack*>));
       static ::ROOT::TGenericClassInfo 
-         instance("vector<TKtrack*>", -2, "vector", 216,
+         instance("vector<TKtrack*>", -2, "vector", 386,
                   typeid(vector<TKtrack*>), ::ROOT::Internal::DefineBehavior(ptr, ptr),
                   &vectorlETKtrackmUgR_Dictionary, isa_proxy, 0,
                   sizeof(vector<TKtrack*>) );
@@ -229,6 +232,8 @@ namespace ROOT {
       instance.SetDeleteArray(&deleteArray_vectorlETKtrackmUgR);
       instance.SetDestructor(&destruct_vectorlETKtrackmUgR);
       instance.AdoptCollectionProxyInfo(TCollectionProxyInfo::Generate(TCollectionProxyInfo::Pushback< vector<TKtrack*> >()));
+
+      ::ROOT::AddClassAlternate("vector<TKtrack*>","std::vector<TKtrack*, std::allocator<TKtrack*> >");
       return &instance;
    }
    // Static variable to force the class initialization
@@ -282,7 +287,7 @@ namespace ROOT {
       vector<TKOMhit*> *ptr = 0;
       static ::TVirtualIsAProxy* isa_proxy = new ::TIsAProxy(typeid(vector<TKOMhit*>));
       static ::ROOT::TGenericClassInfo 
-         instance("vector<TKOMhit*>", -2, "vector", 216,
+         instance("vector<TKOMhit*>", -2, "vector", 386,
                   typeid(vector<TKOMhit*>), ::ROOT::Internal::DefineBehavior(ptr, ptr),
                   &vectorlETKOMhitmUgR_Dictionary, isa_proxy, 0,
                   sizeof(vector<TKOMhit*>) );
@@ -292,6 +297,8 @@ namespace ROOT {
       instance.SetDeleteArray(&deleteArray_vectorlETKOMhitmUgR);
       instance.SetDestructor(&destruct_vectorlETKOMhitmUgR);
       instance.AdoptCollectionProxyInfo(TCollectionProxyInfo::Generate(TCollectionProxyInfo::Pushback< vector<TKOMhit*> >()));
+
+      ::ROOT::AddClassAlternate("vector<TKOMhit*>","std::vector<TKOMhit*, std::allocator<TKOMhit*> >");
       return &instance;
    }
    // Static variable to force the class initialization
@@ -337,8 +344,8 @@ namespace {
 0
     };
     static const char* includePaths[] = {
-"/sps/nemo/sw/BxCppDev/opt/root-6.16.00/include/root",
-"/pbs/home/t/tkrizak/supernemo-commissioning/TKEvent/TKEvent/include/",
+"/home/tomas/Programs/root/install/include/",
+"/home/tomas/TKEvent/TKEvent/include/",
 0
     };
     static const char* fwdDeclCode = R"DICTFWDDCLS(
@@ -346,30 +353,28 @@ namespace {
 #pragma clang diagnostic ignored "-Wkeyword-compat"
 #pragma clang diagnostic ignored "-Wignored-attributes"
 #pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
-extern int __Cling_Autoloading_Map;
+extern int __Cling_AutoLoading_Map;
 class __attribute__((annotate("$clingAutoload$TKEvent.h")))  TKEvent;
 )DICTFWDDCLS";
     static const char* payloadCode = R"DICTPAYLOAD(
 #line 1 "TKEventdict dictionary payload"
 
-#ifndef G__VECTOR_HAS_CLASS_ITERATOR
-  #define G__VECTOR_HAS_CLASS_ITERATOR 1
-#endif
 
 #define _BACKWARD_BACKWARD_WARNING_H
+// Inline headers
 #include "TKEvent.h"
 
 #undef  _BACKWARD_BACKWARD_WARNING_H
 )DICTPAYLOAD";
-    static const char* classesHeaders[]={
+    static const char* classesHeaders[] = {
 "TKEvent", payloadCode, "@",
-nullptr};
-
+nullptr
+};
     static bool isInitialized = false;
     if (!isInitialized) {
       TROOT::RegisterModule("TKEventdict",
         headers, includePaths, payloadCode, fwdDeclCode,
-        TriggerDictionaryInitialization_TKEventdict_Impl, {}, classesHeaders, /*has no C++ module*/false);
+        TriggerDictionaryInitialization_TKEventdict_Impl, {}, classesHeaders, /*hasCxxModule*/false);
       isInitialized = true;
     }
   }

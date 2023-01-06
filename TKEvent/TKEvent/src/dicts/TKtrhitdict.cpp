@@ -1,6 +1,7 @@
 // Do NOT change. Changes will be lost next time file is generated
 
 #define R__DICTIONARY_FILENAME dOdOdIlibdITKtrhitdict
+#define R__NO_DEPRECATION
 
 /*******************************************************************/
 #include <stddef.h>
@@ -33,13 +34,13 @@
 
 #include "TDataMember.h"
 
-// Since CINT ignores the std namespace, we need to do so in this file.
-namespace std {} using namespace std;
-
 // Header files passed as explicit arguments
 #include "TKtrhit.h"
 
 // Header files passed via #pragma extra_include
+
+// The generated code does not explicitly qualify STL entities
+namespace std {} using namespace std;
 
 namespace ROOT {
    static void *new_TKtrhit(void *p = 0);
@@ -148,8 +149,8 @@ namespace {
 0
     };
     static const char* includePaths[] = {
-"/sps/nemo/sw/BxCppDev/opt/root-6.16.00/include/root",
-"/pbs/home/t/tkrizak/supernemo-commissioning/TKEvent/TKEvent/include/",
+"/home/tomas/Programs/root/install/include/",
+"/home/tomas/TKEvent/TKEvent/include/",
 0
     };
     static const char* fwdDeclCode = R"DICTFWDDCLS(
@@ -157,30 +158,28 @@ namespace {
 #pragma clang diagnostic ignored "-Wkeyword-compat"
 #pragma clang diagnostic ignored "-Wignored-attributes"
 #pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
-extern int __Cling_Autoloading_Map;
+extern int __Cling_AutoLoading_Map;
 class __attribute__((annotate("$clingAutoload$TKtrhit.h")))  TKtrhit;
 )DICTFWDDCLS";
     static const char* payloadCode = R"DICTPAYLOAD(
 #line 1 "TKtrhitdict dictionary payload"
 
-#ifndef G__VECTOR_HAS_CLASS_ITERATOR
-  #define G__VECTOR_HAS_CLASS_ITERATOR 1
-#endif
 
 #define _BACKWARD_BACKWARD_WARNING_H
+// Inline headers
 #include "TKtrhit.h"
 
 #undef  _BACKWARD_BACKWARD_WARNING_H
 )DICTPAYLOAD";
-    static const char* classesHeaders[]={
+    static const char* classesHeaders[] = {
 "TKtrhit", payloadCode, "@",
-nullptr};
-
+nullptr
+};
     static bool isInitialized = false;
     if (!isInitialized) {
       TROOT::RegisterModule("TKtrhitdict",
         headers, includePaths, payloadCode, fwdDeclCode,
-        TriggerDictionaryInitialization_TKtrhitdict_Impl, {}, classesHeaders, /*has no C++ module*/false);
+        TriggerDictionaryInitialization_TKtrhitdict_Impl, {}, classesHeaders, /*hasCxxModule*/false);
       isInitialized = true;
     }
   }

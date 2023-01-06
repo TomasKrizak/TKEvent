@@ -14,15 +14,18 @@ TKtrack::TKtrack(int _side, double _a, double _b, double _c, double _d)
 	b = _b;
 	c = _c;
 	d = _d;
+	associated_tr_hits = std::vector<TKtrhit*>();
 }
 
 TKtrack::~TKtrack()
 {
+	associated_tr_hits.clear();
 }
 
 void TKtrack::set_side(double _side)
 {
 	side = _side;
+	
 }
 
 void TKtrack::set_a(double _a)
@@ -43,6 +46,11 @@ void TKtrack::set_c(double _c)
 void TKtrack::set_d(double _d)
 {
 	d = _d;
+}
+
+void TKtrack::set_confidence(double _confidence)
+{
+	confidence = _confidence;
 }
 
 int TKtrack::get_side()
@@ -70,11 +78,33 @@ double TKtrack::get_d()
 	return d;
 } 
 
+double TKtrack::get_confidence()
+{
+	return confidence;
+} 
+
 void TKtrack::print()
 {
 	std::cout << "Track | side: " << side 
 	     	  << ", a = " << a 
 	     	  << ", b = " << b 
 	     	  << ", c = " << c 
-	     	  << ", d = " << d << std::endl;
+	     	  << ", d = " << d << 
+	std::endl << "	confidence: " << confidence << std::endl;
+	     	  
 }
+
+void TKtrack::add_associated_tr_hit(TKtrhit* tracker_hit)
+{
+	associated_tr_hits.push_back(tracker_hit);
+}
+
+std::vector<TKtrhit*> TKtrack::get_associated_tr_hits()
+{
+	return associated_tr_hits;
+}
+
+
+
+
+

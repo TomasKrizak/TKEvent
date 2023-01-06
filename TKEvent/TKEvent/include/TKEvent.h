@@ -68,6 +68,7 @@ class TKEvent: public TObject
 		void add_tracker_hit(int _SRL[3],   int64_t _tsp[7]);
 		
 		void reconstruct_track(bool save_sinograms);
+		void reconstruct_multi(bool save_sinograms);
 		void make_top_projection();
 		void build_event();	
 

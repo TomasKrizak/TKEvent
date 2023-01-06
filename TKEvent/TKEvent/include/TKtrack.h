@@ -6,6 +6,7 @@
 
 // ROOT headers
 #include "TObject.h"
+#include "TKtrhit.h"
 
 //a line in a form:
 //	y = ax + b
@@ -20,6 +21,8 @@ class TKtrack: public TObject
 		double b;
 		double c;
 		double d;
+		double confidence;
+		std::vector<TKtrhit*> associated_tr_hits;
 
 	public:
 		
@@ -27,17 +30,22 @@ class TKtrack: public TObject
 		TKtrack(int _side, double _a, double _b, double _c, double _d);
 		~TKtrack();
 		
+		void add_associated_tr_hit(TKtrhit* trakcer_hit);
+		std::vector<TKtrhit*> get_associated_tr_hits();
+		
 		void set_side(double _side);
 		void set_a   (double _a);
 		void set_b   (double _b);
 		void set_c   (double _c);
 		void set_d   (double _d);
+		void set_confidence(double _confidence);
 
 		int    get_side();
 		double get_a   ();
 		double get_b   ();
 		double get_c   ();
 		double get_d   ();
+		double get_confidence();
 
 		void print();
 		

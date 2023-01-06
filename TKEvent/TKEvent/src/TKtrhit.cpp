@@ -21,12 +21,13 @@ void TKtrhit::set_SRL_xy()
 
 TKtrhit::TKtrhit()
 {
-	associated_OMhit = new TKOMhit();
+	associated_OMhit = nullptr;
 }
 
 TKtrhit::TKtrhit(int _cell_num)
 {
-	associated_OMhit = new TKOMhit();
+	associated_OMhit = nullptr;
+
 	if(_cell_num > 2033 || _cell_num < 0) std::cout << "ERROR TKtrhit::TKtrhit(int): " << _cell_num << " is not valid tracker cell number" << std::endl; 
 
 	cell_num = _cell_num;
@@ -35,10 +36,9 @@ TKtrhit::TKtrhit(int _cell_num)
 
 TKtrhit::TKtrhit(int _SRL[3])
 {
-	associated_OMhit = new TKOMhit();
+	associated_OMhit = nullptr;
+	
 	cell_num = 113*9*_SRL[0] + 9*_SRL[1] + _SRL[2];
-
-//MIRO: TU ZMENIŤ TÚ PODMIENKU ABY TO BOLO VZHĽADOM NA _SRL, TAKTO TO JE NESPRÁVNE!
 	if(cell_num > 2033 || cell_num < 0) std::cout << "ERROR TKtrhit::TKtrhit(int, int[3], int64_t[7], double, double): " << _SRL[0] << ", " << _SRL[1] << ", " << _SRL[2] << " is not valid SRL combination!" << std::endl; 
 
 // MIRO: PREHODNOTIT ROZDELENIE SRL A XY
@@ -47,7 +47,8 @@ TKtrhit::TKtrhit(int _SRL[3])
 
 TKtrhit::TKtrhit(int _cell_num, int64_t _tsp[7])
 {
-	associated_OMhit = new TKOMhit();
+	associated_OMhit = nullptr;
+	
 	if(_cell_num > 2033 || _cell_num < 0) std::cout << "ERROR TKtrhit::TKtrhit(int, int64_t, double, double): " << _cell_num << " is not valid tracker cell number" << std::endl; 
 
 	cell_num = _cell_num;
@@ -58,10 +59,9 @@ TKtrhit::TKtrhit(int _cell_num, int64_t _tsp[7])
 
 TKtrhit::TKtrhit(int _SRL[3], int64_t _tsp[7])
 {
-	associated_OMhit = new TKOMhit();
-	cell_num = 113*9*_SRL[0] + 9*_SRL[1] + _SRL[2];
+	associated_OMhit = nullptr;
 
-//MIRO: TU ZMENIŤ TÚ PODMIENKU ABY TO BOLO VZHĽADOM NA _SRL, TAKTO TO JE NESPRÁVNE!
+	cell_num = 113*9*_SRL[0] + 9*_SRL[1] + _SRL[2];
 	if(cell_num > 2033 || cell_num < 0) std::cout << "ERROR TKtrhit::TKtrhit(int, int[3], int64_t[7], double, double): " << _SRL[0] << ", " << _SRL[1] << ", " << _SRL[2] << " is not valid SRL combination!" << std::endl; 
 
 // MIRO: PREHODNOTIT ROZDELENIE SRL A XY
@@ -104,6 +104,11 @@ void TKtrhit::set_h()
 void TKtrhit::set_associated_OMhit(TKOMhit *_associated_OMhit)
 {
 	associated_OMhit = _associated_OMhit;
+}
+
+TKOMhit* TKtrhit::get_associated_OMhit()
+{
+	return associated_OMhit;
 }
 
 int TKtrhit::get_cell_num()
@@ -186,14 +191,13 @@ double TKtrhit::get_h()
 	return h;
 }
 
-TKOMhit* TKtrhit::get_associated_OMhit()
-{
-	return associated_OMhit;
-}
-
 void TKtrhit::print()
 {
-	std::cout << "Cell: " << cell_num 
-	     	  << ", h = " << h << " mm"
+	std::cout << "	SRL: " << SRL[0] << "." << SRL[1] << "." << SRL[2] << std::endl
+	     	  << "	h = " << h << " mm"
 	     	  << ", r = " << r << " mm" << std::endl;
+	if( associated_OMhit != nullptr )
+	{
+	     	 std::cout << "	associated OM hit: " << associated_OMhit->get_SWCR('s') << "." << associated_OMhit->get_SWCR('w') << "." << associated_OMhit->get_SWCR('c') << "." << associated_OMhit->get_SWCR('r') << std::endl << std::endl;
+	}
 }

@@ -1,6 +1,7 @@
 // Do NOT change. Changes will be lost next time file is generated
 
 #define R__DICTIONARY_FILENAME dOdOdIlibdITKtrackdict
+#define R__NO_DEPRECATION
 
 /*******************************************************************/
 #include <stddef.h>
@@ -33,13 +34,13 @@
 
 #include "TDataMember.h"
 
-// Since CINT ignores the std namespace, we need to do so in this file.
-namespace std {} using namespace std;
-
 // Header files passed as explicit arguments
 #include "TKtrack.h"
 
 // Header files passed via #pragma extra_include
+
+// The generated code does not explicitly qualify STL entities
+namespace std {} using namespace std;
 
 namespace ROOT {
    static void *new_TKtrack(void *p = 0);
@@ -54,7 +55,7 @@ namespace ROOT {
       ::TKtrack *ptr = 0;
       static ::TVirtualIsAProxy* isa_proxy = new ::TInstrumentedIsAProxy< ::TKtrack >(0);
       static ::ROOT::TGenericClassInfo 
-         instance("TKtrack", ::TKtrack::Class_Version(), "TKtrack.h", 14,
+         instance("TKtrack", ::TKtrack::Class_Version(), "TKtrack.h", 15,
                   typeid(::TKtrack), ::ROOT::Internal::DefineBehavior(ptr, ptr),
                   &::TKtrack::Dictionary, isa_proxy, 4,
                   sizeof(::TKtrack) );
@@ -141,6 +142,71 @@ namespace ROOT {
    }
 } // end of namespace ROOT for class ::TKtrack
 
+namespace ROOT {
+   static TClass *vectorlETKtrhitmUgR_Dictionary();
+   static void vectorlETKtrhitmUgR_TClassManip(TClass*);
+   static void *new_vectorlETKtrhitmUgR(void *p = 0);
+   static void *newArray_vectorlETKtrhitmUgR(Long_t size, void *p);
+   static void delete_vectorlETKtrhitmUgR(void *p);
+   static void deleteArray_vectorlETKtrhitmUgR(void *p);
+   static void destruct_vectorlETKtrhitmUgR(void *p);
+
+   // Function generating the singleton type initializer
+   static TGenericClassInfo *GenerateInitInstanceLocal(const vector<TKtrhit*>*)
+   {
+      vector<TKtrhit*> *ptr = 0;
+      static ::TVirtualIsAProxy* isa_proxy = new ::TIsAProxy(typeid(vector<TKtrhit*>));
+      static ::ROOT::TGenericClassInfo 
+         instance("vector<TKtrhit*>", -2, "vector", 386,
+                  typeid(vector<TKtrhit*>), ::ROOT::Internal::DefineBehavior(ptr, ptr),
+                  &vectorlETKtrhitmUgR_Dictionary, isa_proxy, 0,
+                  sizeof(vector<TKtrhit*>) );
+      instance.SetNew(&new_vectorlETKtrhitmUgR);
+      instance.SetNewArray(&newArray_vectorlETKtrhitmUgR);
+      instance.SetDelete(&delete_vectorlETKtrhitmUgR);
+      instance.SetDeleteArray(&deleteArray_vectorlETKtrhitmUgR);
+      instance.SetDestructor(&destruct_vectorlETKtrhitmUgR);
+      instance.AdoptCollectionProxyInfo(TCollectionProxyInfo::Generate(TCollectionProxyInfo::Pushback< vector<TKtrhit*> >()));
+
+      ::ROOT::AddClassAlternate("vector<TKtrhit*>","std::vector<TKtrhit*, std::allocator<TKtrhit*> >");
+      return &instance;
+   }
+   // Static variable to force the class initialization
+   static ::ROOT::TGenericClassInfo *_R__UNIQUE_DICT_(Init) = GenerateInitInstanceLocal((const vector<TKtrhit*>*)0x0); R__UseDummy(_R__UNIQUE_DICT_(Init));
+
+   // Dictionary for non-ClassDef classes
+   static TClass *vectorlETKtrhitmUgR_Dictionary() {
+      TClass* theClass =::ROOT::GenerateInitInstanceLocal((const vector<TKtrhit*>*)0x0)->GetClass();
+      vectorlETKtrhitmUgR_TClassManip(theClass);
+   return theClass;
+   }
+
+   static void vectorlETKtrhitmUgR_TClassManip(TClass* ){
+   }
+
+} // end of namespace ROOT
+
+namespace ROOT {
+   // Wrappers around operator new
+   static void *new_vectorlETKtrhitmUgR(void *p) {
+      return  p ? ::new((::ROOT::Internal::TOperatorNewHelper*)p) vector<TKtrhit*> : new vector<TKtrhit*>;
+   }
+   static void *newArray_vectorlETKtrhitmUgR(Long_t nElements, void *p) {
+      return p ? ::new((::ROOT::Internal::TOperatorNewHelper*)p) vector<TKtrhit*>[nElements] : new vector<TKtrhit*>[nElements];
+   }
+   // Wrapper around operator delete
+   static void delete_vectorlETKtrhitmUgR(void *p) {
+      delete ((vector<TKtrhit*>*)p);
+   }
+   static void deleteArray_vectorlETKtrhitmUgR(void *p) {
+      delete [] ((vector<TKtrhit*>*)p);
+   }
+   static void destruct_vectorlETKtrhitmUgR(void *p) {
+      typedef vector<TKtrhit*> current_t;
+      ((current_t*)p)->~current_t();
+   }
+} // end of namespace ROOT for class vector<TKtrhit*>
+
 namespace {
   void TriggerDictionaryInitialization_TKtrackdict_Impl() {
     static const char* headers[] = {
@@ -148,8 +214,8 @@ namespace {
 0
     };
     static const char* includePaths[] = {
-"/sps/nemo/sw/BxCppDev/opt/root-6.16.00/include/root",
-"/pbs/home/t/tkrizak/supernemo-commissioning/TKEvent/TKEvent/include/",
+"/home/tomas/Programs/root/install/include/",
+"/home/tomas/TKEvent/TKEvent/include/",
 0
     };
     static const char* fwdDeclCode = R"DICTFWDDCLS(
@@ -157,30 +223,28 @@ namespace {
 #pragma clang diagnostic ignored "-Wkeyword-compat"
 #pragma clang diagnostic ignored "-Wignored-attributes"
 #pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
-extern int __Cling_Autoloading_Map;
+extern int __Cling_AutoLoading_Map;
 class __attribute__((annotate("$clingAutoload$TKtrack.h")))  TKtrack;
 )DICTFWDDCLS";
     static const char* payloadCode = R"DICTPAYLOAD(
 #line 1 "TKtrackdict dictionary payload"
 
-#ifndef G__VECTOR_HAS_CLASS_ITERATOR
-  #define G__VECTOR_HAS_CLASS_ITERATOR 1
-#endif
 
 #define _BACKWARD_BACKWARD_WARNING_H
+// Inline headers
 #include "TKtrack.h"
 
 #undef  _BACKWARD_BACKWARD_WARNING_H
 )DICTPAYLOAD";
-    static const char* classesHeaders[]={
+    static const char* classesHeaders[] = {
 "TKtrack", payloadCode, "@",
-nullptr};
-
+nullptr
+};
     static bool isInitialized = false;
     if (!isInitialized) {
       TROOT::RegisterModule("TKtrackdict",
         headers, includePaths, payloadCode, fwdDeclCode,
-        TriggerDictionaryInitialization_TKtrackdict_Impl, {}, classesHeaders, /*has no C++ module*/false);
+        TriggerDictionaryInitialization_TKtrackdict_Impl, {}, classesHeaders, /*hasCxxModule*/false);
       isInitialized = true;
     }
   }

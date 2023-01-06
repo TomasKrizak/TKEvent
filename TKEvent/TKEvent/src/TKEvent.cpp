@@ -199,7 +199,7 @@ void TKEvent::reconstruct_track(bool save_sinograms)
 			TH2F *sinograms = new TH2F("sinograms", "sinograms; theta; r", resolution, phi1+offset, phi2+offset, resolution, R1, R2);		
 			for(int i = 0; i < hits_x.size(); i++)
 			{
-				for(int k = 0; k < resolution; k++)
+				for(int k = 0; k <= resolution; k++)
 				{
 					theta = phi1 + (k * (phi2 - phi1) / resolution);
 					r = ( -hits_x[i]*cos(theta) ) - ( -hits_y[i]*sin(theta) );
@@ -209,9 +209,9 @@ void TKEvent::reconstruct_track(bool save_sinograms)
 			}
 								
 			double maximum = 0.0;
-			for(int i = 1; i < resolution; i++)
+			for(int i = 1; i <= resolution; i++)
 			{
-				for(int j = 1; j < resolution; j++)
+				for(int j = 1; j <= resolution; j++)
 				{
 					if(maximum < sinograms->GetBinContent(i,j))
 					{
@@ -312,12 +312,371 @@ void TKEvent::reconstruct_track(bool save_sinograms)
 		hits_r.erase(hits_r.begin(), hits_r.end());
 	}
 }
+
+void TKEvent::reconstruct_multi(bool save_sinograms)
+{
+	gROOT->SetBatch(kTRUE);
+
+	// resolution of both dimensions of every 2D histogram	
+	int resolution = 50;
+	
+	// number of zooming iterations into histogram
+	const int iterations = 4;
+	
+	// how high does a peak has to be in comparison to the highest one in order to be considered as a candidate as well
+	const double treshold = 0.7;
+	
+	// into how many segments (in both directions) is histogram divided during each iteration (except the final one)
+	// new peak is calculated on each segment 
+	const int start_no_segments = 5;
+	
+	// 1 sigma uncertainty of radius in mm (Gauss distribution at the moment)			
+	const double sigma = 2.0;	
+	
+	// distance needed for associating trakcer hit to track
+	const double association_distance = 3.0*sigma;
+	
+	// both sides are dealt with separately
+	for(int side = 0; side < 2; side++)
+	{		
+		// filtering good tracker hits for reconstruction (no missing time stamps...)
+		vector<TKtrhit*> hits;
+		for(int i = 0; i < tr_hits.size(); i++)
+		{
+			if( side == tr_hits[i]->get_SRL('s'))
+			{
+				// not using broken or too big (incorrectly associated) tracker hits
+				if( tr_hits[i]->get_r() != -1.0 && tr_hits[i]->get_r() < 35.0 && tr_hits[i]->get_r() > 2.0 )
+				{
+					hits.push_back( tr_hits[i] );
+					//tr_hits[i]->print();
+				}
+			}
+		}
+
+		if( hits.size() < 3 ) continue;
+		
+		// peaks_Theta, peak_R and peaks_value stores information about peak candidates
+		// each iteration takes those candidates zooms around them looks for more candidates in that region
+		// new set of candidates (more precise ones) comes out from each iteration
+		vector<double> peaks_Theta = {M_PI/2.0};
+		vector<double> peaks_R = {0.0};
+		vector<double> peaks_value = {0.0};
+		
+		// size of region (delta_phi x delta_R) on witch each peak is calculated more precisely
+		double delta_phi = M_PI;
+		double delta_R = 5000.0;
+		
+		int segments = start_no_segments;
+		for(int iter = 0; iter < iterations; iter++)
+		{
+			// the performance if better with only one segment in final iteration (algorithm looks only for one peak) 
+			if( iter == (iterations - 1) )
+			{
+				segments = 1;
+			}
+			
+			// stores candidates during iteration
+			vector<double> peaks_Theta_temp;
+			vector<double> peaks_R_temp;
+			vector<double> peaks_value_temp;
+			
+			for(int i = 0; i < peaks_R.size(); i++)
+			{		
+				// arrays stores information about candidates from each segment
+				double segment_peaks[segments][segments][3];
+				
+				// max_peak - stores value of the highest peak in all segments
+				double max_peak = 0.0;
+				
+				// loop over segments
+				for(int seg_r = 0; seg_r < segments; seg_r++)
+				{
+					for(int seg_theta = 0; seg_theta < segments; seg_theta++)
+					{
+						// boundaries of segments
+						double r_min = peaks_R[i] - (delta_R/2.0) + (seg_r * delta_R/double(segments));
+						double r_max = peaks_R[i] - (delta_R/2.0) + ((seg_r+1) * delta_R/double(segments));
+						double theta_min = peaks_Theta[i] - (delta_phi/2.0) + (seg_theta * delta_phi/double(segments));
+						double theta_max = peaks_Theta[i] - (delta_phi/2.0) + ((seg_theta+1) * delta_phi/double(segments));
+						
+						// so far unsuccesful atempt to save computing time
+						/*
+						bool empty = true;
+						for(int hit = 0; hit < hits.size(); hit++)
+						{
+							double u = abs(hits[hit]->get_xy('x')) + abs(hits[hit]->get_xy('y'));
+							if(r_max > -u && r_min < u)
+							{
+								empty = false;
+							}
+						}
+						if(empty) continue;
+						*/
+						
+						// sinograms are calculated for each bin of theta range - (offset = 1/2 of bin widht) 
+						double offset = (delta_phi/double(segments))/(2.0*resolution);
+						TH2F *sinograms = new TH2F("sinograms", "sinograms; theta; r", resolution, theta_min + offset, theta_max + offset, resolution, r_min, r_max);								
+						
+						double theta;
+						double r;			
+						for(int hit = 0; hit < hits.size(); hit++)
+						{
+							for(int k = 0; k <= resolution; k++)
+							{
+								theta = theta_min + ( k * (delta_phi/double(segments)) / double(resolution) );
+								// r - legendre transform of a center of a circle
+								r = ( -hits[hit]->get_xy('x')*cos(theta) ) - ( -hits[hit]->get_xy('y')*sin(theta) );
+								
+								double weight;
+								for(int half = 0; half < 2; half++)
+								{	
+									// mu - legendre transform of half circle (+r/-r)
+									double mu = (r + (2.0*half - 1.0)*hits[hit]->get_r());	
+									
+									// gauss is calculated only for -3 to 3 sigma region to cut time							
+									double r1 = mu - 3.0*sigma;
+									double r2 = mu + 3.0*sigma;
+									
+									// bin numbers coresponding to r1 and r2 values
+									int bin1 = (double(resolution) * (r1-r_min) / (r_max-r_min)) + 1;
+									int bin2 = (double(resolution) * (r2-r_min) / (r_max-r_min)) + 1;
+									
+									// real values of r coresponding to each bin 
+									double r_j1 = r_min + (r_max - r_min) * double(bin1) / double(resolution);
+									double r_j2;
+									for(int binj = bin1; binj < bin2 + 1; binj++)
+									{
+										r_j2 = r_j1 + (r_max - r_min) / double(resolution);
+										
+										// integrated probability
+										//weight = (delta_phi / double(resolution * segments)) * ( erf( (r_j2 - mu)/sqrt(2.0*sigma) ) - erf( (r_j1 - mu)/sqrt(2.0*sigma) ) ) / (4.0*sigma); 
+										
+										// average probability density in a bin given by gauss distribution with mean in mu 
+										// (uniformly distributed with respect to theta)
+										weight = ( erf( (r_j2 - mu)/sqrt(2.0*sigma) ) - erf( (r_j1 - mu)/sqrt(2.0*sigma) ) ) / (4.0*sigma * delta_R / double(resolution * segments));
+										// result is 2D histogram of several sinusoid functions f'(theta) in convolution with gauss with respect to R
+										sinograms->Fill( theta, (r_j2 + r_j1)/2.0, weight );
+										r_j1 = r_j2;			
+									}								
+								}			
+							}	
+						}										
+						// sinogram for given segment is complete - next step is looking for peaks 
+						
+						double maximum = 0.0;
+						double peak_Theta, peak_R;
+						for(int j = 1; j <= resolution; j++)
+						{
+							for(int k = 1; k <= resolution; k++)
+							{
+								if(maximum < sinograms->GetBinContent(j,k))
+								{
+									// information (value, bin_theta, bin_R) about peak in given segment
+									maximum = sinograms->GetBinContent(j,k);
+									peak_Theta = j;
+									peak_R = k;
+								}
+							}
+						}
+						
+						if( save_sinograms == true ) 
+						{
+							TCanvas* c2 = new TCanvas("sinograms");
+							sinograms->SetStats(0);
+							sinograms->Draw("COLZ");
+							c2->SaveAs(Form("sinograms-run-%d_event-%d_side-%d_iter-%d_R-%d_Th-%d.png", run_number, event_number, side, iter, seg_r, seg_theta));
+							c2->Close();
+						}
+						delete sinograms;
+						
+						// converting bin numbers to real values
+						peak_Theta = peaks_Theta[i] - (delta_phi/2.0) + (seg_theta * delta_phi/double(segments)) + ( peak_Theta * (delta_phi/double(segments)) / double(resolution) );
+						peak_R = peaks_R[i] - (delta_R/2.0) + (seg_r * delta_R/double(segments)) + (delta_R/double(segments)) * (peak_R-0.5) / double(resolution);
+						
+						segment_peaks[seg_r][seg_theta][0] = peak_R;
+						segment_peaks[seg_r][seg_theta][1] = peak_Theta;
+						segment_peaks[seg_r][seg_theta][2] = maximum;
+						if(maximum > max_peak)
+						{
+							// finding out the value of the highest peak in all segments
+							max_peak = maximum;
+						}
+					}
+				}
+				
+				for(int seg_r = 0; seg_r < segments; seg_r++)
+				{
+					for(int seg_theta = 0; seg_theta < segments; seg_theta++)
+					{
+						// filtering peak candidates obtained from region around given previous peak 
+						if(segment_peaks[seg_r][seg_theta][2] >= treshold * max_peak /*&& segment_peaks[seg_r][seg_theta][2] > */)
+						{
+							peaks_R_temp.push_back(segment_peaks[seg_r][seg_theta][0]);
+							peaks_Theta_temp.push_back(segment_peaks[seg_r][seg_theta][1]);
+							peaks_value_temp.push_back(segment_peaks[seg_r][seg_theta][2]);
+						}
+					}
+				}			
+			}
+			
+			peaks_R.clear();
+			peaks_Theta.clear();
+			peaks_value.clear();
+			
+			// maximum value of all peaks 
+			double maximum = 0.0;
+			for(int i = 0; i < peaks_value_temp.size(); i++)
+			{
+				if( peaks_value_temp[i] > maximum )
+				{
+					maximum = peaks_value_temp[i];
+				}
+			}
+			
+			for(int i = 0; i < peaks_value_temp.size(); i++)
+			{
+				if( peaks_value_temp[i] > treshold * maximum )
+				{	
+					// if two peaks are so close that they would be duplicit in next iteration one is removed
+					// otherwise we obtain multiple identical peaks
+					bool is_new = true;
+					for(int j = 0; j < peaks_R.size(); j++)
+					{
+						if(abs(peaks_R_temp[i] - peaks_R[j]) < delta_R/(2.0*segments))
+						{
+							if(abs(peaks_Theta_temp[i] - peaks_Theta[j]) < delta_phi/(2.0*segments))
+							{
+								is_new = false;
+							}
+						}
+					}
+					if(is_new)
+					{
+						peaks_R.push_back(peaks_R_temp[i]);
+						peaks_Theta.push_back(peaks_Theta_temp[i]);
+						peaks_value.push_back(peaks_value_temp[i]);						
+					}
+				}
+			}
+			
+			// temp vectors are cleared for next iteration
+			peaks_R_temp.clear();
+			peaks_Theta_temp.clear();
+			peaks_value_temp.clear();
+			
+			// regions of delta and theta are scaled down
+			delta_phi = delta_phi/double(segments);
+			delta_R = delta_R/double(segments);
+			
+			// last iteration - higher resolution to obtain more accuracy without getting more solutions
+			// (not ideal solution) 
+			if( iter == (iterations - 2) )
+			{
+				resolution = resolution * 4;
+			}
+		}
+		// end of finding peaks
+		// next step - creating tracks
+	
+		for(int j = 0; j < peaks_R.size(); j++)
+		{
+			TKtrack* track = new TKtrack();	
+			
+			// (theta, R) -> (a,b)
+			double a = 1.0 / tan(peaks_Theta[j]);
+			double b = peaks_R[j] / sin(peaks_Theta[j]);
+			double c = 0.0;
+			double d = 0.0;
+			
+			track->set_side(side);
+			track->set_a(a);			
+			track->set_b(b);
+			
+			// associating hits to track
+			vector<bool> hits_associated;
+			double denominator = sqrt((a*a) + 1);	
+			double distance_from_wire;
+			for(int i = 0; i < hits.size(); i++)
+			{
+				distance_from_wire = abs(hits[i]->get_xy('y') - a*hits[i]->get_xy('x') - b) / denominator;
+				if( abs(distance_from_wire - hits[i]->get_r()) < association_distance )
+				{
+					track->add_associated_tr_hit(hits[i]);
+					hits_associated.push_back(true);
+				}
+				else
+				{
+					hits_associated.push_back(false);
+				}
+			
+			}					
+			track->set_confidence(peaks_value[j] / double(track->get_associated_tr_hits().size()) );
+			
+			// fitting z coordinates of hits
+			vector<double> hits_p;
+			double projection_distance;
+			for(int i = 0; i < hits.size(); i++)
+			{
+				distance_from_wire = abs(hits[i]->get_xy('y') - a*hits[i]->get_xy('x') - b) / denominator;
+				projection_distance = pow(hits[i]->get_xy('x'), 2.0) + pow((hits[i]->get_xy('y') - b), 2.0) - pow(distance_from_wire, 2.0);
+				projection_distance = pow(projection_distance, 0.5);
+				
+				hits_p.push_back(projection_distance);
+			} 
+			
+			int sum_n = 0;
+			double sum_Z = 0.0;
+			double sum_P = 0.0;
+			double sum_ZP = 0.0;
+			double sum_PP = 0.0;
+			for(int i = 0; i < hits.size(); i++)
+			{
+				if(hits[i]->get_h() != 0.0 && hits_associated[i] == true)
+				{
+				
+			/*
+			for(int i = 0; i < track->get_associated_tr_hits().size(); i++)
+			{
+				if(track->get_associated_tr_hits()[i]->get_h() != 0.0)
+				{*/
+					sum_Z += hits[i]->get_h();
+					sum_P += hits_p[i];
+					sum_ZP += hits[i]->get_h()*hits_p[i];
+					sum_PP += hits_p[i]*hits_p[i];
+					sum_n++;		
+				}
+			}
+			
+			denominator = sum_n*sum_PP - sum_P*sum_P; 
+			if(sum_n > 0 && denominator != 0.0)
+			{
+				c = (sum_n*sum_ZP - sum_P*sum_Z) / denominator;
+				c = c*(2.0*side-1.0)*pow(1+a*a, 0.5);
+				d = (sum_PP*sum_Z - sum_P*sum_ZP) / denominator;
+			}	
+
+			track->set_c(c);
+			track->set_d(d);
+			tracks.push_back(track);
+			/*
+			for(int i = 0; i < tracks.size(); i++)
+			{			
+				tracks[i]->print();	
+			}*/					
+		}
+	}	
+}
 		
 void TKEvent::make_top_projection()
 {
 	gROOT->SetBatch(true);
-	TCanvas *canvas = new TCanvas("canvas","", 2000, 500);	
-	canvas->Range(-2900.0, -700.0, 2900.0, 700.0);
+	TCanvas *canvas = new TCanvas("canvas","", 5800, 1600);	
+	canvas->Range(-2900.0, -700.0, 2900.0, 900.0);
+	TLatex* title = new TLatex(-2600.0, 700.0, Form("Run %d | Event %d", run_number, event_number));
+	title->SetTextSize(0.07);
+	title->Draw();
+	
 
 	// Drawing mainwall and mainwall calo hits
 	for(int om_side = 0; om_side < 2; om_side++) 
@@ -328,9 +687,13 @@ void TKEvent::make_top_projection()
 			TKOMhit* ohit = new TKOMhit(swcr); 
 			
 			TBox *calo = new TBox(ohit->get_xyz('y') - mw_sizey/2.0, 
-					    -(ohit->get_xyz('x') - mw_sizex/2.0), 
+					    -(ohit->get_xyz('x') + mw_sizex/2.0), 
 					      ohit->get_xyz('y') + mw_sizey/2.0, 
-					    -(ohit->get_xyz('x') + mw_sizex/2.0));
+					    -(ohit->get_xyz('x') - mw_sizex/2.0));
+			
+			TLatex *tex = new TLatex(ohit->get_xyz('y') - mw_sizey/4.0,-ohit->get_xyz('x')
+				,Form("%d.%d.%d.-", ohit->get_SWCR('s'), ohit->get_SWCR('w'), ohit->get_SWCR('c')));
+			tex->SetTextSize(0.035);
 			
 			bool is_hit = false;
 			for(int hit = 0; hit < OM_hits.size(); hit++)
@@ -353,8 +716,15 @@ void TKEvent::make_top_projection()
 			}
 			calo->SetLineColor(kBlack);	
 			calo->SetLineWidth(2);
+			/*
 			if(om_side == 0 && om_column == 0) calo->Draw();
 			else calo->Draw("same");
+			*/
+			calo->Draw("same");
+			if(is_hit)
+			{
+				tex->Draw("same");
+			}
 		}
 	}
 	
@@ -369,9 +739,9 @@ void TKEvent::make_top_projection()
 				TKOMhit* ohit = new TKOMhit(swcr); 
 								
 				TBox *calo = new TBox(ohit->get_xyz('y') - xw_sizey/2.0, 
-				          	    -(ohit->get_xyz('x') - xw_sizex/2.0), 
+				          	    -(ohit->get_xyz('x') + xw_sizex/2.0), 
 				          	      ohit->get_xyz('y') + xw_sizey/2.0, 
-				          	    -(ohit->get_xyz('x') + xw_sizex/2.0));
+				          	    -(ohit->get_xyz('x') - xw_sizex/2.0));
 				
 				bool is_hit = false;
 				for(int hit = 0; hit < OM_hits.size(); hit++)
@@ -398,6 +768,7 @@ void TKEvent::make_top_projection()
 		}
 	}
 	
+	const double sigma = 2.0;
 	// Drawing tracker and tracker hits
 	for(int cell_num = 0; cell_num < 2034; cell_num++)
 	{
@@ -423,26 +794,37 @@ void TKEvent::make_top_projection()
 			}
 		}
 		
-		TEllipse *tracker_cell = new TEllipse(thit->get_xy('y'), -thit->get_xy('x'), radius, radius);
+		TEllipse* tracker_cell;
 		if(is_hit)
 		{
 			if(is_broken)
 			{
+				tracker_cell = new TEllipse(thit->get_xy('y'), -thit->get_xy('x'), radius, radius);
 				tracker_cell->SetFillColor(kOrange);
-				tracker_cell->SetLineWidth(1);					
+				tracker_cell->SetLineWidth(1);
+				tracker_cell->Draw("same");					
 			}
 			else
 			{
+				tracker_cell = new TEllipse(thit->get_xy('y'), -thit->get_xy('x'), radius + sigma, radius + sigma);
 				tracker_cell->SetFillColor(kRed);
-				tracker_cell->SetLineWidth(1);	
+				tracker_cell->SetLineWidth(0);	
+				tracker_cell->Draw("same");
+				if( radius - sigma > 0.0 )
+				{
+					TEllipse* tracker_cell_in = new TEllipse(thit->get_xy('y'), -thit->get_xy('x'), radius - sigma, radius - sigma);	
+					tracker_cell_in->SetLineWidth(0);
+					tracker_cell_in->Draw("same");
+				}
 			}
 		}
 		else
 		{
+			tracker_cell = new TEllipse(thit->get_xy('y'), -thit->get_xy('x'), radius, radius);
 			tracker_cell->SetLineWidth(1);
+			tracker_cell->Draw("same");
 		}
 		
-		tracker_cell->Draw("same");
 	}
 	
 	// Drawing Bi sources
@@ -488,6 +870,7 @@ void TKEvent::make_top_projection()
 	}
 	
 	canvas->SaveAs(Form("./Events_visu/Run-%d_event-%d_2D.png", run_number, event_number));
+	delete canvas;
 }
 		
 void TKEvent::build_event()
@@ -600,6 +983,8 @@ void TKEvent::build_event()
 		object_counter++;
 	}
 
+	const double sigma_r = 2.0;
+	const double sigma_z = 2.0;
 	// Adding tracker hits
 	for(int hit = 0; hit < tr_hits.size(); hit++)
 	{
@@ -616,7 +1001,13 @@ void TKEvent::build_event()
 			radius = tr_hits[hit]->get_r();
 		}
 		
-		TGeoVolume *tracker_cell = geom->MakeTube(Form("cell:%d.%d.%d", tr_hits[hit]->get_SRL('s'), tr_hits[hit]->get_SRL('r'), tr_hits[hit]->get_SRL('l')), Vacuum, radius, radius+0.1, 0.0);
+		double radius_min = radius - sigma_r; 
+		if( radius_min <= 0 )
+		{
+			radius_min = 0.0;
+		}
+	
+		TGeoVolume *tracker_cell = geom->MakeTube(Form("cell:%d.%d.%d", tr_hits[hit]->get_SRL('s'), tr_hits[hit]->get_SRL('r'), tr_hits[hit]->get_SRL('l')), Vacuum, radius_min, radius + sigma_r, sigma_z);
 		TGeoHMatrix *trans = new TGeoHMatrix("Trans");
 		    	
 		trans->SetDx( tr_hits[hit]->get_xy('x') );
@@ -693,6 +1084,7 @@ void TKEvent::build_event()
 
 void TKEvent::set_r(std::string _model_n)
 {
+	const string association_type = "minimal distance";
 	
 	for(int tr_hit = 0; tr_hit < tr_hits.size(); tr_hit++)
 	{
@@ -700,17 +1092,43 @@ void TKEvent::set_r(std::string _model_n)
 		if(tr_hits[tr_hit]->get_tsp('0') != -1)
 		{
 			double min_time = 1e10;
-			//double calo_hit = (calo_tdc * 6.25) - 400.0 + (400.0 * peak_cell / 1024.0);
-	
-			for(int om_hit = 0; om_hit < OM_hits.size(); om_hit++)
+			if( association_type == "minimal time" ) 
 			{
-				int64_t TDC_diff = 2*tr_hits[tr_hit]->get_tsp('0') - OM_hits[om_hit]->get_OM_TDC() + 44;
-				if(       TDC_diff  < 800 && 
-					  TDC_diff  > 0   &&
-				   double(TDC_diff) < min_time)
+				//double calo_hit = (calo_tdc * 6.25) - 400.0 + (400.0 * peak_cell / 1024.0);
+				for(int om_hit = 0; om_hit < OM_hits.size(); om_hit++)
 				{
-					min_time = 6.25 * TDC_diff;
-					tr_hits[tr_hit]->set_associated_OMhit(OM_hits[om_hit]);
+					int64_t TDC_diff = 2*tr_hits[tr_hit]->get_tsp('0') - OM_hits[om_hit]->get_OM_TDC() + 44;
+					if(       TDC_diff  < 800 && 
+						  TDC_diff  > 0   &&
+					   double(TDC_diff) < min_time)
+					{
+						min_time = 6.25 * TDC_diff;
+						tr_hits[tr_hit]->set_associated_OMhit(OM_hits[om_hit]);
+					}
+				}
+			}
+
+			else if( association_type == "minimal distance" )
+			{
+				double min_distance = 1e10;
+				for(int om_hit = 0; om_hit < OM_hits.size(); om_hit++)
+				{
+					double delta_x = tr_hits[tr_hit]->get_xy('x') - OM_hits[om_hit]->get_xyz('x');
+					double delta_y = tr_hits[tr_hit]->get_xy('y') - OM_hits[om_hit]->get_xyz('y');
+					double delta_z = tr_hits[tr_hit]->get_h()     - OM_hits[om_hit]->get_xyz('z');
+					double distance = sqrt( delta_x*delta_x + delta_y*delta_y + delta_z*delta_z );
+					if( distance < min_distance ) 
+					{
+						int64_t TDC_diff = 2*tr_hits[tr_hit]->get_tsp('0') - OM_hits[om_hit]->get_OM_TDC() + 44;
+						if( TDC_diff <= 0 ) 
+						{
+							continue;
+						}
+						min_time = 6.25 * TDC_diff;
+						tr_hits[tr_hit]->set_associated_OMhit(OM_hits[om_hit]);
+						min_distance = distance;
+					}
+					
 				}
 			}
 
