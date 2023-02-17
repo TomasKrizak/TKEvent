@@ -28,7 +28,7 @@ void visu()
 		{
 			TCanvas* c = new TCanvas("3D_demonstrator", "", 1920, 1080);
 			
-			TLatex* title = new TLatex(-0.9, 0.9, Form("./Events_visu/Run %d | Event %d", run_number, event_number));
+			TLatex* title = new TLatex(-0.9, 0.9, Form("Run %d | Event %d", run_number, event_number));
 			title->SetTextSize(0.03);
 			title->Draw();
 			
@@ -43,13 +43,15 @@ void visu()
 			manager->CloseGeometry(); 
 			geo->Draw("same");
 			
-			TPolyLine3D *track1;
-			file->GetObject(Form("track-%d", 0), track1);
-			track1->Draw("same");
+			int i = 0;
+			TPolyLine3D *track;
+			while(file->GetListOfKeys()->Contains(Form("track-%d", i)))
+			{
+				file->GetObject(Form("track-%d", i), track);
+				track->Draw("same");
+				i++;
+			}
 			
-			TPolyLine3D *track2;
-			file->GetObject(Form("track-%d", 1), track2);
-			track2->Draw("same");
 		}
 	}
 }

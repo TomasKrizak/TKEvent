@@ -4,19 +4,42 @@ R__LOAD_LIBRARY(../TKEvent/lib/libTKEvent.so);
 
 void load_ev()
 {
-	TFile* f = new TFile("./Run-728.root");
-	TTree* s = (TTree*) f->Get("Event");
+	int run_number;
+	cout << "enter run number: ";
+	cin >> run_number;
+	
+	int lower_limit, upper_limit;
+	cout << "enter starting event number: ";
+	cin >> lower_limit;
+		
+	cout << "enter final event number: (-1 for entire run)";
+	cin >> upper_limit;
+	
+	TFile* file = new TFile(Form("../runs/Run-%d.root", run_number));
+	TTree* tree = (TTree*) file->Get("Event");
 
-	TKEvent* Eve = new TKEvent(-1,-1);
-	s->SetBranchAddress("Eventdata", &Eve);
+	if( upper_limit == -1 ) 
+	{	
+		upper_limit = tree->GetEntries();
+	}
 
-	for(UInt_t i=0; i < s->GetEntries(); i++)	// Loop over events
+	TKEvent* event = new TKEvent();
+	tree->SetBranchAddress("Eventdata", &event);
+
+	cout << "Run number " << run_number << ", " << tree->GetEntries() << " events available." << endl << endl;
+
+	for(UInt_t i = lower_limit; i < upper_limit; i++)	// Loop over events
 	{
-		s->GetEntry(i);
-		Eve->print();
-		Eve->reconstruct_track();
-		Eve->make_top_projection();
-      		Eve->build_event();
+		tree->GetEntry(i);
+		
+		event->set_r("Manchester");
+		event->reconstruct_multi(0);
 
-	}	
+		//event->reconstruct_track(0);
+		//event->print();
+
+		event->make_top_projection();
+		event->build_event();
+	}
 }
+
