@@ -24,10 +24,8 @@
 
 // TK headers
 #include "TKOMhit.h"
-#include "TKtrhit.h"
 #include "TKtrack.h"
-
-// MIRO: PRIDAŤ TIE DIREKTIVY PREPROCESORU ČI AKO SA TO VOLÁ IFDEF A TAK - ABY DVAKRÁT NEINCLUDOVAL TO ISTÉ
+#include "TKtrhit.h"
 
 class TKEvent: public TObject
 {
@@ -68,12 +66,16 @@ class TKEvent: public TObject
 		void add_tracker_hit(int _SRL[3],   int64_t _tsp[7]);
 		
 		void reconstruct_track(bool save_sinograms);
+		void reconstruct_track_from_hits(std::vector<TKtrhit*> hits, bool save_sinograms);
 		void reconstruct_multi(bool save_sinograms);
 		void make_top_projection();
 		void build_event();	
 
-		// drift model (you can switch between "Manchester" and "Betsy")
-		void set_r(std::string _model_n);				
+		// drift model: "Manchester" or "Betsy"
+		// association_mode: "time" or "distance"
+		// 	"distance": minimazes distance between OM and tracker hit
+		// 	"time": minimazes time difference between OM and tracker hit
+		void set_r(std::string drift_model, std::string association_mode);				
 
 		ClassDef(TKEvent,1);	
 };

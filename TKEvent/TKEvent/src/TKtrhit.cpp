@@ -22,11 +22,13 @@ void TKtrhit::set_SRL_xy()
 TKtrhit::TKtrhit()
 {
 	associated_OMhit = nullptr;
+	associated_track = nullptr;
 }
 
 TKtrhit::TKtrhit(int _cell_num)
 {
 	associated_OMhit = nullptr;
+	associated_track = nullptr;
 
 	if(_cell_num > 2033 || _cell_num < 0) std::cout << "ERROR TKtrhit::TKtrhit(int): " << _cell_num << " is not valid tracker cell number" << std::endl; 
 
@@ -37,6 +39,7 @@ TKtrhit::TKtrhit(int _cell_num)
 TKtrhit::TKtrhit(int _SRL[3])
 {
 	associated_OMhit = nullptr;
+	associated_track = nullptr;
 	
 	cell_num = 113*9*_SRL[0] + 9*_SRL[1] + _SRL[2];
 	if(cell_num > 2033 || cell_num < 0) std::cout << "ERROR TKtrhit::TKtrhit(int, int[3], int64_t[7], double, double): " << _SRL[0] << ", " << _SRL[1] << ", " << _SRL[2] << " is not valid SRL combination!" << std::endl; 
@@ -48,6 +51,7 @@ TKtrhit::TKtrhit(int _SRL[3])
 TKtrhit::TKtrhit(int _cell_num, int64_t _tsp[7])
 {
 	associated_OMhit = nullptr;
+	associated_track = nullptr;
 	
 	if(_cell_num > 2033 || _cell_num < 0) std::cout << "ERROR TKtrhit::TKtrhit(int, int64_t, double, double): " << _cell_num << " is not valid tracker cell number" << std::endl; 
 
@@ -60,6 +64,7 @@ TKtrhit::TKtrhit(int _cell_num, int64_t _tsp[7])
 TKtrhit::TKtrhit(int _SRL[3], int64_t _tsp[7])
 {
 	associated_OMhit = nullptr;
+	associated_track = nullptr;
 
 	cell_num = 113*9*_SRL[0] + 9*_SRL[1] + _SRL[2];
 	if(cell_num > 2033 || cell_num < 0) std::cout << "ERROR TKtrhit::TKtrhit(int, int[3], int64_t[7], double, double): " << _SRL[0] << ", " << _SRL[1] << ", " << _SRL[2] << " is not valid SRL combination!" << std::endl; 
@@ -109,6 +114,16 @@ void TKtrhit::set_associated_OMhit(TKOMhit *_associated_OMhit)
 TKOMhit* TKtrhit::get_associated_OMhit()
 {
 	return associated_OMhit;
+}
+
+void TKtrhit::set_associated_track(TKtrack *_associated_track)
+{
+	associated_track = _associated_track;
+}
+
+TKtrack* TKtrhit::get_associated_track()
+{
+	return associated_track;
 }
 
 int TKtrhit::get_cell_num()

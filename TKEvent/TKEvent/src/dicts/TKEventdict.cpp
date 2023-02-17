@@ -55,7 +55,7 @@ namespace ROOT {
       ::TKEvent *ptr = 0;
       static ::TVirtualIsAProxy* isa_proxy = new ::TInstrumentedIsAProxy< ::TKEvent >(0);
       static ::ROOT::TGenericClassInfo 
-         instance("TKEvent", ::TKEvent::Class_Version(), "TKEvent.h", 32,
+         instance("TKEvent", ::TKEvent::Class_Version(), "TKEvent.h", 30,
                   typeid(::TKEvent), ::ROOT::Internal::DefineBehavior(ptr, ptr),
                   &::TKEvent::Dictionary, isa_proxy, 4,
                   sizeof(::TKEvent) );

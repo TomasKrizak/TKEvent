@@ -55,7 +55,7 @@ namespace ROOT {
       ::TKtrhit *ptr = 0;
       static ::TVirtualIsAProxy* isa_proxy = new ::TInstrumentedIsAProxy< ::TKtrhit >(0);
       static ::ROOT::TGenericClassInfo 
-         instance("TKtrhit", ::TKtrhit::Class_Version(), "TKtrhit.h", 11,
+         instance("TKtrhit", ::TKtrhit::Class_Version(), "TKtrhit.h", 13,
                   typeid(::TKtrhit), ::ROOT::Internal::DefineBehavior(ptr, ptr),
                   &::TKtrhit::Dictionary, isa_proxy, 4,
                   sizeof(::TKtrhit) );

@@ -55,7 +55,7 @@ namespace ROOT {
       ::TKtrack *ptr = 0;
       static ::TVirtualIsAProxy* isa_proxy = new ::TInstrumentedIsAProxy< ::TKtrack >(0);
       static ::ROOT::TGenericClassInfo 
-         instance("TKtrack", ::TKtrack::Class_Version(), "TKtrack.h", 15,
+         instance("TKtrack", ::TKtrack::Class_Version(), "TKtrack.h", 17,
                   typeid(::TKtrack), ::ROOT::Internal::DefineBehavior(ptr, ptr),
                   &::TKtrack::Dictionary, isa_proxy, 4,
                   sizeof(::TKtrack) );

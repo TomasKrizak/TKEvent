@@ -89,9 +89,9 @@ void TKtrack::print()
 	     	  << ", a = " << a 
 	     	  << ", b = " << b 
 	     	  << ", c = " << c 
-	     	  << ", d = " << d << 
-	std::endl << "	confidence: " << confidence << std::endl;
-	     	  
+	     	  << ", d = " << d << std::endl; 
+	std::cout << "	confidence: " << confidence << std::endl;
+	std::cout << "	number of associated tracker hits: " << associated_tr_hits.size() << std::endl << std::endl;
 }
 
 void TKtrack::add_associated_tr_hit(TKtrhit* tracker_hit)

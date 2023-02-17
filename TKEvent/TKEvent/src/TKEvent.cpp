@@ -121,16 +121,22 @@ void TKEvent::print()
 	}
 
 	std::cout << std::endl;
+	std::cout << "Collection of the tracks: " << std::endl;
+	
+	for (int i = 0; i < tracks.size(); i++)
+	{
+		tracks[i]->print();
+	}
 }
 
 void TKEvent::print_tracks()
 {
 	std::cout << "*** Run: " << run_number << ", event: " << event_number << " ***" << std::endl;
-		
 	for (int i = 0; i < tracks.size(); i++)
 	{
 		tracks[i]->print();
 	}
+	
 }
 
 void TKEvent::add_OM_hit(int _OM_num, bool _is_HT, int64_t _OM_TDC, int16_t _OM_pcell)
@@ -153,29 +159,38 @@ void TKEvent::add_tracker_hit(int _SRL[3], int64_t _tsp[7])
 	tr_hits.push_back(new TKtrhit(_SRL, _tsp));
 }
 
-void TKEvent::reconstruct_track(bool save_sinograms)
+void TKEvent::reconstruct_track_from_hits(std::vector<TKtrhit*> hits, bool save_sinograms)
 {
-	// first basic tracking - work in progress
+	// finds only one track per side of the tracker seperately from given set of tracker hits
+	// no uncertainties involved here
+	
+	
+	// each iteration zooms into a region with 10% size in both directions
 	const int resolution = 250;
+	const int iterations = 2;
 
 	for(int side = 0; side < 2; side++)
 	{
+		TKtrack* track = new TKtrack();
+		
 		vector<double> hits_x;
 		vector<double> hits_y;
 		vector<double> hits_z;
 		vector<double> hits_r;	
+		vector<int>    index;
 		
-		for(int i = 0; i < tr_hits.size(); i++)
+		for(int i = 0; i < hits.size(); i++)
 		{
-			if( side == tr_hits[i]->get_SRL('s'))
+			if( side == hits[i]->get_SRL('s'))
 			{
-				// not using broken or too big (wrongly associated) tracker hits
-				if( tr_hits[i]->get_r() != -1.0 && tr_hits[i]->get_r() < 35.0 )
+				// not using broken or (wrongly associated) tracker hits with too large radius
+				if( hits[i]->get_r() != -1.0 && hits[i]->get_r() < 35.0 )
 				{
-					hits_x.push_back( tr_hits[i]->get_xy('x') );
-					hits_y.push_back( tr_hits[i]->get_xy('y') );
-					hits_z.push_back( tr_hits[i]->get_h() );
-					hits_r.push_back( tr_hits[i]->get_r() );
+					hits_x.push_back( hits[i]->get_xy('x') );
+					hits_y.push_back( hits[i]->get_xy('y') );
+					hits_z.push_back( hits[i]->get_h() );
+					hits_r.push_back( hits[i]->get_r() );
+					index.push_back( i );
 				}
 			}
 		}
@@ -193,7 +208,7 @@ void TKEvent::reconstruct_track(bool save_sinograms)
 		double peak_R;
 		double delta_phi, delta_R;
 		
-		for(int q = 0; q < 2; q++)
+		for(int q = 0; q < iterations; q++)
 		{	
 			double offset = (phi2 - phi1)/(2.0*resolution);
 			TH2F *sinograms = new TH2F("sinograms", "sinograms; theta; r", resolution, phi1+offset, phi2+offset, resolution, R1, R2);		
@@ -257,6 +272,8 @@ void TKEvent::reconstruct_track(bool save_sinograms)
 			if( abs(distance_from_wire - hits_r[i]) < 10.0 )
 			{
 				hits_associated.push_back(true);
+				track->add_associated_tr_hit(hits[index[i]]);
+				hits[index[i]]->set_associated_track(track);
 			}
 			else
 			{
@@ -304,13 +321,24 @@ void TKEvent::reconstruct_track(bool save_sinograms)
 			d = (sum_PP*sum_Z - sum_P*sum_ZP) / denominator;
 		}
 		
-		tracks.push_back(new TKtrack(side, a, b, c, d));
+		track->set_side(side);
+		track->set_a(a);
+		track->set_b(b);
+		track->set_c(c);
+		track->set_d(d);
+								
+		tracks.push_back(track);
 		
 		hits_x.erase(hits_x.begin(), hits_x.end());
 		hits_y.erase(hits_y.begin(), hits_y.end());
 		hits_z.erase(hits_z.begin(), hits_z.end());
 		hits_r.erase(hits_r.begin(), hits_r.end());
 	}
+}
+
+void TKEvent::reconstruct_track(bool save_sinograms)
+{
+	reconstruct_track_from_hits(tr_hits, save_sinograms);
 }
 
 void TKEvent::reconstruct_multi(bool save_sinograms)
@@ -321,10 +349,10 @@ void TKEvent::reconstruct_multi(bool save_sinograms)
 	int resolution = 50;
 	
 	// number of zooming iterations into histogram
-	const int iterations = 4;
+	const int iterations = 3;
 	
 	// how high does a peak has to be in comparison to the highest one in order to be considered as a candidate as well
-	const double treshold = 0.7;
+	const double treshold = 0.75;
 	
 	// into how many segments (in both directions) is histogram divided during each iteration (except the final one)
 	// new peak is calculated on each segment 
@@ -349,7 +377,6 @@ void TKEvent::reconstruct_multi(bool save_sinograms)
 				if( tr_hits[i]->get_r() != -1.0 && tr_hits[i]->get_r() < 35.0 && tr_hits[i]->get_r() > 2.0 )
 				{
 					hits.push_back( tr_hits[i] );
-					//tr_hits[i]->print();
 				}
 			}
 		}
@@ -455,7 +482,7 @@ void TKEvent::reconstruct_multi(bool save_sinograms)
 										// average probability density in a bin given by gauss distribution with mean in mu 
 										// (uniformly distributed with respect to theta)
 										weight = ( erf( (r_j2 - mu)/sqrt(2.0*sigma) ) - erf( (r_j1 - mu)/sqrt(2.0*sigma) ) ) / (4.0*sigma * delta_R / double(resolution * segments));
-										// result is 2D histogram of several sinusoid functions f'(theta) in convolution with gauss with respect to R
+										// result is 2D histogram of several sinusoid functions f(theta) in convolution with gauss with respect to R
 										sinograms->Fill( theta, (r_j2 + r_j1)/2.0, weight );
 										r_j1 = r_j2;			
 									}								
@@ -634,12 +661,6 @@ void TKEvent::reconstruct_multi(bool save_sinograms)
 			{
 				if(hits[i]->get_h() != 0.0 && hits_associated[i] == true)
 				{
-				
-			/*
-			for(int i = 0; i < track->get_associated_tr_hits().size(); i++)
-			{
-				if(track->get_associated_tr_hits()[i]->get_h() != 0.0)
-				{*/
 					sum_Z += hits[i]->get_h();
 					sum_P += hits_p[i];
 					sum_ZP += hits[i]->get_h()*hits_p[i];
@@ -1082,17 +1103,16 @@ void TKEvent::build_event()
 	file->Close();			
 }
 
-void TKEvent::set_r(std::string _model_n)
-{
-	const string association_type = "minimal distance";
-	
+void TKEvent::set_r(std::string drift_model, std::string association_mode)
+{	
 	for(int tr_hit = 0; tr_hit < tr_hits.size(); tr_hit++)
 	{
 		double r;
 		if(tr_hits[tr_hit]->get_tsp('0') != -1)
 		{
 			double min_time = 1e10;
-			if( association_type == "minimal time" ) 
+			// associates tracker hits to OM with minimal time difference
+			if( association_mode == "time" ) 
 			{
 				//double calo_hit = (calo_tdc * 6.25) - 400.0 + (400.0 * peak_cell / 1024.0);
 				for(int om_hit = 0; om_hit < OM_hits.size(); om_hit++)
@@ -1108,7 +1128,8 @@ void TKEvent::set_r(std::string _model_n)
 				}
 			}
 
-			else if( association_type == "minimal distance" )
+			// associates tracker hits to OM with minimal distance
+			else if( association_mode == "distance" )
 			{
 				double min_distance = 1e10;
 				for(int om_hit = 0; om_hit < OM_hits.size(); om_hit++)
@@ -1132,7 +1153,7 @@ void TKEvent::set_r(std::string _model_n)
 				}
 			}
 
-			if(_model_n == "Manchester")
+			if( drift_model == "Manchester" )
 			{
 				const double A1 = 0.570947153108633;
 				const double B1 = 0.580148313540993;
@@ -1152,7 +1173,7 @@ void TKEvent::set_r(std::string _model_n)
 				r *= 10.0;	
 			}
 			// modification of Betsy's model
-			else if(_model_n == "Betsy")
+			else if( drift_model == "Betsy" )
 			{
 				const double a1 = 0.828;
 				const double b1 = -0.907;

@@ -6,7 +6,9 @@
 
 // ROOT headers
 #include "TObject.h"
+
 #include "TKOMhit.h"
+class TKtrack;
 
 class TKtrhit: public TObject
 {
@@ -19,6 +21,7 @@ class TKtrhit: public TObject
 
 		int64_t tsp[7]; // 0-4 = timestamp 0-4, 5 = cathode bottom, 6 = cathode top
 		TKOMhit *associated_OMhit;
+		TKtrack *associated_track;
 
 		double h;
 		double r;
@@ -40,6 +43,7 @@ class TKtrhit: public TObject
 		void set_h();
 		void set_r(double _r);
 		void set_associated_OMhit(TKOMhit *_associated_OMhit);
+		void set_associated_track(TKtrack *_associated_track);
 
 		int     get_cell_num  ();
 		int     get_SRL       (char _SRL_n);
@@ -48,6 +52,7 @@ class TKtrhit: public TObject
 		double  get_r         ();
 		double  get_h         ();
 		TKOMhit* get_associated_OMhit();
+		TKtrack* get_associated_track();
 		
 		void print();
 		

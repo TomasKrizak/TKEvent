@@ -6,6 +6,8 @@
 
 // ROOT headers
 #include "TObject.h"
+
+#include "TKOMhit.h"
 #include "TKtrhit.h"
 
 //a line in a form:
