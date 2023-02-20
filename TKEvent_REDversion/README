@@ -1,5 +1,0 @@
-TKEvent (RED version) is an extension to RED data format. Add TKEvent.cc, TKEvent.hh and all scripts using them to all your other scripts working with RED data. 
-
-If you want to create your 3D interactive model of an event, you first have to call function "build_event_3D" on a TKEvent object which creates a root file with detector geometry and important event data. Then you can run visu.cpp with your root (you can do it from your own computer) to visualize that event.
-
-I have included two example scripts (double_beta_finder.cxx, test.cxx) showing the usage of this class.
