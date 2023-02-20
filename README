@@ -60,22 +60,24 @@ Class TKEvent can be used in two ways:
 	INSTALLATION:
 =============================================================================
 
-	1. install TKEvent libraby on your cluster: 
-		$ cd TKEvent/
-		$ ./install
-	2. source enviroment:
-		$ cd ../RED_to_root/
-		$ source load_enviroment
-		$ ./install
-	3. install RED to root converter - PATH to TKEvent will be requested:
-		? change
-		$ ./install
-	4. go back to your device and install TKEvent library on your device:
-		$ cd TKEvent/
-		$ ./install
-	5. convert your data on cluster: (should create file 'Run-xxx.root' in ... folder)
-		$ cd RED_to_root/build/
-		$ ./RED_to_root -r 'run number'
-		move 'Run-xxx.root' file on your device into 'TKEvent/runs/' folder
+	1. git clone TKEvent on your cluster environment	
+		$ git clone https://github.com/TomasKrizak/TKEvent.git
+	
+	2. source environment:
+		$ cd RED_to_TK/
+		$ source load_environment.sh
+		
+	3. install TKEvent libraby on your cluster: 
+		$ cd ../TKEvent/
+		$ chmod 755 install.sh
+		$ ./install.sh
+		
+	4. install RED to root converter - PATH to TKEvent will be requested:
+		$ cd ../RED_to_TK/
+		$ chmod 755 install.sh
+		$ ./install.sh
+	
+	
+
 	
 	
