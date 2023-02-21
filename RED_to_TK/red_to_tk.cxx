@@ -95,20 +95,15 @@ int main (int argc, char *argv[])
 	// RED counter
 	std::size_t red_counter = 0;
 
-//MIROOOOOOOOOOOOOOOOOO 1
-
 	TFile* file;
 	TTree* tree;
 
 	TKEvent *event = new TKEvent();
 	 
-	file = new TFile(Form("Run-%d.root", run_number),"RECREATE");
+	file = new TFile(Form("../../runs/Run-%d.root", run_number),"RECREATE");
 	tree = new TTree("Event","All data from event");
 	tree->Branch("Eventdata", &event);	
-
-
-//MIROOOOOOOOOOOOOOOOOO 1 END
-
+	
 	while (red_source.has_record_tag())
 	{
 		// Check the serialization tag of the next record:
@@ -223,14 +218,8 @@ int main (int argc, char *argv[])
 				
 			}	
 		} 
-
-		//event->set_r("Manchester");
-		//event->get_tr_hit(0)->get_associated_OMhit()->print();
-		//event->get_tr_hit(1)->get_associated_OMhit()->print();
-		//event->reconstruct_track(0);
 		
 		//event->print();
-		//event->print_tracks();
 		//event->make_top_projection();
 		//event->build_event();
 		
