@@ -51,7 +51,7 @@ Class TKEvent can be used in two ways:
 		b) you can use the 'red_to_tk' script to convert necessary data to root and then simply write root scripts (similar to provided 'load_ev' script in 'ANALYSIS_MACROS' folder)
 		
 	2. offline on your device (optional but very practical)
-		- requires: installing TKEvent library and RED_to_root converter on cluster,
+		- requires: installing TKEvent library and RED to TKEvent converter on cluster,
 			    installing TKEvent library on your device,
 			    converted data on your device
 		- installation: use installation bellow but skip steps 2. and 4.
@@ -73,7 +73,7 @@ Class TKEvent can be used in two ways:
 		$ chmod 755 install.sh
 		$ ./install.sh
 		
-	4. install RED to root converter:
+	4. install RED to TKEvent converter:
 		$ cd ../RED_to_TK/
 		$ chmod 755 install.sh
 		$ ./install.sh
