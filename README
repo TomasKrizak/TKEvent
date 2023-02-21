@@ -48,11 +48,15 @@ TKEvent has two visualization options:
 
 Class TKEvent can be used in two ways: 
 	1. online on cluster (installation bellow)
+		a) you can use TKEvent objects and functions in your RED scripts (similat as in provided 'red_to_tk' script)
+		b) you can use the 'red_to_tk' script to convert necessary data to root and then simply write root scripts (similar to provided 'load_ev' script in 'ANALYSIS_MACROS' folder)
 		
 	2. offline on your device (optional but very practical)
 		- requires: installing TKEvent library and RED_to_root converter on cluster,
 			    installing TKEvent library on your device,
 			    converted data on your device
+			    
+
 
 =============================================================================
 	INSTALLATION:
