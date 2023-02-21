@@ -104,7 +104,7 @@ int TKEvent::get_no_tracks()
 		
 void TKEvent::print()
 {
-	std::cout << "RUN " << run_number << " | EVENT " << event_number << " " << std::endl << std::endl;
+	std::cout << "*** Run: " << run_number << ", event: " << event_number << " ***" << std::endl << std::endl;
 	std::cout << "Collection of the OM hits: " << std::endl;
 
 	for (int i = 0; i < OM_hits.size(); i++)
@@ -127,17 +127,16 @@ void TKEvent::print()
 	{
 		tracks[i]->print();
 	}
-	std::cout << std::endl;
 }
 
 void TKEvent::print_tracks()
 {
-	std::cout << "RUN " << run_number << " | EVENT " << event_number << " " << std::endl << std::endl;
+	std::cout << "*** Run: " << run_number << ", event: " << event_number << " ***" << std::endl;
 	for (int i = 0; i < tracks.size(); i++)
 	{
 		tracks[i]->print();
 	}
-	std::cout << std::endl;
+	
 }
 
 void TKEvent::add_OM_hit(int _OM_num, bool _is_HT, int64_t _OM_TDC, int16_t _OM_pcell)
@@ -165,10 +164,12 @@ void TKEvent::reconstruct_track_from_hits(std::vector<TKtrhit*> hits, bool save_
 	// finds only one track per side of the tracker seperately from given set of tracker hits
 	// no uncertainties involved here
 	
-	
 	// each iteration zooms into a region with 10% size in both directions
 	const int resolution = 250;
 	const int iterations = 2;
+	
+	// distance needed for associating trakcer hit to track in mms
+	const double association_distance = 6.0;
 
 	for(int side = 0; side < 2; side++)
 	{
@@ -270,7 +271,7 @@ void TKEvent::reconstruct_track_from_hits(std::vector<TKtrhit*> hits, bool save_
 		for(int i = 0; i < hits_x.size(); i++)
 		{
 			distance_from_wire = abs(hits_y[i] - a*hits_x[i] - b) / denominator;
-			if( abs(distance_from_wire - hits_r[i]) < 10.0 )
+			if( abs(distance_from_wire - hits_r[i]) < association_distance )
 			{
 				hits_associated.push_back(true);
 				track->add_associated_tr_hit(hits[index[i]]);
