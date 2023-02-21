@@ -48,4 +48,4 @@ echo " "
 	rm libTKEvent.so
 	
 	
-	mkdir ../../ANALYSIS_MACROS/Event_visu
+	mkdir ../../ANALYSIS_MACROS/Events_visu
