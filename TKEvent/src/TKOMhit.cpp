@@ -318,7 +318,7 @@ int64_t TKOMhit::get_OM_pcell()
 
 void TKOMhit::print()
 {
-	std::cout << "OM "       << OM_num 
+	std::cout << "	OM "       << OM_num 
 	     	  << ", is HT: " << HT 
 	     	  << ", tdc: "   << OM_TDC
 	     	  << ", pcell: " << OM_pcell << std::endl;
