@@ -23,8 +23,8 @@ class TKtrack: public TObject
 		double b;
 		double c;
 		double d;
-		double confidence;
-		std::vector<TKtrhit*> associated_tr_hits;
+		double confidence; // metrics for determining quality of track (not functioning - in development)
+		std::vector<TKtrhit*> associated_tr_hits; // association_distance can be changed in reconstruction functions (3 sigma by default = 6mm)
 
 	public:
 		
