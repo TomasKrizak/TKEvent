@@ -85,7 +85,7 @@ double TKtrack::get_confidence()
 
 void TKtrack::print()
 {
-	std::cout << "Track | side: " << side 
+	std::cout << "	side: " << side 
 	     	  << ", a = " << a 
 	     	  << ", b = " << b 
 	     	  << ", c = " << c 
