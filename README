@@ -43,7 +43,7 @@ TKEvent has two visualization options:
 	2. 3D visualization - calling a function 'build_event()' on obejct TKEvent creates and saves a root file called 'Run-XXX_event-XXX_3D.root' in '/ANAlYSIS_MACROS/Events_visu/' folder. This stores all basic detector geometry as root geometry objects. Can be then visualized using visu.cpp skript.
 	
 =============================================================================
-	USAGE:
+	USAGE OPTIONS:
 =============================================================================
 
 Class TKEvent can be used in two ways: 
