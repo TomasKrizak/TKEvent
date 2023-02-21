@@ -53,7 +53,8 @@ Class TKEvent can be used in two ways:
 	2. offline on your device (optional but very practical)
 		- requires: installing TKEvent library and RED_to_root converter on cluster,
 			    installing TKEvent library on your device,
-			    converted data on your device	    
+			    converted data on your device
+		- installation: use installation bellow but skip steps 2. and 4.
 			    
 =============================================================================
 	INSTALLATION:
