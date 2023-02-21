@@ -104,7 +104,8 @@ int TKEvent::get_no_tracks()
 		
 void TKEvent::print()
 {
-	std::cout << "*** Run: " << run_number << ", event: " << event_number << " ***" << std::endl << std::endl;
+	std::cout << std::endl;
+	std::cout << "RUN " << run_number << " | EVENT " << event_number << std::endl << std::endl;
 	std::cout << "Collection of the OM hits: " << std::endl;
 
 	for (int i = 0; i < OM_hits.size(); i++)
@@ -127,6 +128,7 @@ void TKEvent::print()
 	{
 		tracks[i]->print();
 	}
+	std::cout << std::endl;
 }
 
 void TKEvent::print_tracks()
