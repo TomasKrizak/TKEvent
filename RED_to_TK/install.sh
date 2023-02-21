@@ -13,3 +13,5 @@
 	cmake -DTKEvent_PATH=$TKEVENT_P ..
 
 	make
+	
+	mkdir ../../runs
