@@ -133,11 +133,13 @@ void TKEvent::print()
 
 void TKEvent::print_tracks()
 {
-	std::cout << "*** Run: " << run_number << ", event: " << event_number << " ***" << std::endl;
+	std::cout << std::endl;
+	std::cout << "RUN " << run_number << " | EVENT " << event_number << std::endl << std::endl;
 	for (int i = 0; i < tracks.size(); i++)
 	{
 		tracks[i]->print();
 	}
+	std::cout << std::endl;
 	
 }
 
