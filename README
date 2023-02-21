@@ -47,11 +47,9 @@ TKEvent has two visualization options:
 =============================================================================
 
 Class TKEvent can be used in two ways: 
-	1. online on cluster (installation steps 1 - 3)
-		- requires installing TKEvent library on your cluster
-		- includes RED_to_root converter needed for option 2
+	1. online on cluster (installation bellow)
 		
-	2. offline on your device (optional but very practical) (installation steps 4 - )
+	2. offline on your device (optional but very practical)
 		- requires: installing TKEvent library and RED_to_root converter on cluster,
 			    installing TKEvent library on your device,
 			    converted data on your device
