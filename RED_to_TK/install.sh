@@ -1,9 +1,10 @@
 #!/bin/bash  
 
-	echo "                                          "
-	echo "Please enter the full path to *TKEvent* root folder:"
-	read TKEVENT_P
-	echo " "
+	#echo "                                          "
+	#echo "Please enter the full path to *TKEvent* root folder:"
+	#read TKEVENT_P
+	#echo " "
+	TKEVENT_P=../TKEvent/
 
 	rm -rf build
 	mkdir build
