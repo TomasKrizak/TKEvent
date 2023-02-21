@@ -47,3 +47,5 @@ echo " "
 	cp libTKEvent.so ../lib/libTKEvent.so
 	rm libTKEvent.so
 	
+	
+	mkdir ../ANALYSIS_MACROS/Event_visu
