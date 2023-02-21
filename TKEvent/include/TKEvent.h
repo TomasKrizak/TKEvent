@@ -38,8 +38,6 @@ class TKEvent: public TObject
 		std::vector<TKtrhit*> tr_hits;
 		std::vector<TKtrack*> tracks;
 	
-// MIRO: Pridať triedu TKBisource?	
-		
 	public:
 		TKEvent();
 		TKEvent(int _run_number ,int _event_number);
