@@ -62,6 +62,7 @@ Class TKEvent can be used in two ways:
 
 	1. git clone TKEvent on your cluster environment	
 		$ git clone https://github.com/TomasKrizak/TKEvent.git
+		$ cd TKEvent/
 	
 	2. source environment:
 		$ cd RED_to_TK/
