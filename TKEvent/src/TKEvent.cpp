@@ -127,16 +127,17 @@ void TKEvent::print()
 	{
 		tracks[i]->print();
 	}
+	std::cout << std::endl;
 }
 
 void TKEvent::print_tracks()
 {
-	std::cout << "*** Run: " << run_number << ", event: " << event_number << " ***" << std::endl;
+	std::cout << "RUN " << run_number << " | EVENT " << event_number << " " << std::endl << std::endl;
 	for (int i = 0; i < tracks.size(); i++)
 	{
 		tracks[i]->print();
 	}
-	
+	std::cout << std::endl;
 }
 
 void TKEvent::add_OM_hit(int _OM_num, bool _is_HT, int64_t _OM_TDC, int16_t _OM_pcell)
