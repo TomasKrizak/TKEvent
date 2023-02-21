@@ -16,7 +16,6 @@ These values need to be taken carefully as they might be improved in the future 
 
 It also contains information about geometry of the detector given by a series of constants which might differ from the reality - must be taken with care (work in progress)
 
-
 ============================================================================= 
 	TRACK RECONSTRUCTION:
 =============================================================================
@@ -34,7 +33,6 @@ The track is described by four parameters a,b,c,d in form:
 	(x,y,z coordinates corespond to Falaise, origin in center of detector)
 	(the parametrization will probably be redefined in the future to include special cases)
 
-
 =============================================================================
 	VISUALIZATION:
 =============================================================================
@@ -42,7 +40,6 @@ The track is described by four parameters a,b,c,d in form:
 TKEvent has two visualization options:
 	1. Top projection - calling a function 'make_top_projection()' on obejct TKEvent (given event) creates and saves png picture of the detector from above with highlighted OM hits and tracker cells hits. If tracks were calculated in this event then it depicts them too.
 	2. 3D visualization - calling a function 'build_event()' on obejct TKEvent creates and saves a root file called 'Run-XXX_event-XXX_3D.root' in '/ANAlYSIS_MACROS/Events_visu/' folder. This stores all basic detector geometry as root geometry objects. Can be then visualized using visu.cpp skript.
-	
 	
 =============================================================================
 	USAGE OPTIONS:
@@ -56,8 +53,7 @@ Class TKEvent can be used in two ways:
 	2. offline on your device (optional but very practical)
 		- requires: installing TKEvent library and RED_to_root converter on cluster,
 			    installing TKEvent library on your device,
-			    converted data on your device
-			    
+			    converted data on your device	    
 			    
 =============================================================================
 	INSTALLATION:
@@ -80,8 +76,5 @@ Class TKEvent can be used in two ways:
 		$ cd ../RED_to_TK/
 		$ chmod 755 install.sh
 		$ ./install.sh
-	
-	
-
 	
 	
