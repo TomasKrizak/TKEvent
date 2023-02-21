@@ -12,34 +12,34 @@ In constrast to RED format these classes can contain some processed information 
 	- x,y,z coordinates of tracker cell hits (calculated from timestamps and cell number)
 	- radii of tracker cell hits (you can switch drift models)
 	- x,y,z coordinates of OM hits
-These values need to be taken carefully as they might be improved in the future and are not in their final state yet. 
+These values however might be improved in the future and are not in their final state yet. 
 
-It also contains information about geometry of the detector given by a series of constants which might differ from the reality - must be taken with care (work in progress)
+It also contains information about geometry of the detector given by a series of constants which might differ from reality - must be taken with caution (work in progress)
 
 ============================================================================= 
 	TRACK RECONSTRUCTION:
 =============================================================================
 
-The reconstruction itself is based on Legendre transform. At the moment there are two distinct versions:
+The reconstruction itself is based on Legendre transform. At the moment there are two different versions:
 	1. reconstruct_track:
-	The original version. It finds only one best possible track for each side of the tracker (if the side has at least 3 usable hits - usable means not missing timestamp t0 and has a radius smaller than 35mm). Does not include uncertainties. Can return very bad results but is really fast and can act as a good tool for filtering special events. This version has a variant 'reconstruct_track_from_hits' which is the same but it can take as input a vector of tracker hits of your choice and do the reconstruction on these hits.
+	The original version. It finds only one best possible track for each side of the tracker (if the side has at least 3 usable hits - usable means not missing timestamp t0 and has a radius smaller than 35mm). Does not include uncertainties. Can return pretty bad results without any other option but is really fast and can act as a good tool for filtering special events. This version has a variant 'reconstruct_track_from_hits' which is the same but it can take as input a vector of tracker hits of your choice and do the reconstruction on these hits.
 	
 	2. reconstruct_multi:
-	Upgraded version. It is much slower then 1. but searches for more possible candidates for tracks. The search invovles uncertainties (Gauss distribution with sigma = 2mm at the moment). 
+	Upgraded version. It is much slower then 1. but searches for more possible candidates for tracks. The search invovles uncertainties (Gauss distribution with sigma = 2mm by default). 
 	
 The track is described by four parameters a,b,c,d in form:
 	y = ax + b
 	z = cx + d
 	(x,y,z coordinates corespond to Falaise, origin in center of detector)
-	(the parametrization will probably be redefined in the future to include special cases)
+	(the parametrization will probably be redefined in the future to include special cases - tracks parallel to foil)
 
 =============================================================================
 	VISUALIZATION:
 =============================================================================
 
 TKEvent has two visualization options:
-	1. Top projection - calling a function 'make_top_projection()' on obejct TKEvent (given event) creates and saves png picture of the detector from above with highlighted OM hits and tracker cells hits. If tracks were calculated in this event then it depicts them too.
-	2. 3D visualization - calling a function 'build_event()' on obejct TKEvent creates and saves a root file called 'Run-XXX_event-XXX_3D.root' in '/ANAlYSIS_MACROS/Events_visu/' folder. This stores all basic detector geometry as root geometry objects. Can be then visualized using visu.cpp skript.
+	1. Top projection - calling a function 'make_top_projection()' on obejct TKEvent (given event) creates and saves png picture (in '/ANAlYSIS_MACROS/Events_visu/' by default) of the detector from above with highlighted OM hits and tracker cells hits. If tracks were calculated in this event then it depicts them too.
+	2. 3D visualization - calling a function 'build_event()' on obejct TKEvent creates and saves a root file called 'Run-XXX_event-XXX_3D.root' in '/ANAlYSIS_MACROS/Events_visu/' folder. This stores all basic detector geometry as root geometry objects. Can be then visualized using provided 'visu.cpp' skript in 'ANALASIS_MACROS'.
 	
 =============================================================================
 	USAGE OPTIONS:
