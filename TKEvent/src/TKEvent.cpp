@@ -487,7 +487,7 @@ void TKEvent::reconstruct_multi(bool save_sinograms)
 										
 										// average probability density in a bin given by gauss distribution with mean in mu 
 										// (uniformly distributed with respect to theta)
-										weight = ( erf( (r_j2 - mu)/(sqrt(2.0)*sigma) ) - erf( (r_j1 - mu)/(sqrt(2.0)*sigma) ) ) / (4.0*sigma*sigma * delta_R / double(resolution * segments));
+										weight = ( erf( (r_j2 - mu)/(sqrt(2.0)*sigma) ) - erf( (r_j1 - mu)/(sqrt(2.0)*sigma) ) ) / (2.0 * delta_R / double(resolution * segments));
 										// result is 2D histogram of several sinusoid functions f(theta) in convolution with gauss with respect to R
 										sinograms->Fill( theta, (r_j2 + r_j1)/2.0, weight );
 										r_j1 = r_j2;			
