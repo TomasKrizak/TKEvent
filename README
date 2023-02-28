@@ -66,7 +66,12 @@ Class TKEvent can be used in two ways:
 	
 	2. source environment:
 		$ cd RED_to_TK/
+		
+		for old runs use
 		$ source load_environment.sh
+		
+		for runs 813 and newer use
+		$ source load_environment_new.sh
 		
 	3. install TKEvent libraby on your cluster: 
 		$ cd ../TKEvent/
