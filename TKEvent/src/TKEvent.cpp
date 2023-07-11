@@ -52,9 +52,22 @@ TKEvent::TKEvent(int _run_number ,int _event_number)
 
 TKEvent::~TKEvent()
 {
-	OM_hits.clear();
-	tr_hits.clear();
-	tracks.clear();
+      for(int i = 0;i < OM_hits.size();i++)
+      {
+            delete OM_hits[i];
+      }
+      for(int i = 0;i < tr_hits.size();i++)
+      {
+            delete tr_hits[i];
+      }
+      for(int i = 0;i < tracks.size();i++)
+      {
+            delete tracks[i];
+      }
+      
+      OM_hits.clear();
+      tr_hits.clear();
+      tracks.clear();
 }
 
 std::vector<TKOMhit*> TKEvent::get_OM_hits()
