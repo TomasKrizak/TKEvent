@@ -63,13 +63,19 @@ int main (int argc, char *argv[])
 		if(run_number < 813)
 		{
 			snprintf(input_filename_buffer, sizeof(input_filename_buffer),
-			       "%s/snemo_run-%d_red.data.gz", red_path, run_number);
+				"%s/snemo_run-%d_red.data.gz", red_path, run_number);
+			input_filename = std::string(input_filename_buffer);
+		}
+		else if(run_number < 1046)
+		{
+			snprintf(input_filename_buffer, sizeof(input_filename_buffer),
+				"/sps/nemo/snemo/snemo_data/raw_data/RED/delta-tdc-10us-v2/snemo_run-%d_red.data.gz", run_number);
 			input_filename = std::string(input_filename_buffer);
 		}
 		else
 		{
 			snprintf(input_filename_buffer, sizeof(input_filename_buffer),
-			       "/sps/nemo/snemo/snemo_data/raw_data/RED/snemo_run-%d_red-v2.data.gz", run_number);
+				"/sps/nemo/snemo/snemo_data/raw_data/RED/delta-tdc-10us-v3/snemo_run-%d_red.data.gz", run_number);
 			input_filename = std::string(input_filename_buffer);
 		}
 	}
