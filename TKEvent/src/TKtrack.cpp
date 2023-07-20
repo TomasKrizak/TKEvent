@@ -48,9 +48,9 @@ void TKtrack::set_d(double _d)
 	d = _d;
 }
 
-void TKtrack::set_confidence(double _confidence)
+void TKtrack::set_likelihood(double _likelihood)
 {
-	confidence = _confidence;
+	likelihood = _likelihood;
 }
 
 int TKtrack::get_side()
@@ -78,19 +78,19 @@ double TKtrack::get_d()
 	return d;
 } 
 
-double TKtrack::get_confidence()
+double TKtrack::get_likelihood()
 {
-	return confidence;
+	return likelihood;
 } 
 
 void TKtrack::print()
 {
-	std::cout << "	side: " << side 
+	std::cout << "Track | side: " << side 
 	     	  << ", a = " << a 
 	     	  << ", b = " << b 
 	     	  << ", c = " << c 
 	     	  << ", d = " << d << std::endl; 
-	//std::cout << "	confidence: " << confidence << std::endl;
+	//std::cout << "	likelihood: " << likelihood << std::endl;
 	std::cout << "	number of associated tracker hits: " << associated_tr_hits.size() << std::endl << std::endl;
 }
 
