@@ -63,9 +63,25 @@ class TKEvent: public TObject
 		void add_tracker_hit(int _cell_num, int64_t _tsp[7]);
 		void add_tracker_hit(int _SRL[3],   int64_t _tsp[7]);
 		
+		
+		// basic reconstruction - no uncertainties, one candidate
 		void reconstruct_track(bool save_sinograms);
 		void reconstruct_track_from_hits(std::vector<TKtrhit*> hits, bool save_sinograms);
+		
+		// with uncertainties, one candidate
+		void reconstruct_single(bool save_sinograms);
+				
+		// with uncertainties, multiple candidates
 		void reconstruct_multi(bool save_sinograms);
+
+
+		// experimental mode based on maximum likelihood - unfinished
+		void reconstruct_ML(bool save_sinograms);
+		
+		void draw_likelihood();
+		void draw_likelihood_corrected();
+		void draw_sinusoids();
+		
 		void make_top_projection();
 		void build_event();	
 
