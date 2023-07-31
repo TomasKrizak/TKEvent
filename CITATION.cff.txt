@@ -1,0 +1,6 @@
+cff-version: 1.2.0
+authors:
+- family-names: "Křižák"
+  given-names: "Tomáš"
+title: "TKEvent"
+url: "https://github.com/TomasKrizak/TKEvent"
