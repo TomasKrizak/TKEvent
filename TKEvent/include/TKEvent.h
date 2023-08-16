@@ -82,7 +82,12 @@ class TKEvent: public TObject
 		void draw_likelihood_corrected();
 		void draw_sinusoids();
 		
-		void make_top_projection();
+		// options:
+		// 	0 - no unused hits	    
+		//	1 - yellow for unused hits in recontstruction
+		//	2 - yellow for unused hits in recontstruction 
+		//	    green for associated hits to track
+		void make_top_projection(int option);
 		void build_event();	
 
 		// drift model: "Manchester" or "Betsy"
