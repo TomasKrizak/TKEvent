@@ -662,13 +662,13 @@ void TKEvent::reconstruct_multi(bool save_sinograms)
 				if( abs(distance_from_wire - hits[i]->get_r()) < association_distance )
 				{
 					track->add_associated_tr_hit(hits[i]);
+					hits[i]->set_associated_track(track);
 					hits_associated.push_back(true);
 				}
 				else
 				{
 					hits_associated.push_back(false);
 				}
-			
 			}			
 			
 			// calculating likelihood
@@ -856,7 +856,7 @@ void TKEvent::reconstruct_single(bool save_sinograms)
 			
 			if( save_sinograms == true ) 
 			{
-				TCanvas* c2 = new TCanvas("sinograms");
+				TCanvas* c2 = new TCanvas("sinograms", "sinograms", 2000, 1600);
 				sinograms->SetStats(0);
 				sinograms->SetContour(100);
 				sinograms->Draw("COLZ");
@@ -901,6 +901,7 @@ void TKEvent::reconstruct_single(bool save_sinograms)
 			if( abs(distance_from_wire - hits[i]->get_r()) < association_distance )
 			{
 				track->add_associated_tr_hit(hits[i]);
+				hits[i]->set_associated_track(track);
 				hits_associated.push_back(true);
 			}
 			else
@@ -1745,7 +1746,7 @@ void TKEvent::reconstruct_ML(bool save_sinograms)
 
 
 		
-void TKEvent::make_top_projection()
+void TKEvent::make_top_projection(int option)
 {
 	gROOT->SetBatch(true);
 	TCanvas *canvas = new TCanvas("canvas","", 5800, 1600);	
@@ -1854,6 +1855,8 @@ void TKEvent::make_top_projection()
 		double radius = tc_radius;
 		bool is_hit = false;
 		bool is_broken = false;
+		bool is_associated = false;
+		
 		for(int hit = 0; hit < tr_hits.size(); hit++)
 		{
 			if(cell_num == tr_hits[hit]->get_cell_num())
@@ -1866,7 +1869,12 @@ void TKEvent::make_top_projection()
 				else
 				{
 					radius = tr_hits[hit]->get_r();
-				}						
+				}	
+				
+				if( tr_hits[hit]->get_associated_track() != nullptr )
+				{
+					is_associated = true;
+				}					
 				break;
 			}
 		}
@@ -1877,15 +1885,46 @@ void TKEvent::make_top_projection()
 			if(is_broken)
 			{
 				tracker_cell = new TEllipse(thit->get_xy('y'), -thit->get_xy('x'), radius, radius);
-				tracker_cell->SetFillColor(kOrange);
 				tracker_cell->SetLineWidth(1);
-				tracker_cell->Draw("same");					
+				switch(option)
+				{
+					case 0:
+						break;
+					case 1:
+						tracker_cell->SetFillColor(kOrange);
+						tracker_cell->Draw("same");	
+						break;
+					case 2:
+						tracker_cell->SetFillColor(kOrange);
+						tracker_cell->Draw("same");			
+						break;		
+				}
 			}
 			else
 			{
 				tracker_cell = new TEllipse(thit->get_xy('y'), -thit->get_xy('x'), radius + sigma, radius + sigma);
-				tracker_cell->SetFillColor(kRed);
 				tracker_cell->SetLineWidth(0);	
+				
+				if(is_associated)
+				{
+					switch(option)
+					{
+						case 0:
+							tracker_cell->SetFillColor(kRed);
+							break;
+						case 1:
+							tracker_cell->SetFillColor(kRed);
+							break;
+						case 2:
+							tracker_cell->SetFillColor(kGreen);			
+							break;		
+					}
+				} 
+				else
+				{
+					tracker_cell->SetFillColor(kRed);
+				}
+				
 				tracker_cell->Draw("same");
 				if( radius - sigma > 0.0 )
 				{
@@ -1915,7 +1954,7 @@ void TKEvent::make_top_projection()
 		Bi_source->Draw("same");
 	}
 	
-	// Drawing of tracks
+	// Drawing of track
 	for (int i = 0; i < tracks.size(); i++)
 	{
 		TLine *track;
