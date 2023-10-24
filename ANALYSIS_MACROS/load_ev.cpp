@@ -35,11 +35,11 @@ void load_ev()
 		
 		event->set_r("Manchester", "distance");	// needed for reconstruction
 		
-		event->reconstruct_multi(0);
+		event->reconstruct_ML(0);
 
 		event->print();
 		
-		event->make_top_projection();
+		event->make_top_projection(2);
 		
 		event->build_event();
 	}
