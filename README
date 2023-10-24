@@ -1,10 +1,13 @@
-In case this README is missing some important information or is unclear do not hesitate to contact me (Tomáš Křižák) on slack or email - tomas.krizak@cvut.cz
+In case this README is missing some important information or is unclear do not
+hesitate to contact me (Tomáš Křižák) on slack or email - tomas.krizak@cvut.cz
 
-=============================================================================
+===============================================================================
 	DATA STRUCTURE: 
-=============================================================================
+===============================================================================
 
-TKEvent is a library made specifically as a tool for development of tracking algorithm however it can do more than that. Class TKEvent extracts most important information about given event and stores them in vectors of smaller objects:
+TKEvent is a library made specifically as a tool for development of tracking 
+algorithm however it can do more than that. Class TKEvent extracts most important
+information about given event and stores them in vectors of smaller objects:
 	- vector of OM hits (TKOHhit),
 	- vector of tracker cell hits (TKTrhit),
 	- vector of tracks (TKtrack).
@@ -14,41 +17,77 @@ In constrast to RED format these classes can contain some processed information 
 	- x,y,z coordinates of OM hits
 These values however might be improved in the future and are not in their final state yet. 
 
-It also contains information about geometry of the detector given by a series of constants which might differ from reality - must be taken with caution (work in progress)
+It also contains information about geometry of the detector given by a series of
+constants which might differ from reality - must be taken with caution (work in progress)
 
-============================================================================= 
+=============================================================================== 
 	TRACK RECONSTRUCTION:
-=============================================================================
+===============================================================================
 
-The reconstruction itself is based on Legendre transform. At the moment there are two different versions:
-	1. reconstruct_track:
-	The original version. It finds only one best possible track for each side of the tracker (if the side has at least 3 usable hits - usable means not missing timestamp t0 and has a radius smaller than 35mm). Does not include uncertainties. Can return pretty bad results without any other option but is really fast and can act as a good tool for filtering special events. This version has a variant 'reconstruct_track_from_hits' which is the same but it can take as input a vector of tracker hits of your choice and do the reconstruction on these hits.
-	
-	2. reconstruct_multi:
-	Upgraded version. It is much slower then 1. but searches for more possible candidates for tracks. The search invovles uncertainties (Gauss distribution with sigma = 2mm by default). 
-	
+At the moment there are several different versions:
+	1. reconstruct_single():
+	This algorithm finds one best possible track for each side of the tracker 
+	based on Legendre transform of tracker hits (if the side has at least 3 usable hits 
+	- usable means not missing timestamp t0 and has a radius smaller than 35mm). 
+	The search invovles uncertainties (Gauss distribution with sigma = 2mm by default). 
+
+	2. reconstruct_multi():
+	multi_track version of 1. It is a bit slower but searches for more possible candidates for tracks. 
+
+	3. reconstruct_ML():
+	Implementation of Maximum likelihood method for tracking. Uses a basic pre-clustering algorithm
+	which filters obvious noise and other noise tracks. Then uses maximum likelihood method on the 
+	cluster, providing the most probable solution.
+
 The track is described by four parameters a,b,c,d in form:
 	y = ax + b
 	z = cx + d
 	(x,y,z coordinates corespond to Falaise, origin in center of detector)
-	(the parametrization will probably be redefined in the future to include special cases - tracks parallel to foil)
 
-=============================================================================
+And equivalently in the form:
+ 	x(t) = cos(phi)*cos(theta)*t + r*sin(phi)
+ 	y(t) = sin(phi)*cos(theta)*t - r*cos(phi)
+ 	z(t) = sin(theta)*t + h
+
+Both parametrizations are calculated during the tracking.
+
+If needed, here is the set of transformations:
+	a = tan(phi)
+	b = -r/cos(phi)
+	c = tan(theta)/cos(phi)
+	d = h - r*tan(phi)*tan(theta)
+
+	phi = atan(a) 
+	r = -b/sqrt(a*a+1.0)
+	theta = atan(c/sqrt(a*a+1.0))
+	h = d - a*b*c/(a*a+1.0)
+
+
+===============================================================================
 	VISUALIZATION:
-=============================================================================
+===============================================================================
 
 TKEvent has two visualization options:
-	1. Top projection - calling a function 'make_top_projection()' on obejct TKEvent (given event) creates and saves png picture (in '/ANAlYSIS_MACROS/Events_visu/' by default) of the detector from above with highlighted OM hits and tracker cells hits. If tracks were calculated in this event then it depicts them too.
-	2. 3D visualization - calling a function 'build_event()' on obejct TKEvent creates and saves a root file called 'Run-XXX_event-XXX_3D.root' in '/ANAlYSIS_MACROS/Events_visu/' folder. This stores all basic detector geometry as root geometry objects. Can be then visualized using provided 'visu.cpp' skript in 'ANALASIS_MACROS'.
+	1. Top projection - calling a function 'make_top_projection(int option)' on obejct TKEvent (given event) 
+		creates and saves png picture (in '/ANAlYSIS_MACROS/Events_visu/' by default) of the detector
+		from above with highlighted OM hits and tracker cells hits. If tracks were calculated in this
+		event then it depicts them too.
+	2. 3D visualization - calling a function 'build_event()' on obejct TKEvent creates and saves a root
+		file called 'Run-XXX_event-XXX_3D.root' in '/ANAlYSIS_MACROS/Events_visu/' folder. This stores
+		all basic detector geometry as root geometry objects. Can be then visualized using provided
+		'visu.cpp' skript in 'ANALASIS_MACROS'.
 	
-=============================================================================
+===============================================================================
 	USAGE OPTIONS:
-=============================================================================
+===============================================================================
 
 Class TKEvent can be used in two ways: 
 	1. online on cluster (installation bellow)
-		a) you can use TKEvent objects and functions in your RED scripts (similat as in provided 'red_to_tk' script)
-		b) you can use the 'red_to_tk' script to convert necessary data to root and then simply write root scripts (similar to provided 'load_ev' script in 'ANALYSIS_MACROS' folder)
+		a) you can use TKEvent objects and functions in your RED scripts
+			(similat as in provided 'red_to_tk' script)
+		b) you can use the 'red_to_tk' script to convert necessary data
+			to root and then simply write root scripts
+			(similar to provided 'load_ev' script in 'ANALYSIS_MACROS' folder)
 		
 	2. offline on your device (optional but very practical)
 		- requires: installing TKEvent library and RED to TKEvent converter on cluster,
@@ -56,9 +95,9 @@ Class TKEvent can be used in two ways:
 			    converted data on your device
 		- installation: use installation bellow but skip steps 2. and 4.
 			    
-=============================================================================
+===============================================================================
 	INSTALLATION:
-=============================================================================
+===============================================================================
 
 	1. git clone TKEvent on your cluster environment:	
 		$ git clone https://github.com/TomasKrizak/TKEvent.git
@@ -82,6 +121,7 @@ Class TKEvent can be used in two ways:
 		$ cd ../RED_to_TK/
 		$ chmod 755 install.sh
 		$ ./install.sh
-		(depending on what runs you want to use (0-812 or 813 and higher) keep ".cxx" only in those scripts you will be using) 
+		(depending on what runs you want to use (0-812 or 813 and higher)
+		keep ".cxx" only in those scripts you will be using) 
 	
 	
