@@ -18,6 +18,8 @@ echo " "
       	      rootcling -f ../lib/TKtrhitdict.cpp  TKtrhit.h+
       	echo "rootcling: ./include/TKtrack.h         -> ./include/TKtrackdict_rdict.pcm         + ./include/TKtrackdict.cpp"
       	      rootcling -f ../lib/TKtrackdict.cpp  TKtrack.h+
+      	echo "rootcling: ./include/TKcluster.h       -> ./include/TKclusterdict_rdict.pcm       + ./include/TKclusterdict.cpp"
+      	      rootcling -f ../lib/TKclusterdict.cpp  TKcluster.h+
 	echo " "
 	echo "Dictionaries generated!"
 	echo " "
@@ -47,5 +49,3 @@ echo " "
 	cp libTKEvent.so ../lib/libTKEvent.so
 	rm libTKEvent.so
 	
-	
-	mkdir ../../ANALYSIS_MACROS/Events_visu
