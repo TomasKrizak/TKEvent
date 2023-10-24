@@ -26,6 +26,7 @@
 #include "TKOMhit.h"
 #include "TKtrack.h"
 #include "TKtrhit.h"
+#include "TKcluster.h"
 
 class TKEvent: public TObject
 {
@@ -63,6 +64,9 @@ class TKEvent: public TObject
 		void add_tracker_hit(int _cell_num, int64_t _tsp[7]);
 		void add_tracker_hit(int _SRL[3],   int64_t _tsp[7]);
 		
+		std::vector<TKtrhit*> filter_side(std::vector<TKtrhit*> _hits, int side);
+		std::vector<TKtrhit*> filter_usable(std::vector<TKtrhit*> _hits);
+		std::vector<TKtrhit*> filter_close_hits(std::vector<TKtrhit*> _hits, double phi, double r, double distance_limit);
 		
 		// basic reconstruction - no uncertainties, one candidate
 		void reconstruct_track(bool save_sinograms);
@@ -76,10 +80,16 @@ class TKEvent: public TObject
 
 
 		// experimental mode based on maximum likelihood - unfinished
+		void reconstruct_ML_from_hits(std::vector<TKtrhit*> hits ,bool save_sinograms);
+		
+		
 		void reconstruct_ML(bool save_sinograms);
+		TKcluster* find_cluster(std::vector<TKtrhit*> tr_hits);
+		void likelihood_centred(std::vector<TKtrhit*> hits, double phi_min, double phi_max, bool save_sinograms);
+		void hough_transform(std::vector<TKtrhit*> hits, double phi_min, double phi_max, double R_min, double R_max, int ID);
 		
 		void draw_likelihood();
-		void draw_likelihood_corrected();
+		void draw_likelihood_centred();
 		void draw_sinusoids();
 		
 		// options:
