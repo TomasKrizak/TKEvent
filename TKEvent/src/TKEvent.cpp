@@ -39,9 +39,10 @@ ClassImp(TKEvent);
 
 TKEvent::TKEvent()
 {
-	OM_hits = std::vector<TKOMhit*>();
-	tr_hits = std::vector<TKtrhit*>();
-	tracks  = std::vector<TKtrack*>();
+	OM_hits   = std::vector<TKOMhit*>();
+	tr_hits   = std::vector<TKtrhit*>();
+	tracks    = std::vector<TKtrack*>();
+	clusters  = std::vector<TKcluster*>();
 }
 
 TKEvent::TKEvent(int _run_number ,int _event_number)
@@ -49,9 +50,10 @@ TKEvent::TKEvent(int _run_number ,int _event_number)
 	event_number = _event_number;
 	run_number = _run_number;
 
-	OM_hits = std::vector<TKOMhit*>();
-	tr_hits = std::vector<TKtrhit*>();
-	tracks  = std::vector<TKtrack*>();
+	OM_hits   = std::vector<TKOMhit*>();
+	tr_hits   = std::vector<TKtrhit*>();
+	tracks    = std::vector<TKtrack*>();
+	clusters  = std::vector<TKcluster*>();
 }
 
 TKEvent::~TKEvent()
@@ -68,10 +70,15 @@ TKEvent::~TKEvent()
 	{
 		delete tracks[i];
 	}
+	for(int i = 0;i < clusters.size();i++)
+	{
+		delete clusters[i];
+	}
 	
 	OM_hits.clear();
 	tr_hits.clear();
 	tracks.clear();
+	clusters.clear();
 }
 
 std::vector<TKOMhit*> TKEvent::get_OM_hits()
@@ -89,6 +96,11 @@ std::vector<TKtrack*> TKEvent::get_tracks()
 	return tracks;
 }
 
+std::vector<TKcluster*> TKEvent::get_clusters()
+{
+	return clusters;
+}
+
 TKOMhit* TKEvent::get_OM_hit(int _i)
 {
 	return OM_hits[_i];
@@ -102,6 +114,11 @@ TKtrhit* TKEvent::get_tr_hit(int _i)
 TKtrack* TKEvent::get_track(int _i)
 {
 	return tracks[_i];
+}
+
+TKcluster* TKEvent::get_cluster(int _i)
+{
+	return clusters[_i];
 }
 
 int TKEvent::get_run_number()

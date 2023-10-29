@@ -13,6 +13,8 @@ TKtrack::TKtrack()
 	quality   = 0.0;
 	quality_R = 0.0;
 	quality_Z = 0.0;
+	
+	mirror_image = nullptr;
 }
 
 TKtrack::TKtrack(int _side, double _phi, double _r)
@@ -32,6 +34,8 @@ TKtrack::TKtrack(int _side, double _phi, double _r)
 	quality   = 0.0;
 	quality_R = 0.0;
 	quality_Z = 0.0;
+	
+	mirror_image = nullptr;
 }
 
 TKtrack::TKtrack(int _side, double _a, double _b, double _c, double _d)
@@ -55,6 +59,8 @@ TKtrack::TKtrack(int _side, double _a, double _b, double _c, double _d)
 	quality   = 0.0;
 	quality_R = 0.0;
 	quality_Z = 0.0;
+	
+	mirror_image = nullptr;
 }
 
 TKtrack::~TKtrack()
@@ -153,6 +159,16 @@ void TKtrack::set_likelihood_Z(double _likelihood_Z)
 	likelihood_Z = _likelihood_Z;
 }
 
+void TKtrack::set_ambiguity(bool _ambiguous)
+{
+	ambiguous = _ambiguous;
+}
+
+void TKtrack::link_mirror_image(TKtrack* _mirror_image)
+{
+	mirror_image = _mirror_image;
+}
+
 int TKtrack::get_side()
 {
 	return side;
@@ -241,6 +257,16 @@ double TKtrack::get_likelihood_R()
 double TKtrack::get_likelihood_Z()
 {
 	return likelihood_Z;
+} 
+
+bool TKtrack::is_ambiguous()
+{
+	return ambiguous;
+} 
+
+TKtrack* TKtrack::get_mirror_image()
+{
+	return mirror_image;
 } 
 
 void TKtrack::reconstruct_vertical_least_square()

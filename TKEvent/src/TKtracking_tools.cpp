@@ -445,6 +445,8 @@ void TKEvent::reconstruct_ML(bool save_sinograms)
 		TKcluster* cluster = find_cluster(hits);
 		if( cluster != nullptr )
 		{
+			clusters.push_back( cluster );
+			cluster->detect_ambiguity_type();
 			likelihood_centred(cluster->get_tr_hits(), cluster->get_phi_min(), cluster->get_phi_max(), save_sinograms);
 			//hough_transform(cluster->get_tr_hits(), cluster->get_phi_min(), cluster->get_phi_max(), -50.0, 50.0, 0);
 		}
@@ -770,7 +772,8 @@ void TKEvent::likelihood_centred(std::vector<TKtrhit*> hits, double phi_min, dou
 		track->set_quality_R( exp(-0.5*chi_squared) );		
 		track->set_likelihood_R( norm_const * exp(-0.5*chi_squared*double(hits.size())) );
 			
-		track->reconstruct_vertical_least_square();
+		//track->reconstruct_vertical_least_square();
+		track->reconstruct_vertical_MLM();
 	}
 }
 

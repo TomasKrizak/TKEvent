@@ -6,6 +6,7 @@ ClassImp(TKcluster);
 
 TKcluster::TKcluster()
 {
+	ambiguity_type = 0;
 	phi_min = 0.0;
 	phi_max = M_PI;
 	std::vector<TKtrhit*> cluster_tr_hits;
@@ -13,6 +14,7 @@ TKcluster::TKcluster()
 
 TKcluster::TKcluster(std::vector<TKtrhit*> tr_hits, double _phi_min, double _phi_max)
 {
+	ambiguity_type = 0;
 	side = tr_hits.at(0)->get_SRL('s');
 	phi_min = _phi_min;
 	phi_max = _phi_max;
@@ -78,10 +80,86 @@ double TKcluster::get_phi_max()
 	return phi_max;
 }
 
+int TKcluster::get_ambiguity_type()
+{
+	return ambiguity_type;
+}
+
+void TKcluster::detect_ambiguity_type()
+{
+	int ambiguity = 0;
+	double x0 = cluster_tr_hits[0]->get_xy('x');
+	double y0 = cluster_tr_hits[0]->get_xy('y');
+	bool ambiguous;
+	
+	// type 1 == mirror image along line x = x0 
+	ambiguous = true;
+	for(int i = 1; i < cluster_tr_hits.size(); i++)
+	{	
+		if( x0 != cluster_tr_hits[i]->get_xy('x') )
+		{
+			ambiguous = false;
+			break;
+		}
+	}
+	if( ambiguous == true )
+	{
+		ambiguity = 1;
+	}
+	
+	// type 2 == mirror image along line y = y0 
+	ambiguous = true;
+	for(int i = 1; i < cluster_tr_hits.size(); i++)
+	{	
+		if( y0 != cluster_tr_hits[i]->get_xy('y') )
+		{
+			ambiguous = false;
+			break;
+		}
+	}
+	if( ambiguous == true )
+	{
+		ambiguity = 2;
+	}
+	
+	// type 3 == mirror image along line y = x + (y0-x0) 
+	ambiguous = true;
+	for(int i = 1; i < cluster_tr_hits.size(); i++)
+	{	
+		if( y0-cluster_tr_hits[i]->get_xy('y') != x0-cluster_tr_hits[i]->get_xy('x') )
+		{
+			ambiguous = false;
+			break;
+		}
+	}
+	if( ambiguous == true )
+	{
+		ambiguity = 3;
+	}
+	
+	// type 4 == mirror image along line y = -x + (y0-x0) 
+	ambiguous = true;
+	for(int i = 1; i < cluster_tr_hits.size(); i++)
+	{	
+		if( y0-cluster_tr_hits[i]->get_xy('y') != cluster_tr_hits[i]->get_xy('x')-x0 )
+		{
+			ambiguous = false;
+			break;
+		}
+	}
+	if( ambiguous == true )
+	{
+		ambiguity = 4;
+	}
+
+	ambiguity_type = ambiguity;
+}
+
 void TKcluster::print()
 {
-	std::cout << "	side "       << side
+	std::cout << "Cluster | side "       << side
 		  << ", size "       << cluster_tr_hits.size()
 	     	  << ", phi_min: " << phi_min 
-	     	  << ", phi_max: "   << phi_max << std::endl;
+	     	  << ", phi_max: "   << phi_max 
+	     	  << ", ambiguity type: " << ambiguity_type << std::endl;
 }
