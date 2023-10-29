@@ -19,9 +19,16 @@ class TKcluster: public TObject
 		int    side;
 		double phi_min;
 		double phi_max;
-	
+		
+		// 0 == no ambiguity
+		// 1 == mirror image along line x = x0 
+		// 2 == mirror image along line y = y0 
+		// 3 == mirror image along line y = x + (y0-x0) 
+		// 4 == mirror image along line y = -x + (y0-x0) 
+		int ambiguity_type;
+		
 		std::vector<TKtrhit*> cluster_tr_hits;
-		TKtrack *track;
+		TKtrack* track;
 
 	public:
 		
@@ -32,16 +39,19 @@ class TKcluster: public TObject
 		void add_tr_hit(TKtrhit* tracker_hit);
 		std::vector<TKtrhit*> get_tr_hits();
 		
-		void set_track(TKtrack *_track);
+		void set_track(TKtrack* _track);
 		TKtrack* get_track();
 		
 		void set_side(double _side);
 		void set_phi_min(double _phi_min);
 		void set_phi_max(double _phi_max);
-
+		
 		int    get_side();
 		double get_phi_min();
 		double get_phi_max();
+
+		void detect_ambiguity_type();
+		int get_ambiguity_type();
 
 		void print();
 		

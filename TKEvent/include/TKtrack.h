@@ -74,6 +74,11 @@ class TKtrack: public TObject
 		// vertical part of likelihood
 		double likelihood_Z;
 		
+		// in case if ambiguities the mirror images are linked
+		// ambiguous == 0 means no ambiguity
+		bool ambiguous;
+		TKtrack* mirror_image;
+		
 		std::vector<TKtrhit*> associated_tr_hits; // association_distance can be changed in reconstruction functions (3 sigma by default = 6mm)
 
 	public:
@@ -110,6 +115,9 @@ class TKtrack: public TObject
 		void set_likelihood_R(double _likelihood_R);
 		void set_likelihood_Z(double _likelihood_Z);
 		
+		void set_ambiguity(bool _ambiguous);
+		void link_mirror_image(TKtrack* _mirror_image);
+		
 		int get_side();
 		
 		double get_a();
@@ -134,10 +142,14 @@ class TKtrack: public TObject
 		double get_likelihood_R();
 		double get_likelihood_Z();
 
+		bool is_ambiguous();
+		TKtrack* get_mirror_image();
+
 		// calculates likelihood_Z and likelihood based on associated hits
 		void update_likelihood();
 		void reconstruct_vertical_least_square();
 		void reconstruct_vertical_MLM();
+
 
 		void print();
 		
