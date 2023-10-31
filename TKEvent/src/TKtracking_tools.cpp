@@ -1,10 +1,6 @@
 // TK headers
 #include "TKEvent.h"
 
-#include <TROOT.h>
-#include <TStyle.h>
-#include <TF1.h>
-
 using namespace std;
 
 void TKEvent::draw_sinusoids()
@@ -447,7 +443,8 @@ void TKEvent::reconstruct_ML(bool save_sinograms)
 		{
 			clusters.push_back( cluster );
 			cluster->detect_ambiguity_type();
-			likelihood_centred(cluster->get_tr_hits(), cluster->get_phi_min(), cluster->get_phi_max(), save_sinograms);
+			cluster->reconstruct_MLM( save_sinograms, run_number, event_number );
+			cluster->reconstruct_ambiguity();
 			//hough_transform(cluster->get_tr_hits(), cluster->get_phi_min(), cluster->get_phi_max(), -50.0, 50.0, 0);
 		}
 	}
@@ -601,183 +598,4 @@ TKcluster* TKEvent::find_cluster(std::vector<TKtrhit*> hits)
 	TKcluster* cluster = new TKcluster(cluster_hits, phi_min, phi_max);
 	return cluster;
 }
-
-void TKEvent::likelihood_centred(std::vector<TKtrhit*> hits, double phi_min, double phi_max, bool save_sinograms)
-{
-	gROOT->SetBatch(kTRUE);
-	
-	const int resolution = 70;
-	const int iterations = 2;
-	const double sigma = 2.0;
-
-	double S_r = 0.0;
-	double S_rX = 0.0;
-	double S_rY = 0.0;
-	for(int i = 0; i < hits.size();i++)
-	{
-		S_r = S_r + 1.0/(sigma*sigma);
-		S_rX = S_rX + hits[i]->get_xy('x')/(sigma*sigma);
-		S_rY = S_rY + hits[i]->get_xy('y')/(sigma*sigma);
-	}
-	
-	double phi1 = phi_min;
-	double phi2 = phi_max;
-	double R1 = -35.0;
-	double R2 = 35.0;
-	
-	double peak_Theta;
-	double peak_R;
-	
-	int side = hits.at(0)->get_SRL('s');
-	double minimum = 1e100;
-	for(int iter = 0; iter < iterations; iter++)
-	{	
-		double delta_phi = phi2 - phi1;
-		double delta_R = R2 - R1;
-		
-		double offset_phi = delta_phi/(2.0*resolution);
-		double offset_R = delta_R/(2.0*resolution);
-		
-		TH2F *sinogram_centred = new TH2F("sinogram_centred", "sinogram_centred; phi[rad]; r[mm]", resolution, phi1 + offset_phi, phi2 + offset_phi, resolution, R1 + offset_R, R2 + offset_R);	
-				
-		//double norm_const = pow(2.0*M_PI*sigma*sigma, -1.0*hits.size()/2.0); 
-		double weight;
-		double r, theta;
-		double sin_theta, cos_theta;
-		double R0;
-		double rho;
-		double shift;
-		double diff_R;
-		
-		for(int j = 1; j <= resolution; j++)
-		{
-			theta = phi1 + (j * delta_phi / resolution);
-			sin_theta = sin(theta);
-			cos_theta = cos(theta);
-			
-			// shifting origin to "center of mass" of hits			
-			shift = (S_rX/S_r)*sin_theta - (S_rY/S_r)*cos_theta;
-			for(int k = 1; k <= resolution; k++)
-			{
-				r = R1 + (k * delta_R / resolution);
-				r = r + shift;
-				double diff_R_sum = 0.0;
-				for(int hit = 0; hit < hits.size(); hit++)
-				{
-					rho = hits[hit]->get_xy('x')*sin_theta - hits[hit]->get_xy('y')*cos_theta;
-					R0 = hits[hit]->get_r();
-					diff_R = pow( abs(r-rho) - R0, 2 );
-					diff_R_sum = diff_R_sum + diff_R;
-				}
-				
-				//weight = -diff_R_sum / (2.0*sigma*sigma); 
-				//weight = exp( -diff_R_sum / (2.0*sigma*sigma*double(hits.size())) );
-				//weight = weight * norm_const;
-				sinogram_centred->SetBinContent(j, k, diff_R_sum );
-			}	
-		}
-		
-		
-		for(int i = 1; i <= resolution; i++)
-		{
-			for(int j = 1; j <= resolution; j++)
-			{
-				if(minimum > sinogram_centred->GetBinContent(i,j))
-				{
-					minimum = sinogram_centred->GetBinContent(i,j);
-					peak_Theta = i;
-					peak_R = j;
-				}
-			}
-		}
-		
-		if(minimum == 1e100) 
-		{
-			delete sinogram_centred;			
-			break;
-		}
-		
-		if( save_sinograms == true ) 
-		{
-			TCanvas* c2 = new TCanvas("sinogram_centred","sinogram_centred", 1000, 1000);
-			c2->SetRightMargin(0.15);
-			sinogram_centred->SetStats(0);
-			sinogram_centred->SetContour(100);
-			sinogram_centred->Draw("COLZ");
-			//gStyle->SetPalette(62);
-			
-			// Hough transform of anode wires
-			if( 1 )
-			{
-				for(int hit = 0; hit < hits.size(); hit++)
-				{
-					double xi = hits[hit]->get_xy('x');
-					double yi = hits[hit]->get_xy('y');
-					auto function = new TF1("function", "[0]*sin(x)-[1]*cos(x)", phi1, phi2);
-					function->SetParameter(0, xi-(S_rX/S_r));
-					function->SetParameter(1, yi-(S_rY/S_r));
-					function->SetLineWidth(2);
-					function->Draw("Same");
-				}
-			}
-			
-			c2->SaveAs(Form("Events_visu/sinogram_centred-run-%d_event-%d_side-%d_zoom-%d.png", run_number, event_number, side, iter));
-			c2->Close();
-		}
-		delete sinogram_centred;
-		
-		peak_Theta = phi1 + delta_phi * (peak_Theta-0.5) / double(resolution);
-		peak_R = R1 + delta_R * (peak_R-0.5) / double(resolution);
-		
-		phi1 = peak_Theta - 0.05*delta_phi;
-		phi2 = peak_Theta + 0.05*delta_phi;
-		R1 = peak_R - 0.05*delta_R;
-		R2 = peak_R + 0.05*delta_R;
-
-		peak_R = peak_R + (S_rX/S_r)*sin(peak_Theta) - (S_rY/S_r)*cos(peak_Theta);
-	}
-			
-	if(minimum != 1e100)
-	{	
-		/*
-		if(peak_Theta < 0.0)
-		{
-			peak_Theta = peak_Theta + M_PI;
-			peak_R = -peak_R;
-		}*/
-		
-		TKtrack* track = new TKtrack(side, peak_Theta, peak_R);
-		tracks.push_back(track);
-				
-		double a = track->get_a();
-		double b = track->get_b();
-
-		double association_distance = 6.0;
-		double denominator = sqrt((a*a) + 1);	
-		double distance_from_wire;
-		for(int i = 0; i < hits.size(); i++)
-		{
-			distance_from_wire = abs(hits[i]->get_xy('y') - a*hits[i]->get_xy('x') - b) / denominator;
-			if( abs(distance_from_wire - hits[i]->get_r()) < association_distance )
-			{
-				track->add_associated_tr_hit(hits[i]);
-				hits[i]->set_associated_track(track);
-			}
-		}		
-		
-		double chi_squared = minimum/(double(hits.size())*sigma*sigma);
-		double norm_const = pow( 2.0*M_PI*sigma*sigma, -1.0*double(hits.size())/2.0 ); 
-		
-		track->set_chi_squared_R( chi_squared );
-		track->set_quality_R( exp(-0.5*chi_squared) );		
-		track->set_likelihood_R( norm_const * exp(-0.5*chi_squared*double(hits.size())) );
-			
-		//track->reconstruct_vertical_least_square();
-		track->reconstruct_vertical_MLM();
-	}
-}
-
-
-
-
 

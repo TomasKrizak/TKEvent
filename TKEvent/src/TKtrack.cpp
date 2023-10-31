@@ -15,6 +15,7 @@ TKtrack::TKtrack()
 	quality_Z = 0.0;
 	
 	mirror_image = nullptr;
+	ambiguity_type = 0;
 }
 
 TKtrack::TKtrack(int _side, double _phi, double _r)
@@ -36,6 +37,7 @@ TKtrack::TKtrack(int _side, double _phi, double _r)
 	quality_Z = 0.0;
 	
 	mirror_image = nullptr;
+	ambiguity_type = 0;
 }
 
 TKtrack::TKtrack(int _side, double _a, double _b, double _c, double _d)
@@ -61,6 +63,7 @@ TKtrack::TKtrack(int _side, double _a, double _b, double _c, double _d)
 	quality_Z = 0.0;
 	
 	mirror_image = nullptr;
+	ambiguity_type = 0;
 }
 
 TKtrack::~TKtrack()
@@ -159,14 +162,22 @@ void TKtrack::set_likelihood_Z(double _likelihood_Z)
 	likelihood_Z = _likelihood_Z;
 }
 
-void TKtrack::set_ambiguity(bool _ambiguous)
+void TKtrack::set_ambiguity_type(int _ambiguity_type)
 {
-	ambiguous = _ambiguous;
+	ambiguity_type = _ambiguity_type;
 }
 
 void TKtrack::link_mirror_image(TKtrack* _mirror_image)
 {
 	mirror_image = _mirror_image;
+	mirror_image->set_ambiguity_type( ambiguity_type );
+	mirror_image->set_chi_squared_R( chi_squared_R );
+	mirror_image->set_quality_R( quality_R );
+	mirror_image->set_likelihood_R( likelihood_R );
+	for(int i = 0; i < associated_tr_hits.size(); i++)
+	{
+		mirror_image->add_associated_tr_hit( associated_tr_hits[i] );
+	}
 }
 
 int TKtrack::get_side()
@@ -259,9 +270,9 @@ double TKtrack::get_likelihood_Z()
 	return likelihood_Z;
 } 
 
-bool TKtrack::is_ambiguous()
+int TKtrack::get_ambiguity_type()
 {
-	return ambiguous;
+	return ambiguity_type;
 } 
 
 TKtrack* TKtrack::get_mirror_image()
@@ -402,6 +413,10 @@ void TKtrack::update_likelihood()
 			used_hits++;
 			x = associated_tr_hits[i]->get_xy('x');
 			y = associated_tr_hits[i]->get_xy('y');
+			
+			temp = h + tan_theta*(y*sin_phi + x*cos_phi) - z; 
+			/*
+			// apparently I dont understand my own parametrization
 			if(r > 0)
 			{
 				temp = h + tan_theta*(y*sin_phi + x*cos_phi) - z; 
@@ -410,7 +425,7 @@ void TKtrack::update_likelihood()
 			{
 				temp = h - tan_theta*(y*sin_phi + x*cos_phi) - z; 
 			}
-			
+			*/
 			sum = sum + pow(temp, 2.0);
 		}		
 	}
@@ -425,7 +440,7 @@ void TKtrack::update_likelihood()
 		
 		double con = pow( 2.0*M_PI*sigma_z*sigma_z, -2.0*double(used_hits)); 
 
-		likelihood_Z = con *  exp( -0.5*chi_squared_Z*double(used_hits) );
+		likelihood_Z = con * exp( -0.5*chi_squared_Z*double(used_hits) );
 		likelihood = likelihood_R * likelihood_Z; 	
 	}
 }
@@ -444,7 +459,8 @@ void TKtrack::print()
 	std::cout << "	quality: " << quality << std::endl;
 	std::cout << "	quality R: " << quality_R << std::endl;
 	std::cout << "	quality Z: " << quality_Z << std::endl;
-	std::cout << "	number of associated tracker hits: " << associated_tr_hits.size() << std::endl << std::endl;
+	std::cout << "	number of associated tracker hits: " << associated_tr_hits.size() << std::endl;
+	std::cout << "	ambiguity: " << ambiguity_type << std::endl << std::endl;
 }
 
 void TKtrack::add_associated_tr_hit(TKtrhit* tracker_hit)

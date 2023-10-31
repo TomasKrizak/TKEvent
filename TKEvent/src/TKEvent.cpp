@@ -1,10 +1,6 @@
 // TK headers
 #include "TKEvent.h"
 
-#include <TROOT.h>
-#include <TStyle.h>
-#include <TF1.h>
-
 // dimensions in mm
 // origin in the center of detector
 const double Bi_source_x = 1.4;
@@ -93,7 +89,23 @@ std::vector<TKtrhit*> TKEvent::get_tr_hits()
 
 std::vector<TKtrack*> TKEvent::get_tracks()
 {
-	return tracks;
+	vector<TKtrack*> all_tracks;
+	for(int i = 0; i < tracks.size(); i++)
+	{
+		all_tracks.push_back( tracks[i] );
+	}
+	for(int i = 0; i < clusters.size(); i++)
+	{
+		if( clusters[i]->get_track() != nullptr )
+		{
+			all_tracks.push_back( clusters[i]->get_track() );
+			if( clusters[i]->get_track()->get_mirror_image() != nullptr )
+			{
+				all_tracks.push_back( clusters[i]->get_track()->get_mirror_image() );
+			}
+		}
+	}
+	return all_tracks;
 }
 
 std::vector<TKcluster*> TKEvent::get_clusters()
@@ -113,7 +125,23 @@ TKtrhit* TKEvent::get_tr_hit(int _i)
 
 TKtrack* TKEvent::get_track(int _i)
 {
-	return tracks[_i];
+	vector<TKtrack*> all_tracks;
+	for(int i = 0; i < tracks.size(); i++)
+	{
+		all_tracks.push_back( tracks[i] );
+	}
+	for(int i = 0; i < clusters.size(); i++)
+	{
+		if( clusters[i]->get_track() != nullptr )
+		{
+			all_tracks.push_back( clusters[i]->get_track() );
+			if( clusters[i]->get_track()->get_mirror_image() != nullptr )
+			{
+				all_tracks.push_back( clusters[i]->get_track()->get_mirror_image() );
+			}
+		}
+	}
+	return all_tracks[_i];
 }
 
 TKcluster* TKEvent::get_cluster(int _i)
@@ -133,7 +161,23 @@ int TKEvent::get_event_number()
 
 int TKEvent::get_no_tracks()
 {
-	return tracks.size();
+	vector<TKtrack*> all_tracks;
+	for(int i = 0; i < tracks.size(); i++)
+	{
+		all_tracks.push_back( tracks[i] );
+	}
+	for(int i = 0; i < clusters.size(); i++)
+	{
+		if( clusters[i]->get_track() != nullptr )
+		{
+			all_tracks.push_back( clusters[i]->get_track() );
+			if( clusters[i]->get_track()->get_mirror_image() != nullptr )
+			{
+				all_tracks.push_back( clusters[i]->get_track()->get_mirror_image() );
+			}
+		}
+	}
+	return all_tracks.size();
 }
 		
 void TKEvent::print()
@@ -1111,32 +1155,34 @@ void TKEvent::make_top_projection(int option)
 		Bi_source->Draw("same");
 	}
 	
+	vector<TKtrack*> all_tracks = this->get_tracks();
 	// Drawing tracks
-	for (int i = 0; i < tracks.size(); i++)
+	for (int i = 0; i < this->get_no_tracks(); i++)
 	{
-		TLine *track;
+		
+		TLine* track;
 		double x, y;
 		
 		x = 435.0;
-		if( tracks[i]->get_side() == 0) 
+		if( all_tracks[i]->get_side() == 0) 
 		{
 			x = -x;
 		}		
-		y = tracks[i]->get_a()*x + tracks[i]->get_b();
+		y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
 		
 		if( y > 2505.5 )
 		{
-			x = (2505.5-tracks[i]->get_b())/tracks[i]->get_a();
-			y = tracks[i]->get_a()*x + tracks[i]->get_b();
+			x = (2505.5-all_tracks[i]->get_b())/all_tracks[i]->get_a();
+			y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
 			
 		}
 		else if( y < -2505.5 )
 		{
-			x = (-2505.5-tracks[i]->get_b())/tracks[i]->get_a();
-			y = tracks[i]->get_a()*x + tracks[i]->get_b();
+			x = (-2505.5-all_tracks[i]->get_b())/all_tracks[i]->get_a();
+			y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
 		}
 		
-		track = new TLine(tracks[i]->get_b(), 0.0, y, -x);			
+		track = new TLine(all_tracks[i]->get_b(), 0.0, y, -x);			
 		track->SetLineColor(kBlue);
 		track->SetLineWidth(3);
 		track->Draw("same");
@@ -1257,7 +1303,7 @@ void TKEvent::build_event()
 	}
 
 	const double sigma_r = 2.0;
-	const double sigma_z = 2.0;
+	const double sigma_z = 17.0;
 	// Adding tracker hits
 	for(int hit = 0; hit < tr_hits.size(); hit++)
 	{
@@ -1280,7 +1326,7 @@ void TKEvent::build_event()
 			radius_min = 0.0;
 		}
 	
-		TGeoVolume *tracker_cell = geom->MakeTube(Form("cell:%d.%d.%d", tr_hits[hit]->get_SRL('s'), tr_hits[hit]->get_SRL('r'), tr_hits[hit]->get_SRL('l')), Vacuum, radius_min, radius + sigma_r, sigma_z);
+		TGeoVolume *tracker_cell = geom->MakeTube(Form("cell:%d.%d.%d", tr_hits[hit]->get_SRL('s'), tr_hits[hit]->get_SRL('r'), tr_hits[hit]->get_SRL('l')), Vacuum, radius_min, radius + 2.0*sigma_r, 2.0*sigma_z);
 		TGeoHMatrix *trans = new TGeoHMatrix("Trans");
 		    	
 		trans->SetDx( tr_hits[hit]->get_xy('x') );
@@ -1290,12 +1336,12 @@ void TKEvent::build_event()
 		if( is_broken )
 		{
 		    	tracker_cell->SetLineColor(kOrange);
-			tracker_cell->SetLineWidth(2);		
+			tracker_cell->SetLineWidth(1);		
 		}
 		else
 		{
 			tracker_cell->SetLineColor(kRed);
-			tracker_cell->SetLineWidth(2);
+			tracker_cell->SetLineWidth(1);
 		}
 		
 		top->AddNode(tracker_cell, object_counter, trans);
@@ -1307,48 +1353,49 @@ void TKEvent::build_event()
 	TFile *file = new TFile(Form("./Events_visu/Run-%d_event-%d_3D.root", run_number, event_number), "RECREATE");
 	file->WriteObject(top, "demonstrator");
 
-	for(int i = 0; i < tracks.size(); i++)
+	vector<TKtrack*> all_tracks = this->get_tracks(); 
+	for(int i = 0; i < this->get_no_tracks(); i++)
 	{
 		TPolyLine3D *track = new TPolyLine3D();
-		track->SetPoint(0, 0.0, tracks[i]->get_b(), tracks[i]->get_d());
+		track->SetPoint(0, 0.0, all_tracks[i]->get_b(), all_tracks[i]->get_d());
 		double x,y,z;
 		
 		x = 435.0;
-		if( tracks[i]->get_side() == 0 ) 
+		if( all_tracks[i]->get_side() == 0 ) 
 		{
 			x = -x;
 		}		
-		y = tracks[i]->get_a()*x + tracks[i]->get_b();
+		y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
 		
 		if( y > 2505.5 )
 		{
-			x = (2505.5-tracks[i]->get_b())/tracks[i]->get_a();
-			y = tracks[i]->get_a()*x + tracks[i]->get_b();
+			x = (2505.5-all_tracks[i]->get_b())/all_tracks[i]->get_a();
+			y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
 			
 		}
 		else if( y < -2505.5 )
 		{
-			x = (-2505.5-tracks[i]->get_b())/tracks[i]->get_a();
-			y = tracks[i]->get_a()*x + tracks[i]->get_b();
+			x = (-2505.5-all_tracks[i]->get_b())/all_tracks[i]->get_a();
+			y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
 		}
-		z = tracks[i]->get_c()*x + tracks[i]->get_d();
+		z = all_tracks[i]->get_c()*x + all_tracks[i]->get_d();
 		
 		if( z > 1550.0 )
 		{
-			x = (1550.0-tracks[i]->get_d())/tracks[i]->get_c();
-			y = tracks[i]->get_a()*x + tracks[i]->get_b();
-			z = tracks[i]->get_c()*x + tracks[i]->get_d();
+			x = (1550.0-all_tracks[i]->get_d())/all_tracks[i]->get_c();
+			y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
+			z = all_tracks[i]->get_c()*x + all_tracks[i]->get_d();
 		}
 		else if( z < -1550.0 )
 		{
-			x = (-1550.0-tracks[i]->get_d())/tracks[i]->get_c();
-			y = tracks[i]->get_a()*x + tracks[i]->get_b();
-			z = tracks[i]->get_c()*x + tracks[i]->get_d();
+			x = (-1550.0-all_tracks[i]->get_d())/all_tracks[i]->get_c();
+			y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
+			z = all_tracks[i]->get_c()*x + all_tracks[i]->get_d();
 		}
 		track->SetPoint(1, x, y, z);			
 
 		track->SetLineColor(kBlue);
-		track->SetLineWidth(1);
+		track->SetLineWidth(2);
 		file->WriteObject(track, Form("track-%d", i));
 	}
 
