@@ -37,10 +37,11 @@ At the moment there are several different versions:
 	2. reconstruct_multi():
 	multi_track version of 1. It is a bit slower but searches for more possible candidates for tracks. 
 
-	3. reconstruct_ML():
+	3. reconstruct_ML(): (RECOMMENDED ALGORITHM)
 	Implementation of Maximum likelihood method for tracking. Uses a basic pre-clustering algorithm
 	which filters obvious noise and other noise tracks. Then uses maximum likelihood method on the 
-	cluster, providing the most probable solution.
+	cluster, providing the most probable solution. In addition it detects all ambiguities and 
+	analyticaly computes the mirror track  
 
 The track is described by four parameters a,b,c,d in form:
 	y = ax + b
@@ -52,7 +53,7 @@ And equivalently in the form:
  	y(t) = sin(phi)*cos(theta)*t - r*cos(phi)
  	z(t) = sin(theta)*t + h
 
-Both parametrizations are calculated during the tracking.
+Both parametrizations are calculated during the tracking and are convenient for different purposes.
 
 If needed, here is the set of transformations:
 	a = tan(phi)
@@ -71,10 +72,12 @@ If needed, here is the set of transformations:
 ===============================================================================
 
 TKEvent has two visualization options:
+
 	1. Top projection - calling a function 'make_top_projection(int option)' on obejct TKEvent (given event) 
 		creates and saves png picture (in '/ANAlYSIS_MACROS/Events_visu/' by default) of the detector
 		from above with highlighted OM hits and tracker cells hits. If tracks were calculated in this
 		event then it depicts them too.
+
 	2. 3D visualization - calling a function 'build_event()' on obejct TKEvent creates and saves a root
 		file called 'Run-XXX_event-XXX_3D.root' in '/ANAlYSIS_MACROS/Events_visu/' folder. This stores
 		all basic detector geometry as root geometry objects. Can be then visualized using provided
