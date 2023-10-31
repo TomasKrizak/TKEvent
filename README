@@ -1,3 +1,6 @@
+WARNING!: on 31.10. I uploaded "ambiguity update" which changed the strucutre of data a bit.
+	do not use the updated library on data converted using the old library! 
+
 In case this README is missing some important information or is unclear do not
 hesitate to contact me (Tomáš Křižák) on slack or email - tomas.krizak@cvut.cz
 
