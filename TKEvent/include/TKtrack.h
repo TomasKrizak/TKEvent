@@ -75,11 +75,12 @@ class TKtrack: public TObject
 		double likelihood_Z;
 		
 		// in case if ambiguities the mirror images are linked
-		// ambiguous == 0 means no ambiguity
-		bool ambiguous;
+		// ambiguity_type == 0 means no ambiguity
+		int ambiguity_type;
 		TKtrack* mirror_image;
 		
-		std::vector<TKtrhit*> associated_tr_hits; // association_distance can be changed in reconstruction functions (3 sigma by default = 6mm)
+		// association_distance can be changed in reconstruction functions (3 sigma by default = 6mm)
+		std::vector<TKtrhit*> associated_tr_hits; 
 
 	public:
 		
@@ -115,7 +116,11 @@ class TKtrack: public TObject
 		void set_likelihood_R(double _likelihood_R);
 		void set_likelihood_Z(double _likelihood_Z);
 		
-		void set_ambiguity(bool _ambiguous);
+		void set_ambiguity_type(int _ambiguity_type);
+		
+		// links a mirror solution to the original track and copies common information: 
+		// 	associated hits, quality_R, likelihood_R, chi_squared_R
+		//	note: link is not mutual - original track is a "master track"
 		void link_mirror_image(TKtrack* _mirror_image);
 		
 		int get_side();
@@ -142,7 +147,7 @@ class TKtrack: public TObject
 		double get_likelihood_R();
 		double get_likelihood_Z();
 
-		bool is_ambiguous();
+		int get_ambiguity_type();
 		TKtrack* get_mirror_image();
 
 		// calculates likelihood_Z and likelihood based on associated hits

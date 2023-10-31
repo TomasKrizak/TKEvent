@@ -21,6 +21,8 @@
 #include "TLatex.h"
 #include "TLine.h"
 #include "TObject.h"
+#include <TStyle.h>
+#include <TF1.h>
 
 // TK headers
 #include "TKOMhit.h"
@@ -74,8 +76,8 @@ class TKEvent: public TObject
 	
 		int get_run_number();
 		int get_event_number();
-
-		int  get_no_tracks();
+		int get_no_tracks();
+		
 		void print();
 		void print_tracks();
 
@@ -118,10 +120,6 @@ class TKEvent: public TObject
 		// a combination of basic clustering and maximum likelihood method
 		// currently finds only solution per detector side
 		void reconstruct_ML(bool save_sinograms);
-		
-		void reconstruct_ML_from_hits(std::vector<TKtrhit*> hits ,bool save_sinograms);
-	
-		void likelihood_centred(std::vector<TKtrhit*> hits, double phi_min, double phi_max, bool save_sinograms);
 		
 	// vizualization section
 		

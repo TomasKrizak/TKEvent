@@ -6,6 +6,11 @@
 #include <math.h>
 
 // ROOT headers
+#include "TCanvas.h"
+#include "TH2D.h"
+#include "TF1.h"
+#include "TROOT.h"
+#include "TGraph.h"
 #include "TObject.h"
 
 #include "TKtrhit.h"
@@ -52,6 +57,9 @@ class TKcluster: public TObject
 
 		void detect_ambiguity_type();
 		int get_ambiguity_type();
+		
+		void reconstruct_ambiguity();
+		void reconstruct_MLM(bool save_sinograms, int run_number, int event_number);
 
 		void print();
 		
