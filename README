@@ -130,4 +130,8 @@ Class TKEvent can be used in two ways:
 		(depending on what runs you want to use (0-812 or 813 and higher)
 		keep ".cxx" only in those scripts you will be using) 
 	
-	
+===============================================================================
+	Mathematical derivation of the maximum likelihood method:
+===============================================================================
+
+	https://www.overleaf.com/read/qpccqmvqfbby#c4c822
