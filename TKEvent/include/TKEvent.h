@@ -87,13 +87,19 @@ class TKEvent: public TObject
 		void add_tracker_hit(int _cell_num, int64_t _tsp[7]);
 		void add_tracker_hit(int _SRL[3],   int64_t _tsp[7]);
 	
-	// possibly future drift model section - currently only radius calculation
+	// drift model and plasma propagation section
 	
+		// associates tracker hits to OM hits and calculates hit radii
 		// drift model: "Manchester" or "Betsy"
 		// association_mode: "time" or "distance"
 		// 	"distance": minimazes distance between OM and tracker hit
 		// 	"time": minimazes time difference between OM and tracker hit
-		void set_r(std::string drift_model, std::string association_mode);	
+		void set_r(std::string drift_model, std::string association_mode);
+		
+		// calls sigma_R, sigma_Z, h set functions for all tracker hits
+		void set_sigma_R(); // currently unnecessary
+		void set_h();
+		void set_sigma_Z(); // currently unnecessary
 	
 	// clustering functions section
 	
@@ -112,6 +118,7 @@ class TKEvent: public TObject
 		
 		// with uncertainties, one candidate - recommended function
 		void reconstruct_single(bool save_sinograms);
+		void reconstruct_single_from_hits(std::vector<TKtrhit*> hits, bool save_sinograms);
 				
 		// with uncertainties, multiple candidates
 		void reconstruct_multi(bool save_sinograms);
@@ -120,6 +127,9 @@ class TKEvent: public TObject
 		// a combination of basic clustering and maximum likelihood method
 		// currently finds only solution per detector side
 		void reconstruct_ML(bool save_sinograms);
+		void reconstruct_ML_3D(bool save_sinograms);
+		
+		void reconstruct_ML_multi(bool save_sinograms);
 		
 	// vizualization section
 		

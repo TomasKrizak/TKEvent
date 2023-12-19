@@ -8,6 +8,7 @@
 // ROOT headers
 #include "TCanvas.h"
 #include "TH2D.h"
+#include "TH1D.h"
 #include "TF1.h"
 #include "TROOT.h"
 #include "TGraph.h"
@@ -60,6 +61,8 @@ class TKcluster: public TObject
 		
 		void reconstruct_ambiguity();
 		void reconstruct_MLM(bool save_sinograms, int run_number, int event_number);
+		void reconstruct_MLM_3D(bool save_sinograms, int run_number, int event_number);
+		void draw_ML_vertical(int run_number, int event_number);
 
 		void print();
 		

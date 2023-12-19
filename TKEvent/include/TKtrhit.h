@@ -13,8 +13,8 @@ class TKtrack;
 class TKtrhit: public TObject
 {
 	private:
-// MIRO: Pridať is_corner, is_side, is_inside, is_broken - určí driftmodel
-// MIRO: Neskôr pridať aj double deltaR a deltaZ neistoty keď s tým bude vedieť drift model pracovať		
+// MIRO: Pridať is_corner, is_side, is_inside, is_broken - určí drift model
+		
 		int    cell_num;
 		int    SRL[3];	// 0 = Side, 1 = Row, 2 = Layer
 		double xy [2];	// (x,y) coordinate of the tracker cell xy[0] = x, xy[1] = y
@@ -23,9 +23,14 @@ class TKtrhit: public TObject
 		TKOMhit *associated_OMhit;
 		TKtrack *associated_track;
 
-		double h;
-		double r;
+		// vertical position of the hit
+		double Z;
+		double sigma_Z; // default value: 17.0 mm (Gaussian model)
 
+		// r = drift radius 		
+		double r;
+		double sigma_R; // default value: 2.0 mm (Gaussian model)
+		
 		void set_SRL_xy();
 
 	public:
@@ -40,8 +45,15 @@ class TKtrhit: public TObject
 		void set_cell_num(int _cell_num);
 		void set_tsp	  (int64_t _tsp[7]); // sets timestamps
 
-		void set_h();
+		void set_h(double _h);
+		void set_h();	// space for better model implementation
+		void set_sigma_Z(double _sigma_Z);
+		void set_sigma_Z(); // space for better model implementation
+		
 		void set_r(double _r);
+		void set_sigma_R(double _sigma_R);
+		void set_sigma_R(); // space for better model implementation
+		
 		void set_associated_OMhit(TKOMhit *_associated_OMhit);
 		void set_associated_track(TKtrack *_associated_track);
 
@@ -50,7 +62,9 @@ class TKtrhit: public TObject
 		double  get_xy        (char _xy_n);
 		int64_t get_tsp       (char _tsp_n); // returns timestamp
 		double  get_r         ();
+		double  get_sigma_R   ();
 		double  get_h         ();
+		double  get_sigma_Z   ();
 		TKOMhit* get_associated_OMhit();
 		TKtrack* get_associated_track();
 		
