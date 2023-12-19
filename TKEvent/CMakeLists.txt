@@ -12,7 +12,7 @@ endif()
 
 # Project setup
 cmake_minimum_required(VERSION 3.3)
-project(TKEvent VERSION "3.0.0")
+project(TKEvent VERSION "2.0.0")
 set(CMAKE_CXX_STANDARD 14)
 
 #Finds ROOT package and defines cmake variables
