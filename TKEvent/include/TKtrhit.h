@@ -24,7 +24,7 @@ class TKtrhit: public TObject
 		TKtrack *associated_track;
 
 		// vertical position of the hit
-		double Z;
+		double h;
 		double sigma_Z; // default value: 17.0 mm (Gaussian model)
 
 		// r = drift radius 		
