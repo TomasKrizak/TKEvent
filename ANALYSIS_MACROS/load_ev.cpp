@@ -33,9 +33,10 @@ void load_ev()
 		tree->GetEntry(i);
 		
 		
-		event->set_r("Manchester", "distance");	// needed for reconstruction
+		event->set_r("Manchester", "distance");	// calculates tracker hit radii
+		event->set_h();	// calculates tracker hit heights
 		
-		event->reconstruct_ML(0);
+		event->reconstruct_ML(0); // currently best reconstuction method
 
 		event->print();
 		
