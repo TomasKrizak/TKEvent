@@ -6,13 +6,17 @@ ClassImp(TKtrack);
 
 TKtrack::TKtrack()
 {
-	likelihood   = 0.0;
-	likelihood_R = 0.0;
-	likelihood_Z = 0.0;
+	likelihood   = -1.0;
+	likelihood_R = -1.0;
+	likelihood_Z = -1.0;
 	
-	quality   = 0.0;
-	quality_R = 0.0;
-	quality_Z = 0.0;
+	quality   = -1.0;
+	quality_R = -1.0;
+	quality_Z = -1.0;
+	
+	chi_squared = -1.0;
+	chi_squared_R = -1.0;
+	chi_squared_Z = -1.0;
 	
 	mirror_image = nullptr;
 	ambiguity_type = 0;
@@ -28,13 +32,17 @@ TKtrack::TKtrack(int _side, double _phi, double _r)
 	a = tan(phi);
 	b = -r / cos(phi);
 	
-	likelihood   = 0.0;
-	likelihood_R = 0.0;
-	likelihood_Z = 0.0;
+	likelihood   = -1.0;
+	likelihood_R = -1.0;
+	likelihood_Z = -1.0;
 	
-	quality   = 0.0;
-	quality_R = 0.0;
-	quality_Z = 0.0;
+	quality   = -1.0;
+	quality_R = -1.0;
+	quality_Z = -1.0;
+	
+	chi_squared = -1.0;
+	chi_squared_R = -1.0;
+	chi_squared_Z = -1.0;
 	
 	mirror_image = nullptr;
 	ambiguity_type = 0;
@@ -54,13 +62,17 @@ TKtrack::TKtrack(int _side, double _a, double _b, double _c, double _d)
 	theta = atan(c/sqrt(a*a+1.0));
 	h = d - a*b*c/(a*a+1.0);
 	
-	likelihood   = 0.0;
-	likelihood_R = 0.0;
-	likelihood_Z = 0.0;
+	likelihood   = -1.0;
+	likelihood_R = -1.0;
+	likelihood_Z = -1.0;
 	
-	quality   = 0.0;
-	quality_R = 0.0;
-	quality_Z = 0.0;
+	quality   = -1.0;
+	quality_R = -1.0;
+	quality_Z = -1.0;
+	
+	chi_squared = -1.0;
+	chi_squared_R = -1.0;
+	chi_squared_Z = -1.0;
 	
 	mirror_image = nullptr;
 	ambiguity_type = 0;
@@ -346,6 +358,7 @@ void TKtrack::reconstruct_vertical_MLM()
 	double Sxx = 0.0;
 	double Syy = 0.0;
 	double x,y,z;
+	double const_Z;
 	
 	for(int i = 0; i < associated_tr_hits.size(); i++)
 	{
@@ -354,16 +367,17 @@ void TKtrack::reconstruct_vertical_MLM()
 		{	
 			x = associated_tr_hits[i]->get_xy('x');
 			y = associated_tr_hits[i]->get_xy('y');
+			const_Z = pow(associated_tr_hits[i]->get_sigma_Z(), -2.0);
 			
-			S++;
-			Sx = Sx + x;
-			Sy = Sy + y;
-			Sz = Sz + z;
-			Sxy = Sxy + x*y;
-			Sxz = Sxz + x*z;
-			Syz = Syz + y*z;
-			Sxx = Sxx + x*x;
-			Syy = Syy + y*y;
+			S = S + const_Z;
+			Sx = Sx + x*const_Z;
+			Sy = Sy + y*const_Z;
+			Sz = Sz + z*const_Z;
+			Sxy = Sxy + x*y*const_Z;
+			Sxz = Sxz + x*z*const_Z;
+			Syz = Syz + y*z*const_Z;
+			Sxx = Sxx + x*x*const_Z;
+			Syy = Syy + y*y*const_Z;
 		}
 	}
 	
@@ -371,15 +385,13 @@ void TKtrack::reconstruct_vertical_MLM()
 	if( denominator != 0.0)
 	{
 		double tan_theta = ((Sy*Sz-S*Syz)*sin(phi) + (Sx*Sz-S*Sxz)*cos(phi)) / denominator;
-		double h_temp = Sz / S - (Sx*cos(phi) + Sy*sin(phi)) * tan_theta / S;
+		double h_temp = (Sz / S) - (Sx*cos(phi) + Sy*sin(phi)) * tan_theta / S;
 		
 		h = h_temp;
 		theta = atan(tan_theta);
 
 		c = tan_theta/cos(phi);
 		d = h - r*tan(phi)*tan_theta;
-		
-		this->update_likelihood();	
 	}
 	else 
 	{
@@ -389,30 +401,32 @@ void TKtrack::reconstruct_vertical_MLM()
 		c = 0.0;
 		d = 0.0;
 	}
+	this->update_likelihood();	
 }
 
 void TKtrack::update_likelihood()
 {
-	const double sigma_z = 17.0; 
-		
-	double x,y,z;
-	
 	double sin_phi = sin(phi);
 	double cos_phi = cos(phi);
 	double tan_theta = tan(theta); 
 	
+	int no_hits_R = associated_tr_hits.size();
+	int no_hits_Z = 0.0;
+
 	double sum = 0.0;
 	double temp;
 
-	int used_hits = 0.0;
-	for(int i = 0; i < associated_tr_hits.size(); i++)
+	double x,y,z;
+	double sigma_Z; 
+	for(int i = 0; i < no_hits_R; i++)
 	{
 		z = associated_tr_hits[i]->get_h();
 		if(z != 0.0)
 		{	
-			used_hits++;
+			no_hits_Z++;
 			x = associated_tr_hits[i]->get_xy('x');
 			y = associated_tr_hits[i]->get_xy('y');
+			sigma_Z = associated_tr_hits[i]->get_sigma_Z();
 			
 			temp = h + tan_theta*(y*sin_phi + x*cos_phi) - z; 
 			/*
@@ -426,22 +440,68 @@ void TKtrack::update_likelihood()
 				temp = h - tan_theta*(y*sin_phi + x*cos_phi) - z; 
 			}
 			*/
-			sum = sum + pow(temp, 2.0);
+			sum = sum + pow( temp/sigma_Z, 2.0 );
 		}		
 	}
-	if(used_hits > 0)
+	
+	double weight_R = double(no_hits_R) / double(no_hits_R + no_hits_Z);
+	double weight_Z = double(no_hits_Z) / double(no_hits_R + no_hits_Z);
+	
+	if(chi_squared_R != -1.0 && chi_squared == -1.0)	
 	{
-	
-		chi_squared_Z = sum/(sigma_z*sigma_z*double(used_hits));
-		chi_squared = chi_squared_Z * chi_squared_R; 
-	
-		quality_Z = exp( -0.5*chi_squared_Z );
-		quality = quality_R * quality_Z;
-		
-		double con = pow( 2.0*M_PI*sigma_z*sigma_z, -2.0*double(used_hits)); 
-
-		likelihood_Z = con * exp( -0.5*chi_squared_Z*double(used_hits) );
-		likelihood = likelihood_R * likelihood_Z; 	
+		if(no_hits_Z > 1)
+		{
+			chi_squared_Z = sum / double(no_hits_Z);
+			chi_squared = weight_R*chi_squared_R + weight_Z*chi_squared_Z; 
+			
+			quality_Z = exp( -0.5*chi_squared_Z );
+			quality = pow(quality_R, weight_R) * pow(quality_Z, weight_Z);
+			
+			double norm_const = pow( 2.0*M_PI, -0.5*double(no_hits_Z)); 
+			for(int i = 0; i < no_hits_R; i++)
+			{
+				if(associated_tr_hits[i]->get_h() != 0.0)
+				{
+					norm_const = norm_const / associated_tr_hits[i]->get_sigma_Z();
+				}
+			}
+			likelihood_Z = norm_const * pow(quality_Z, no_hits_Z);
+			likelihood = likelihood_R * likelihood_Z; 
+		}
+		else
+		{
+			chi_squared = chi_squared_R;
+			quality = quality_R;
+			likelihood = likelihood_R;
+		}
+	}
+	else if(chi_squared_R == -1.0 && chi_squared != -1.0)	
+	{
+		if(no_hits_Z > 1)
+		{
+			chi_squared_Z = sum / double(no_hits_Z);
+			chi_squared_R = (1.0/weight_R)*chi_squared - (weight_Z/weight_R)*chi_squared_Z;
+			
+			quality_Z = exp( -0.5*chi_squared_Z );
+			quality_R = pow(quality, 1.0/weight_R) * pow(quality_Z, -weight_Z/weight_R);
+			
+			double norm_const = pow( 2.0*M_PI, -0.5*double(no_hits_Z));
+			for(int i = 0; i < no_hits_R; i++)
+			{
+				if(associated_tr_hits[i]->get_h() != 0.0)
+				{
+					norm_const = norm_const / associated_tr_hits[i]->get_sigma_Z();
+				}
+			}
+			likelihood_Z = norm_const * pow(quality_Z, no_hits_Z);
+			likelihood_R = likelihood / likelihood_Z; 
+		}
+		else
+		{
+			chi_squared_R = chi_squared;
+			quality_R = quality;
+			likelihood_R = likelihood;
+		}
 	}
 }
 
@@ -456,9 +516,9 @@ void TKtrack::print()
 	     	  << ", r = " << r 
 	     	  << ", theta = " << theta 
 	     	  << ", h = " << h << std::endl; 
-	std::cout << "	quality: " << quality << std::endl;
-	std::cout << "	quality R: " << quality_R << std::endl;
-	std::cout << "	quality Z: " << quality_Z << std::endl;
+	std::cout << "	chi squared: " << chi_squared << std::endl;
+	std::cout << "	chi squared R: " << chi_squared_R << std::endl;
+	std::cout << "	chi squared Z: " << chi_squared_Z << std::endl;
 	std::cout << "	number of associated tracker hits: " << associated_tr_hits.size() << std::endl;
 	std::cout << "	ambiguity: " << ambiguity_type << std::endl << std::endl;
 }

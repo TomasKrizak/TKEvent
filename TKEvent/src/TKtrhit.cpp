@@ -9,6 +9,11 @@ static double foil_spacex = 58.0; // probably wrong
 const double tc_radius = 22.0;
 const double tc_sizez = 3030.0;
 
+const double default_sigma_R = 2.0;
+const double default_sigma_Z = 17.0;
+const double default_h = 0.0;
+const double default_r = 22.0;
+
 void TKtrhit::set_SRL_xy()
 {
 	SRL[0] =  cell_num / 1017; 	// compute side
@@ -23,6 +28,11 @@ TKtrhit::TKtrhit()
 {
 	associated_OMhit = nullptr;
 	associated_track = nullptr;
+	
+	r = default_r;
+	h = default_h;
+	sigma_R = default_sigma_R;
+	sigma_Z = default_sigma_Z;
 }
 
 TKtrhit::TKtrhit(int _cell_num)
@@ -34,6 +44,11 @@ TKtrhit::TKtrhit(int _cell_num)
 
 	cell_num = _cell_num;
 	set_SRL_xy();
+	
+	r = default_r;
+	h = default_h;
+	sigma_R = default_sigma_R;
+	sigma_Z = default_sigma_Z;
 }
 
 TKtrhit::TKtrhit(int _SRL[3])
@@ -46,6 +61,11 @@ TKtrhit::TKtrhit(int _SRL[3])
 
 // MIRO: PREHODNOTIT ROZDELENIE SRL A XY
 	set_SRL_xy();
+
+	r = default_r;
+	h = default_h;
+	sigma_R = default_sigma_R;
+	sigma_Z = default_sigma_Z;
 }
 
 TKtrhit::TKtrhit(int _cell_num, int64_t _tsp[7])
@@ -58,7 +78,11 @@ TKtrhit::TKtrhit(int _cell_num, int64_t _tsp[7])
 	cell_num = _cell_num;
 	set_SRL_xy();
 	set_tsp(_tsp);
-	set_h();
+
+	r = default_r;
+	h = default_h;
+	sigma_R = default_sigma_R;
+	sigma_Z = default_sigma_Z;
 }
 
 TKtrhit::TKtrhit(int _SRL[3], int64_t _tsp[7])
@@ -72,7 +96,12 @@ TKtrhit::TKtrhit(int _SRL[3], int64_t _tsp[7])
 // MIRO: PREHODNOTIT ROZDELENIE SRL A XY
 	set_SRL_xy();
 	set_tsp(_tsp);
-	set_h();
+
+	r = default_r;
+	h = default_h;
+	sigma_R = default_sigma_R;
+	sigma_Z = default_sigma_Z;
+
 }
 
 TKtrhit::~TKtrhit()
@@ -97,9 +126,40 @@ void TKtrhit::set_r(double _r)
 	r = _r;
 }
 
+void TKtrhit::set_sigma_R(double _sigma_R)
+{
+	sigma_R = _sigma_R;
+}
+
+void TKtrhit::set_sigma_R()
+{
+	if(r != -1)
+	{
+		// TODO: possible to implement some uncertainty model
+		set_sigma_R(2.0);
+	}	
+}
+
+void TKtrhit::set_h(double _h)
+{
+	h = _h;
+}
+
+void TKtrhit::set_sigma_Z(double _sigma_Z)
+{
+	sigma_Z = _sigma_Z;
+}
+
+void TKtrhit::set_sigma_Z()
+{
+	// TODO: possible to implement some uncertainty model
+	set_sigma_Z(17.0);
+}
+
+
 void TKtrhit::set_h()
 {
-	h = 0.0;
+	// TODO: possible to implement better model
 	if (tsp[0] != -1 && tsp[5] != -1 && tsp[6] != -1)
 	{
 		h = tc_sizez * ( double(tsp[5] - tsp[0]) / double(tsp[5] + tsp[6] - 2*tsp[0]) ) - tc_sizez/2.0;
@@ -201,9 +261,19 @@ double TKtrhit::get_r()
 	return r;
 }
 
+double TKtrhit::get_sigma_R()
+{
+	return sigma_R;
+}
+
 double TKtrhit::get_h()
 {
 	return h;
+}
+
+double TKtrhit::get_sigma_Z()
+{
+	return sigma_Z;
 }
 
 void TKtrhit::print()
