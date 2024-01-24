@@ -28,8 +28,6 @@
 
 int main (int argc, char *argv[])
 {
-	//const char *red_path = getenv("RED_PATH");
-
 	int run_number = -1;
 	int event_number = -1;
 
