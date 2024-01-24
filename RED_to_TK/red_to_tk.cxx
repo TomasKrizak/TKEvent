@@ -28,7 +28,7 @@
 
 int main (int argc, char *argv[])
 {
-	const char *red_path = getenv("RED_PATH");
+	//const char *red_path = getenv("RED_PATH");
 
 	int run_number = -1;
 	int event_number = -1;
@@ -68,7 +68,7 @@ int main (int argc, char *argv[])
 		if(run_number < 813)
 		{
 			snprintf(input_filename_buffer, sizeof(input_filename_buffer),
-			       "%s/snemo_run-%d_red.data.gz", red_path, run_number);
+			       "/sps/nemo/snemo/snemo_data/raw_data/RED/v1/snemo_run-%d_red.data.gz", run_number);
 			input_filename = std::string(input_filename_buffer);
 		}
 		else
