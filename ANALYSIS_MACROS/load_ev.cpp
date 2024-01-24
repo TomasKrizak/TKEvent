@@ -34,7 +34,10 @@ void load_ev()
 		
 		
 		event->set_r("Manchester", "distance");	// calculates tracker hit radii
+		//event->set_sigma_R(); // space for implementation of better R uncertainty model
+		
 		event->set_h();	// calculates tracker hit heights
+		//event->set_sigma_Z(); // space for implementation of better Z uncertainty model
 		
 		event->reconstruct_ML(0); // currently best reconstuction method
 
@@ -42,7 +45,7 @@ void load_ev()
 		
 		event->make_top_projection(2);
 		
-		event->build_event();
+		event->build_event(); // creates a file with 3D model of the event
 	}
 }
 
