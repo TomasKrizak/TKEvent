@@ -202,9 +202,9 @@ void TKEvent::print()
 	std::cout << std::endl;
 	std::cout << "Collection of the tracks: " << std::endl;
 	
-	for (int i = 0; i < tracks.size(); i++)
+	for (int i = 0; i < this->get_tracks().size(); i++)
 	{
-		tracks[i]->print();
+		this->get_tracks()[i]->print();
 	}
 	std::cout << std::endl;
 }
@@ -213,9 +213,9 @@ void TKEvent::print_tracks()
 {
 	std::cout << std::endl;
 	std::cout << "RUN " << run_number << " | EVENT " << event_number << std::endl << std::endl;
-	for (int i = 0; i < tracks.size(); i++)
+	for (int i = 0; i < this->get_tracks().size(); i++)
 	{
-		tracks[i]->print();
+		this->get_tracks()[i]->print();
 	}
 	std::cout << std::endl;
 	
