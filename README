@@ -1,12 +1,94 @@
-WARNING!: on 19.12. I uploaded "uncertainty update" which changed the strucutre of data a bit.
-	do not use the updated library on data converted using the old library! 
-
-WARNING!: on 31.10. I uploaded "ambiguity update" which changed the strucutre of data a bit.
-	do not use the updated library on data converted using the old library! 
 
 In case this README is missing some important information or is unclear do not
 hesitate to contact me (Tomáš Křižák) on slack or email - tomas.krizak@cvut.cz
 
+===============================================================================
+	USAGE OPTIONS:
+===============================================================================
+
+Class TKEvent can be used in two ways: 
+	1. online on cluster (installation bellow)
+		a) you can use TKEvent objects and functions in your RED scripts
+			(similat as in provided 'red_to_tk' script)
+		b) you can use the 'red_to_tk' script to convert necessary data
+			to root and then simply write root scripts
+			(similar to provided 'load_ev' script in 'ANALYSIS_MACROS' folder)
+		
+	2. offline on your device (optional but very practical)
+		- requires: installing TKEvent library and RED to TKEvent converter on cluster,
+			    installing TKEvent library on your device,
+			    converted data on your device
+		- installation: use installation bellow but skip steps 2. and 4.
+
+===============================================================================
+	INSTALlATION:
+===============================================================================
+
+	1. git clone TKEvent on your cluster environment:	
+		$ git clone https://github.com/TomasKrizak/TKEvent.git
+		$ cd TKEvent/
+	
+	2. source environment:
+		$ cd RED_to_TK/
+		
+		for old runs use
+		$ source load_environment.sh
+		
+		for runs 813 and newer use
+		$ source load_environment_new.sh
+		
+	3. install TKEvent libraby on your cluster: 
+		$ cd ../TKEvent/
+		$ chmod 755 install.sh
+		$ ./install.sh
+		
+	4. install RED to TKEvent converter:
+		$ cd ../RED_to_TK/
+		$ chmod 755 install.sh
+		$ ./install.sh
+		(depending on what runs you want to use (0-812 or 813 and higher)
+		keep ".cxx" only in those scripts you will be using) 
+	
+===============================================================================
+	HOW TO USE:
+===============================================================================
+
+	1. First step after installing the library is to convert a run or its part into the TKEvent root format.
+	To do that go to "RED_to_TK/build" folder and run:
+
+		$ ./red_to_TK_new -r "RUN_NUMBER" -e "STOP_EVENT"
+		 
+	for runs 813 and higher and 
+
+		$ ./red_to_TK -r "RUN_NUMBER" -e "STOP_EVENT"
+
+	for older runs. The "-e" is optional and marks the number of the last event you want converted.
+	This is so you do not have to convert always entire run.
+
+	Note: if you already have installed your TKEvent library, make sure to run   
+		
+		$ source load_environment_new.sh
+
+	This has to be done every time you connect to CCLyon and want to convert a run. 
+
+	2. After converting the runs go to ANALYSIS_MACROS folder. A demonstration script 
+	"load_ev.cpp" is provided there. This script shows the usage of the most important
+	 and useful functions including visualization and reconstruction. Run it with
+	 
+	 	$ root load_ev.cpp
+	
+	This script creates a png picture of every event and stores it in the EVENTS_VISU folder
+	so do not run this on more than few hundreds of events at most! 
+	
+	3. The load_ev.cpp also creates a 3D scene of the event and creates a file containing 
+	the 3D information as a root file in EVENTS_VISU folder. To open this 3D view use provided 
+	"visu.cpp" script by running
+	
+		$ root visu.cpp
+
+	RECOMMENDATION: try using keys H,J,K,L,U,I while in the 3D interactive scene. 
+	(More detail below)
+	
 ===============================================================================
 	DATA STRUCTURE: 
 ===============================================================================
@@ -16,7 +98,9 @@ algorithm however it can do more than that. Class TKEvent extracts most importan
 information about given event and stores them in vectors of smaller objects:
 	- vector of OM hits (TKOHhit),
 	- vector of tracker cell hits (TKTrhit),
-	- vector of tracks (TKtrack).
+	- vector of tracks (TKtrack),
+	- vector of clusters (TKcluster)
+	
 In constrast to RED format these classes can contain some processed information like:
 	- x,y,z coordinates of tracker cell hits (calculated from timestamps and cell number)
 	- radii of tracker cell hits (you can switch drift models)
@@ -85,53 +169,6 @@ TKEvent has two visualization options:
 		file called 'Run-XXX_event-XXX_3D.root' in '/ANAlYSIS_MACROS/Events_visu/' folder. This stores
 		all basic detector geometry as root geometry objects. Can be then visualized using provided
 		'visu.cpp' skript in 'ANALASIS_MACROS'.
-	
-===============================================================================
-	USAGE OPTIONS:
-===============================================================================
-
-Class TKEvent can be used in two ways: 
-	1. online on cluster (installation bellow)
-		a) you can use TKEvent objects and functions in your RED scripts
-			(similat as in provided 'red_to_tk' script)
-		b) you can use the 'red_to_tk' script to convert necessary data
-			to root and then simply write root scripts
-			(similar to provided 'load_ev' script in 'ANALYSIS_MACROS' folder)
-		
-	2. offline on your device (optional but very practical)
-		- requires: installing TKEvent library and RED to TKEvent converter on cluster,
-			    installing TKEvent library on your device,
-			    converted data on your device
-		- installation: use installation bellow but skip steps 2. and 4.
-			    
-===============================================================================
-	INSTALLATION:
-===============================================================================
-
-	1. git clone TKEvent on your cluster environment:	
-		$ git clone https://github.com/TomasKrizak/TKEvent.git
-		$ cd TKEvent/
-	
-	2. source environment:
-		$ cd RED_to_TK/
-		
-		for old runs use
-		$ source load_environment.sh
-		
-		for runs 813 and newer use
-		$ source load_environment_new.sh
-		
-	3. install TKEvent libraby on your cluster: 
-		$ cd ../TKEvent/
-		$ chmod 755 install.sh
-		$ ./install.sh
-		
-	4. install RED to TKEvent converter:
-		$ cd ../RED_to_TK/
-		$ chmod 755 install.sh
-		$ ./install.sh
-		(depending on what runs you want to use (0-812 or 813 and higher)
-		keep ".cxx" only in those scripts you will be using) 
 	
 ===============================================================================
 	Mathematical derivation of the maximum likelihood method:
