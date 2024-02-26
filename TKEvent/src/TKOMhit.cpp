@@ -237,7 +237,32 @@ void TKOMhit::set_OM_num(int _OM_num)
 
 void TKOMhit::set_HT(bool _HT)
 {
-	HT    = _HT;
+	HT = _HT;
+}
+
+void TKOMhit::set_underflow(bool _underflow)
+{
+	underflow = _underflow;
+}
+
+void TKOMhit::set_overflow(bool _overflow)
+{
+	overflow = _overflow;
+}
+
+void TKOMhit::set_charge(int32_t _charge)
+{
+	charge = _charge;
+}
+
+void TKOMhit::set_amplitude(int16_t _amplitude)
+{
+	amplitude = _amplitude;
+}
+
+void TKOMhit::set_baseline(int16_t _baseline)
+{
+	baseline = _baseline;
 }
 
 void TKOMhit::set_OM_TDC(int64_t _OM_TDC)
@@ -253,6 +278,46 @@ void TKOMhit::set_OM_pcell(int16_t _OM_pcell)
 int TKOMhit::get_OM_num()
 {
 	return OM_num;
+}
+
+bool TKOMhit::is_HT()
+{
+	return HT;
+}
+
+bool TKOMhit::is_underflow()
+{
+	return underflow;
+}
+
+bool TKOMhit::is_overflow()
+{
+	return overflow;
+}
+
+int32_t TKOMhit::get_charge()
+{
+	return charge;
+}
+
+int16_t TKOMhit::get_amplitude()
+{
+	return amplitude;
+}
+
+int16_t TKOMhit::get_baseline()
+{
+	return baseline;
+}
+
+int64_t TKOMhit::get_OM_TDC()
+{
+	return OM_TDC;
+}
+
+int64_t TKOMhit::get_OM_pcell()
+{
+	return OM_pcell;
 }
 
 int TKOMhit::get_SWCR(char _SWCR_n)
@@ -299,21 +364,6 @@ double TKOMhit::get_xyz(char _xyz_n)
 		default:	std::cout << "ERROR in double TKOMhit::get_xyz(char): " << _xyz_n << " is not a valid argument value! " << std::endl;  
 				return NULL;
 	}
-}
-
-bool    TKOMhit::is_HT()
-{
-	return HT;
-}
-
-int64_t TKOMhit::get_OM_TDC()
-{
-	return OM_TDC;
-}
-
-int64_t TKOMhit::get_OM_pcell()
-{
-	return OM_pcell;
 }
 
 void TKOMhit::print()
