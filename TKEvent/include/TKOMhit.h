@@ -17,7 +17,12 @@ class TKOMhit: public TObject
 		int 	SWCR[4];	// 0 = Side, 1 = Wall, 2 = Column, 3 = Row
 		double  xyz[3];	// (x,y,z) coordinate of the center of OM xyz[0] = x, xyz[1] = y, xyz[2] = z
 		
-		bool    HT;
+		bool    HT;		// high treshold flag
+		bool    underflow;	// underflow flag
+          	bool    overflow;	// overflow flag
+		int32_t charge;
+		int16_t amplitude;
+		int16_t baseline;
 		int64_t OM_TDC;
 		int16_t OM_pcell;
 		
@@ -32,17 +37,29 @@ class TKOMhit: public TObject
 		TKOMhit(int _SWCR[4], bool _HT, int64_t _OM_TDC, int16_t _OM_pcell);
 		~TKOMhit();
 		
-		void set_OM_num  (int     _OM_num);
-		void set_HT      (bool    _HT);
-		void set_OM_TDC  (int64_t _OM_TDC);
-		void set_OM_pcell(int16_t _OM_pcell);
+		void set_OM_num   (int     _OM_num);
+		
+		void set_HT       (bool    _HT);
+		void set_underflow(bool _underflow);
+		void set_overflow (bool _overflow);
+		void set_charge   (int32_t _charge);
+		void set_amplitude(int16_t _amplitude);
+		void set_baseline (int16_t _baseline);
+		void set_OM_TDC   (int64_t _OM_TDC);
+		void set_OM_pcell (int16_t _OM_pcell);
 
-		int     get_OM_num  ();
-		int     get_SWCR    (char _SWCR_n);
-		double  get_xyz     (char _xyz_n);
-		bool    is_HT       ();
-		int64_t get_OM_TDC  ();
-		int64_t get_OM_pcell();
+		int     get_OM_num   ();
+		int     get_SWCR     (char _SWCR_n);
+		double  get_xyz      (char _xyz_n);
+		
+		bool    is_HT        ();
+		bool    is_underflow ();
+		bool    is_overflow  ();
+		int32_t get_charge   ();
+		int16_t get_amplitude();
+		int16_t get_baseline ();
+		int64_t get_OM_TDC   ();
+		int64_t get_OM_pcell ();
 
 		void print();
 		
