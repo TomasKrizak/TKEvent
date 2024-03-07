@@ -134,10 +134,22 @@ class TKEvent: public TObject
 	// vizualization section
 		
 		// options:
-		// 	0 - no unused hits	    
-		//	1 - yellow for unused hits in recontstruction
-		//	2 - yellow for unused hits in recontstruction 
-		//	    green for associated hits to track
+		// 	0 - no unused hits	
+		//	    red	= used hits for reconstruction    
+		//
+		//	1 - red	= used hits for reconstruction
+		//	    yellow 	= unused hits for recontstruction
+		//
+		//	2 - red	= used hits for reconstruction (unassociated)
+		//	    yellow 	= unused hits for recontstruction 
+		//	    green 	= associated hits to track
+		//
+		// 	3 - red	= used hits for reconstruction (unassociated + good vertical position)
+		//	    yellow 	= unused hits for recontstruction
+		//	    magenta 	= failed vertical position reconstruction but good drift radius (unassociated)
+		//	    green 	= associated hits to track, good vertical position
+		//	    teal	= associated hits to track, failed vertical position
+				 
 		void make_top_projection(int option);
 		void build_event();	
 
