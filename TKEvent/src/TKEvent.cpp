@@ -840,6 +840,11 @@ void TKEvent::build_event()
 		    	tracker_cell->SetLineColor(kOrange);
 			tracker_cell->SetLineWidth(1);		
 		}
+		else if( tr_hits[hit]->get_h() == 0.0 )
+		{
+			tracker_cell->SetLineColor(kMagenta);
+			tracker_cell->SetLineWidth(1);
+		}
 		else
 		{
 			tracker_cell->SetLineColor(kRed);
