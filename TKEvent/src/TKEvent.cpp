@@ -520,6 +520,7 @@ void TKEvent::make_top_projection(int option)
 		bool is_hit = false;
 		bool is_broken = false;
 		bool is_associated = false;
+		bool has_height = false;
 		
 		for(int hit = 0; hit < tr_hits.size(); hit++)
 		{
@@ -539,7 +540,12 @@ void TKEvent::make_top_projection(int option)
 				if( tr_hits[hit]->get_associated_track() != nullptr )
 				{
 					is_associated = true;
-				}					
+				}
+				
+				if( tr_hits[hit]->get_h() != 0.0 )
+				{
+					has_height = true;
+				}		
 				break;
 			}
 		}
@@ -562,6 +568,10 @@ void TKEvent::make_top_projection(int option)
 					case 2:
 						tracker_cell->SetFillColor(kOrange);
 						tracker_cell->Draw("same");			
+						break;
+					case 3:
+						tracker_cell->SetFillColor(kOrange);
+						tracker_cell->Draw("same");			
 						break;		
 				}
 			}
@@ -582,12 +592,38 @@ void TKEvent::make_top_projection(int option)
 							break;
 						case 2:
 							tracker_cell->SetFillColor(kGreen);			
+							break;
+						case 3:
+							if(has_height)
+							{
+								tracker_cell->SetFillColor(kGreen);			
+							}
+							else
+							{							
+								tracker_cell->SetFillColor(kTeal);
+							}
 							break;		
 					}
 				} 
 				else
 				{
-					tracker_cell->SetFillColor(kRed);
+					switch(option)
+					{
+						case 3:
+						if(has_height)
+						{
+							tracker_cell->SetFillColor(kRed);
+						}
+						else
+						{							
+							tracker_cell->SetFillColor(kMagenta);
+						}
+						break;
+						
+						default:
+							tracker_cell->SetFillColor(kRed);
+						break;
+					}
 				}
 				
 				tracker_cell->Draw("same");
