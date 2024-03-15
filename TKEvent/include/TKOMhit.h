@@ -18,8 +18,6 @@ class TKOMhit: public TObject
 		double  xyz[3];	// (x,y,z) coordinate of the center of OM xyz[0] = x, xyz[1] = y, xyz[2] = z
 		
 		bool    HT;		// high treshold flag
-		bool    underflow;	// underflow flag
-          	bool    overflow;	// overflow flag
 		int32_t charge;
 		int16_t amplitude;
 		int16_t baseline;
@@ -40,8 +38,6 @@ class TKOMhit: public TObject
 		void set_OM_num   (int     _OM_num);
 		
 		void set_HT       (bool    _HT);
-		void set_underflow(bool _underflow);
-		void set_overflow (bool _overflow);
 		void set_charge   (int32_t _charge);
 		void set_amplitude(int16_t _amplitude);
 		void set_baseline (int16_t _baseline);
@@ -53,8 +49,6 @@ class TKOMhit: public TObject
 		double  get_xyz      (char _xyz_n);
 		
 		bool    is_HT        ();
-		bool    is_underflow ();
-		bool    is_overflow  ();
 		int32_t get_charge   ();
 		int16_t get_amplitude();
 		int16_t get_baseline ();
