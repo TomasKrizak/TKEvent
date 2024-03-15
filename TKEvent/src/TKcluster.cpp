@@ -31,6 +31,7 @@ TKcluster::TKcluster(std::vector<TKtrhit*> tr_hits, double _phi_min, double _phi
 TKcluster::~TKcluster()
 {
 	cluster_tr_hits.clear();
+	delete track;
 }
 
 void TKcluster::add_tr_hit(TKtrhit* tracker_hit)
