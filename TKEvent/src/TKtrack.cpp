@@ -81,6 +81,7 @@ TKtrack::TKtrack(int _side, double _a, double _b, double _c, double _d)
 TKtrack::~TKtrack()
 {
 	associated_tr_hits.clear();
+	delete mirror_image;
 }
 
 void TKtrack::set_side(double _side)
