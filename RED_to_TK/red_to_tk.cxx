@@ -226,7 +226,7 @@ int main (int argc, char *argv[])
 		//event->build_event();
 		
 		tree->Fill();	
-		
+		delete event;
 		if(red_event_id % 10000 == 0)
 		{
 			std::cout << "Event No. " << red_event_id << " converted!" << std::endl;
