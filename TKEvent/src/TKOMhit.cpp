@@ -240,16 +240,6 @@ void TKOMhit::set_HT(bool _HT)
 	HT = _HT;
 }
 
-void TKOMhit::set_underflow(bool _underflow)
-{
-	underflow = _underflow;
-}
-
-void TKOMhit::set_overflow(bool _overflow)
-{
-	overflow = _overflow;
-}
-
 void TKOMhit::set_charge(int32_t _charge)
 {
 	charge = _charge;
@@ -283,16 +273,6 @@ int TKOMhit::get_OM_num()
 bool TKOMhit::is_HT()
 {
 	return HT;
-}
-
-bool TKOMhit::is_underflow()
-{
-	return underflow;
-}
-
-bool TKOMhit::is_overflow()
-{
-	return overflow;
 }
 
 int32_t TKOMhit::get_charge()
