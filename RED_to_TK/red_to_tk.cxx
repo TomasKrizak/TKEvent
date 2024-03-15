@@ -169,8 +169,6 @@ int main (int argc, char *argv[])
 			}
 		
 			event->add_OM_hit(om_num, is_HT, reference_time.get_ticks(), red_calo_hit.get_fwmeas_peak_cell());
-			//event->get_OM_hits().back()->set_underflow( red_calo_hit.is_underflow() );
-			//event->get_OM_hits().back()->set_overflow( red_calo_hit.is_overflow() );
 			event->get_OM_hits().back()->set_baseline( red_calo_hit.get_fwmeas_baseline() );
 			event->get_OM_hits().back()->set_amplitude( red_calo_hit.get_fwmeas_peak_amplitude() );
 			event->get_OM_hits().back()->set_charge( red_calo_hit.get_fwmeas_charge() );
