@@ -6,17 +6,14 @@
 const double Bi_source_x = 1.4;
 const double Bi_source_y = 14.2;
 const double Bi_source_z = 21.1;
-const double Bi_source_dist_y = 835.0; // possibly wrong or not accurate (originally 850)
-const double Bi_source_dist_z = 475.0; // possibly wrong or not accurate (originally 425)
+const double Bi_source_dist_y = 835.0;
+const double Bi_source_dist_z = 425.0;
 
 // dimensions in mm
 // origin in the center of detector
-static double foil_spacex = 58.0; // possibly inaccurate
 const double tc_radius = 22.0;
-const double tc_sizez = 3030.0;
 
 // OM dimensions in mm
-// origin in the center of detector
 // warning: dimensions are approximately taken from Falaise and might not be exactly right
 const double mw_sizex = 194.0;
 const double mw_sizey = 256.0;
