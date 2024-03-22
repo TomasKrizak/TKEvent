@@ -23,15 +23,16 @@ void load_ev()
 		upper_limit = tree->GetEntries();
 	}
 
-	TKEvent* event = new TKEvent();
+	TKEvent* event;
 	tree->SetBranchAddress("Eventdata", &event);
 
 	cout << "Run number " << run_number << ", " << tree->GetEntries() << " events available." << endl << endl;
 
 	for(UInt_t i = lower_limit; i < upper_limit + 1; i++)	// Loop over events
 	{
+	
+		event = new TKEvent();
 		tree->GetEntry(i);
-		
 		
 		event->set_r("Manchester", "distance");	// calculates tracker hit radii
 		//event->set_sigma_R(); 	// space for implementation of better R uncertainty model
