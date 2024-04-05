@@ -1548,7 +1548,10 @@ void TKEvent::build_trajectories()
 			cout << "connecting track number: " << i << endl; 
 			if(connection_counter[i] == 0)
 			{
-				trajectories.push_back(new TKtrajectory(all_tracks_from_side[i]));
+				if(all_tracks_from_side[i]->get_associated_tr_hits().size() > 1) // in ideal case should be unnecessary
+				{
+					trajectories.push_back(new TKtrajectory(all_tracks_from_side[i]));
+				}
 				trajectorized[i] = true;
 				cout << i << " trajectorized" << endl;
 			}
@@ -1595,7 +1598,10 @@ void TKEvent::build_trajectories()
 				}
 				else if(composite_track.size() == 1)
 				{
-					trajectories.push_back(new TKtrajectory(composite_track[0]));
+					if(composite_track[0]->get_associated_tr_hits().size() > 1) // in ideal case should be unnecessary
+					{
+						trajectories.push_back(new TKtrajectory(composite_track[0]));
+					}
 				}
 			}
 		}
