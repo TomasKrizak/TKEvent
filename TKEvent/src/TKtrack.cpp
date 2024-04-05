@@ -80,6 +80,10 @@ TKtrack::TKtrack(int _side, double _a, double _b, double _c, double _d)
 
 TKtrack::~TKtrack()
 {
+	for(int i = 0; i < associated_tr_hits.size(); i++)
+	{	
+		associated_tr_hits[i]->set_associated_track( nullptr );
+	}
 	associated_tr_hits.clear();
 	delete mirror_image;
 }
@@ -532,6 +536,29 @@ void TKtrack::add_associated_tr_hit(TKtrhit* tracker_hit)
 std::vector<TKtrhit*> TKtrack::get_associated_tr_hits()
 {
 	return associated_tr_hits;
+}
+
+void TKtrack::add_associated_tr_hit_point(TKpoint* tracker_hit_point)
+{
+	associated_tr_hit_points.push_back(tracker_hit_point);
+}
+
+std::vector<TKpoint*> TKtrack::get_associated_tr_hit_points()
+{
+	return associated_tr_hit_points;
+}
+
+void TKtrack::calculate_tr_hit_points()
+{
+	for(int i = 0; i < associated_tr_hits.size(); i++)
+	{
+		double t0 = associated_tr_hits[i]->get_xy('X')*cos(phi) + associated_tr_hits[i]->get_xy('Y')*sin(phi);
+		double x0 = t0*cos(phi) + r*sin(phi);
+		double y0 = t0*sin(phi) - r*cos(phi);
+		double z0 = t0*tan(theta) + h;
+		associated_tr_hit_points.push_back(new TKpoint(x0, y0, z0));
+	}
+	return;
 }
 
 

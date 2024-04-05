@@ -7,7 +7,7 @@ ClassImp(TKtrhit);
 // origin in the center of detector
 static double foil_spacex = 58.0; // probably wrong
 const double tc_radius = 22.0;
-const double tc_sizez = 3030.0;
+const double tc_sizez = 2770.0;
 
 const double default_sigma_R = 2.0;
 const double default_sigma_Z = 17.0;

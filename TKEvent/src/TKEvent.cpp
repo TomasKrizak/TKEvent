@@ -6,17 +6,14 @@
 const double Bi_source_x = 1.4;
 const double Bi_source_y = 14.2;
 const double Bi_source_z = 21.1;
-const double Bi_source_dist_y = 835.0; // possibly wrong or not accurate (originally 850)
-const double Bi_source_dist_z = 475.0; // possibly wrong or not accurate (originally 425)
+const double Bi_source_dist_y = 835.0;
+const double Bi_source_dist_z = 425.0;
 
 // dimensions in mm
 // origin in the center of detector
-static double foil_spacex = 58.0; // possibly inaccurate
 const double tc_radius = 22.0;
-const double tc_sizez = 3030.0;
 
 // OM dimensions in mm
-// origin in the center of detector
 // warning: dimensions are approximately taken from Falaise and might not be exactly right
 const double mw_sizex = 194.0;
 const double mw_sizey = 256.0;
@@ -35,10 +32,11 @@ ClassImp(TKEvent);
 
 TKEvent::TKEvent()
 {
-	OM_hits   = std::vector<TKOMhit*>();
-	tr_hits   = std::vector<TKtrhit*>();
-	tracks    = std::vector<TKtrack*>();
-	clusters  = std::vector<TKcluster*>();
+	OM_hits       = std::vector<TKOMhit*>();
+	tr_hits       = std::vector<TKtrhit*>();
+	tracks        = std::vector<TKtrack*>();
+	clusters      = std::vector<TKcluster*>();
+	trajectories  = std::vector<TKtrajectory*>();
 }
 
 TKEvent::TKEvent(int _run_number ,int _event_number)
@@ -46,10 +44,11 @@ TKEvent::TKEvent(int _run_number ,int _event_number)
 	event_number = _event_number;
 	run_number = _run_number;
 
-	OM_hits   = std::vector<TKOMhit*>();
-	tr_hits   = std::vector<TKtrhit*>();
-	tracks    = std::vector<TKtrack*>();
-	clusters  = std::vector<TKcluster*>();
+	OM_hits       = std::vector<TKOMhit*>();
+	tr_hits       = std::vector<TKtrhit*>();
+	tracks        = std::vector<TKtrack*>();
+	clusters      = std::vector<TKcluster*>();
+	trajectories  = std::vector<TKtrajectory*>();
 }
 
 TKEvent::~TKEvent()
@@ -70,19 +69,24 @@ TKEvent::~TKEvent()
 	{
 		delete clusters[i];
 	}
+	for(int i = 0;i < trajectories.size();i++)
+	{
+		delete trajectories[i];
+	}
 	
 	OM_hits.clear();
 	tr_hits.clear();
 	tracks.clear();
 	clusters.clear();
+	trajectories.clear();
 }
 
-std::vector<TKOMhit*> TKEvent::get_OM_hits()
+std::vector<TKOMhit*>& TKEvent::get_OM_hits()
 {
 	return OM_hits;
 }
 
-std::vector<TKtrhit*> TKEvent::get_tr_hits()
+std::vector<TKtrhit*>& TKEvent::get_tr_hits()
 {
 	return tr_hits;
 }
@@ -108,9 +112,14 @@ std::vector<TKtrack*> TKEvent::get_tracks()
 	return all_tracks;
 }
 
-std::vector<TKcluster*> TKEvent::get_clusters()
+std::vector<TKcluster*>& TKEvent::get_clusters()
 {
 	return clusters;
+}
+
+std::vector<TKtrajectory*>& TKEvent::get_trajectories()
+{
+	return trajectories;
 }
 
 TKOMhit* TKEvent::get_OM_hit(int _i)
@@ -149,6 +158,11 @@ TKcluster* TKEvent::get_cluster(int _i)
 	return clusters[_i];
 }
 
+TKtrajectory* TKEvent::get_trajectory(int _i)
+{
+	return trajectories[_i];
+}
+
 int TKEvent::get_run_number()
 {
 	return run_number;
@@ -179,12 +193,17 @@ int TKEvent::get_no_tracks()
 	}
 	return all_tracks.size();
 }
+
+int TKEvent::get_no_trajectories()
+{
+	return trajectories.size();
+}
 		
 void TKEvent::print()
 {
 	std::cout << std::endl;
 	std::cout << "RUN " << run_number << " | EVENT " << event_number << std::endl << std::endl;
-	std::cout << "Collection of the OM hits: " << std::endl;
+	std::cout << "Collection of OM hits: " << std::endl;
 
 	for (int i = 0; i < OM_hits.size(); i++)
 	{
@@ -192,7 +211,7 @@ void TKEvent::print()
 	}
 
 	std::cout << std::endl;
-	std::cout << "Collection of the tracker hits: " << std::endl;
+	std::cout << "Collection of tracker hits: " << std::endl;
 	
 	for (int i = 0; i < tr_hits.size(); i++)
 	{
@@ -200,7 +219,7 @@ void TKEvent::print()
 	}
 
 	std::cout << std::endl;
-	std::cout << "Collection of the tracks: " << std::endl;
+	std::cout << "Collection of tracks: " << std::endl;
 	
 	for (int i = 0; i < this->get_tracks().size(); i++)
 	{
@@ -216,6 +235,17 @@ void TKEvent::print_tracks()
 	for (int i = 0; i < this->get_tracks().size(); i++)
 	{
 		this->get_tracks()[i]->print();
+	}
+	std::cout << std::endl;	
+}
+
+void TKEvent::print_trajectories()
+{
+	std::cout << std::endl;
+	std::cout << "RUN " << run_number << " | EVENT " << event_number << std::endl << std::endl;
+	for (int i = 0; i < trajectories.size(); i++)
+	{
+		trajectories[i]->print();
 	}
 	std::cout << std::endl;
 	
@@ -268,6 +298,75 @@ std::vector<TKtrhit*> TKEvent::filter_usable(std::vector<TKtrhit*> _hits)
 	}
 	return hits;
 }
+
+std::vector<TKtrhit*> TKEvent::filter_unassociated(std::vector<TKtrhit*> _hits)
+{
+	vector<TKtrhit*> hits;	
+	for(int i = 0; i < _hits.size(); i++)
+	{
+		if( _hits[i]->get_associated_track() == nullptr )
+		{
+			hits.push_back( _hits[i] );
+		}
+	}
+	return hits;
+}
+
+
+std::vector<TKtrhit*> TKEvent::filter_distant(std::vector<TKtrhit*> _hits)
+{
+	double distance = 3; // in cells: 1 == 44mm
+	vector<TKtrhit*> hits;
+	for(int i = 0; i < _hits.size(); i++)
+	{
+		bool close = false;			
+		int RL[2] = {_hits[i]->get_SRL('R'),_hits[i]->get_SRL('L')};
+		for(int j = 0; j < _hits.size(); j++)
+		{
+			if(i == j) continue;
+			if(pow(RL[0] - _hits[i]->get_SRL('R'), 2) + pow(RL[1] - _hits[i]->get_SRL('L'), 2) <= distance*distance)
+			{
+				close = true;
+				// continue or break?	
+			}		
+		}
+		if( close )
+		{ 
+			hits.push_back(_hits[i]);
+		} 
+	}
+	return hits;
+}
+
+
+
+std::vector<TKtrhit*> TKEvent::filter_unclustered(std::vector<TKtrhit*> _hits)
+{
+	vector<TKtrhit*> hits;
+	for(int i = 0; i < _hits.size(); i++)
+	{
+		int SRL[3] = {_hits[i]->get_SRL('S'), _hits[i]->get_SRL('R'),_hits[i]->get_SRL('L')};
+		bool clustered = false;			
+		for(int j = 0; j < clusters.size(); j++)
+		{	
+			for(int k = 0; k < clusters[j]->get_tr_hits().size(); k++)
+			{	
+				if(clusters[j]->get_tr_hits()[k]->get_SRL('S') == SRL[0] &&
+				   clusters[j]->get_tr_hits()[k]->get_SRL('R') == SRL[1] &&
+				   clusters[j]->get_tr_hits()[k]->get_SRL('L') == SRL[2])
+				{
+					clustered = true;
+				}
+			}
+		}
+		if( clustered  == false )
+		{
+			hits.push_back( _hits[i] );
+		}
+	}
+	return hits;
+}
+
 
 std::vector<TKtrhit*> TKEvent::filter_close_hits(std::vector<TKtrhit*> _hits, double phi, double r, double distance_limit)
 {
@@ -380,7 +479,6 @@ void TKEvent::set_r(std::string drift_model, std::string association_mode)
 		{
 			r = -1.0;
 		}
-		
 		tr_hits[tr_hit]->set_r(r);
 		tr_hits[tr_hit]->set_sigma_R();
 	}
@@ -418,9 +516,10 @@ void TKEvent::make_top_projection(int option)
 	TLatex* title = new TLatex(-2600.0, 700.0, Form("Run %d | Event %d", run_number, event_number));
 	title->SetTextSize(0.07);
 	title->Draw();
-	
 
 	// Drawing mainwall and mainwall calo hits
+	std::vector<TBox*> calorimeter_blocks;
+	std::vector<TLatex*> calorimeter_block_titles;
 	for(int om_side = 0; om_side < 2; om_side++) 
 	{
 		for(int om_column = 0; om_column < 20; om_column++) 
@@ -437,10 +536,12 @@ void TKEvent::make_top_projection(int option)
 				,Form("%d.%d.%d.-", ohit->get_SWCR('s'), ohit->get_SWCR('w'), ohit->get_SWCR('c')));
 			tex->SetTextSize(0.035);
 			
+			calorimeter_blocks.push_back(calo);
+			calorimeter_block_titles.push_back(tex);
+			
 			bool is_hit = false;
 			for(int hit = 0; hit < OM_hits.size(); hit++)
 			{
-// MIRO: Zaviesť TKOMhit::operator==(...) a porovnávať totožnosť OM pomocou neho!
 				if(om_side   == OM_hits[hit]->get_SWCR('s') && 
 				        -1   == OM_hits[hit]->get_SWCR('w') && 
 				   om_column == OM_hits[hit]->get_SWCR('c') ) 
@@ -467,6 +568,7 @@ void TKEvent::make_top_projection(int option)
 			{
 				//tex->Draw("same");
 			}
+			delete ohit;
 		}
 	}
 	
@@ -484,6 +586,7 @@ void TKEvent::make_top_projection(int option)
 				          	    -(ohit->get_xyz('x') + xw_sizex/2.0), 
 				          	      ohit->get_xyz('y') + xw_sizey/2.0, 
 				          	    -(ohit->get_xyz('x') - xw_sizex/2.0));
+				calorimeter_blocks.push_back(calo);
 				
 				bool is_hit = false;
 				for(int hit = 0; hit < OM_hits.size(); hit++)
@@ -506,11 +609,13 @@ void TKEvent::make_top_projection(int option)
 				calo->SetLineColor(kBlack);	
 				calo->SetLineWidth(2);
 				calo->Draw("same");	
+				delete ohit;
 			}	
 		}
 	}
 	
 	// Drawing tracker and tracker hits
+	std::vector<TEllipse*> tracker_hits;
 	for(int cell_num = 0; cell_num < 2034; cell_num++)
 	{
 		TKtrhit* thit = new TKtrhit(cell_num); 
@@ -556,6 +661,7 @@ void TKEvent::make_top_projection(int option)
 			if(is_broken)
 			{
 				tracker_cell = new TEllipse(thit->get_xy('y'), -thit->get_xy('x'), radius, radius);
+				tracker_hits.push_back(tracker_cell);
 				tracker_cell->SetLineWidth(1);
 				switch(option)
 				{
@@ -574,10 +680,12 @@ void TKEvent::make_top_projection(int option)
 						tracker_cell->Draw("same");			
 						break;		
 				}
+				//delete tracker_cell;
 			}
 			else
 			{
 				tracker_cell = new TEllipse(thit->get_xy('y'), -thit->get_xy('x'), radius + sigma, radius + sigma);
+				tracker_hits.push_back(tracker_cell);
 				tracker_cell->SetLineWidth(0);	
 				
 				if(is_associated)
@@ -630,6 +738,7 @@ void TKEvent::make_top_projection(int option)
 				if( radius - sigma > 0.0 )
 				{
 					TEllipse* tracker_cell_in = new TEllipse(thit->get_xy('y'), -thit->get_xy('x'), radius - sigma, radius - sigma);	
+					tracker_hits.push_back(tracker_cell_in);
 					tracker_cell_in->SetLineWidth(0);
 					tracker_cell_in->Draw("same");
 				}
@@ -638,28 +747,32 @@ void TKEvent::make_top_projection(int option)
 		else
 		{
 			tracker_cell = new TEllipse(thit->get_xy('y'), -thit->get_xy('x'), radius, radius);
+			tracker_hits.push_back(tracker_cell);
 			tracker_cell->SetLineWidth(1);
 			tracker_cell->Draw("same");
 		}
+		delete thit;
 		
 	}
 	
 	// Drawing Bi sources
+	std::vector<TBox*> sources;
 	for(int column = 0; column < 6; column++)
 	{
 		TBox *Bi_source = new TBox((column-2.5)*Bi_source_dist_y - Bi_source_y/2.0, -(-Bi_source_x/2.0), (column-2.5)*Bi_source_dist_y + Bi_source_y/2.0, -(Bi_source_x/2.0));
-			
+		sources.push_back(Bi_source);
+		
 		Bi_source->SetFillColor(kBlue);	
 	
 		Bi_source->SetLineWidth(2);
 		Bi_source->Draw("same");
 	}
 	
-	vector<TKtrack*> all_tracks = this->get_tracks();
 	// Drawing tracks
+	vector<TKtrack*> all_tracks = this->get_tracks();
+	vector<TLine*> lines;
 	for (int i = 0; i < this->get_no_tracks(); i++)
 	{
-		
 		TLine* track;
 		double x, y;
 		
@@ -682,20 +795,65 @@ void TKEvent::make_top_projection(int option)
 			y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
 		}
 		
-		track = new TLine(all_tracks[i]->get_b(), 0.0, y, -x);			
+		track = new TLine(all_tracks[i]->get_b(), 0.0, y, -x);	
+		lines.push_back(track);		
 		track->SetLineColor(kBlue);
-		track->SetLineWidth(3);
+		track->SetLineWidth(2);
 		track->Draw("same");
 	}
 	
+	// Drawing trajectories
+	vector<TPolyLine*> polylines;
+	for (int i = 0; i < trajectories.size(); i++)
+	{
+		TPolyLine* trajectory = new TPolyLine();
+		polylines.push_back(trajectory);
+		trajectory->SetLineColor(kOrange - 3);
+		trajectory->SetLineWidth(4);
+		for (int j = 0; j < trajectories[i]->get_track_points().size(); j++)
+		{
+			TKpoint* point = trajectories[i]->get_track_points()[j];
+			trajectory->SetPoint(j, point->get_y(), -point->get_x());
+		}
+		trajectory->Draw("same");
+	}
+	
+	// Drawing avalanche origin points
+	vector<TGraph*> avalanche_origins;
+	for (int i = 0; i < this->get_no_tracks(); i++)
+	{
+		TGraph *graph = new TGraph();
+		avalanche_origins.push_back(graph);
+		TKtrack* track = this->get_tracks()[i];
+		for (int j = 0; j < track->get_associated_tr_hit_points().size(); j++)
+		{	
+			TKpoint* point = track->get_associated_tr_hit_points()[j];
+			graph->SetPoint(j, point->get_y(), -point->get_x());
+		}
+	   	graph->SetMarkerColor(kRed);
+   		graph->SetMarkerStyle(kFullCircle);
+   		graph->SetMarkerSize(1);
+		graph->Draw("sameP");
+   	}
+   	
+
 	canvas->SaveAs(Form("./Events_visu/Run-%d_event-%d_2D.png", run_number, event_number));
 	delete canvas;
+	
+	for (auto box : calorimeter_blocks) delete box;
+	for (auto title : calorimeter_block_titles) delete title;
+	for (auto tracker_cell : tracker_hits) delete tracker_cell;
+	for (auto Bi_source : sources) delete Bi_source;
+	for (auto track : lines) delete track;
+	for (auto trajetory : polylines) delete trajetory;
+	for (auto avalanche_origin : avalanche_origins) delete avalanche_origin;
 }
 		
 void TKEvent::build_event()
 {	
 	gROOT->SetBatch(true);
-	TCanvas *canv = new TCanvas();
+	
+	TFile *file = new TFile(Form("./Events_visu/Run-%d_event-%d_3D.root", run_number, event_number), "RECREATE");
 	
 	TGeoManager *geom = new TGeoManager();
 	TGeoMaterial *matVacuum = new TGeoMaterial("matVacuum", 0, 0, 0);    
@@ -743,6 +901,8 @@ void TKEvent::build_event()
 		
 		top->AddNode(calo, object_counter, trans);
 		object_counter++;
+		
+		delete ohit;
 	}
 
 	// Drawing Bi calibration sources
@@ -753,14 +913,14 @@ void TKEvent::build_event()
 	    	TGeoVolume *Bi_source = gGeoManager->MakeBox("Bi_source", Vacuum, Bi_source_x/2.0, Bi_source_y/2.0, Bi_source_z/2.0);
 	    	
 	    	TGeoHMatrix *trans = new TGeoHMatrix("Trans");
-		trans->SetDy( (column - 2.5) * Bi_source_dist_y );
-		trans->SetDz( (row - 3.0) * Bi_source_dist_z );
-		
-		Bi_source->SetLineColor(kCyan);
-		Bi_source->SetLineWidth(3);
-		
-		top->AddNode(Bi_source, object_counter, trans);
-		object_counter++;
+			trans->SetDy( (column - 2.5) * Bi_source_dist_y );
+			trans->SetDz( (row - 3.0) * Bi_source_dist_z );
+			
+			Bi_source->SetLineColor(kCyan);
+			Bi_source->SetLineWidth(3);
+			
+			top->AddNode(Bi_source, object_counter, trans);
+			object_counter++;
 	    }
 	}
 
@@ -802,7 +962,6 @@ void TKEvent::build_event()
 		object_counter++;
 	}
 
-	
  	// Adding tracker hits
 	for(int hit = 0; hit < tr_hits.size(); hit++)
 	{
@@ -855,9 +1014,8 @@ void TKEvent::build_event()
 		object_counter++;
 	}
 	
-	geom->CloseGeometry();     
-
-	TFile *file = new TFile(Form("./Events_visu/Run-%d_event-%d_3D.root", run_number, event_number), "RECREATE");
+	// Close geometry and write to file
+	geom->CloseGeometry(); 
 	file->WriteObject(top, "demonstrator");
 
 	vector<TKtrack*> all_tracks = this->get_tracks(); 
@@ -904,7 +1062,25 @@ void TKEvent::build_event()
 		track->SetLineColor(kBlue);
 		track->SetLineWidth(2);
 		file->WriteObject(track, Form("track-%d", i));
+		delete track;
 	}
+	
+	for (int i = 0; i < trajectories.size(); i++)
+	{
+		TPolyLine3D* trajectory = new TPolyLine3D();
+		trajectory->SetLineColor(kOrange - 3);
+		trajectory->SetLineWidth(4);
+		for (int j = 0; j < trajectories[i]->get_track_points().size(); j++)
+		{
+			TKpoint* point = trajectories[i]->get_track_points()[j];
+			trajectory->SetPoint(j, point->get_x(), point->get_y(), point->get_z());
+		}
+		file->WriteObject(trajectory, Form("trajectory-%d", i));
+		delete trajectory;
+	}	
 
-	file->Close();			
+	// Close file and delete dynamically allocated objects
+	file->Close();	 	
+	delete file;	
+	delete geom;    	
 }

@@ -10,7 +10,7 @@ TKcluster::TKcluster()
 	ambiguity_type = 0;
 	phi_min = 0.0;
 	phi_max = M_PI;
-	std::vector<TKtrhit*> cluster_tr_hits;
+	cluster_tr_hits = std::vector<TKtrhit*>();
 	track = nullptr;
 }
 

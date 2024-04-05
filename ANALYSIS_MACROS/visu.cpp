@@ -27,11 +27,7 @@ void visu()
 		if(event_number != -1)
 		{
 			TCanvas* c = new TCanvas("3D_demonstrator", "", 1920, 1080);
-			
-			TLatex* title = new TLatex(-0.9, 0.9, Form("Run %d | Event %d", run_number, event_number));
-			title->SetTextSize(0.03);
-			title->Draw();
-			
+						
 			TGLViewer* view = (TGLViewer*)gPad->GetViewer3D();
 			TGeoManager* manager = new TGeoManager();
 			
@@ -41,7 +37,7 @@ void visu()
 			
 			manager->SetTopVolume(geo);
 			manager->CloseGeometry(); 
-			geo->Draw("same");
+			geo->Draw();
 			
 			int i = 0;
 			TPolyLine3D *track;
@@ -51,6 +47,19 @@ void visu()
 				track->Draw("same");
 				i++;
 			}
+			
+			i = 0;
+			TPolyLine3D *trajectory;
+			while(file->GetListOfKeys()->Contains(Form("trajectory-%d", i)))
+			{
+				file->GetObject(Form("trajectory-%d", i), trajectory);
+				trajectory->Draw("same");
+				i++;
+			}
+			
+			TLatex* title = new TLatex(-0.9, 0.9, Form("Run %d | Event %d", run_number, event_number));
+			title->SetTextSize(0.03);
+			title->Draw("same");
 			
 		}
 	}

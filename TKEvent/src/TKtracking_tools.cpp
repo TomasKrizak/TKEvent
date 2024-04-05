@@ -1096,51 +1096,79 @@ void TKEvent::draw_likelihood_centred()
 	}
 }
 
-
-void TKEvent::reconstruct_ML_multi(bool save_sinograms)
-{
-	for(int side = 0; side < 2; side++)
-	{
-		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
-		if( hits.size() < 3 ) continue;
-		
-		
-		reconstruct_single_from_hits(hits, false); 
-		double phi = tracks[tracks.size()-1]->get_phi();
-		double r   = tracks[tracks.size()-1]->get_r();
-		
-		delete tracks[tracks.size()-1];
-		tracks.erase(tracks.end()-1);
-		vector<TKtrhit*> filtered = filter_close_hits(hits, phi, r, 10.0);
-		
-		TKcluster* cluster = find_cluster(filtered);
-		if( cluster != nullptr )
-		{
-			clusters.push_back( cluster );
-			cluster->reconstruct_MLM( save_sinograms, run_number, event_number );
-			cluster->detect_ambiguity_type();
-			cluster->reconstruct_ambiguity();	
-		}
-	}
-}
-
 void TKEvent::reconstruct_ML(bool save_sinograms)
 {
+	const double chi_square_treshold = 5;
 	for(int side = 0; side < 2; side++)
 	{
+		//cout << "side: " << side << endl;
 		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
-		if( hits.size() < 3 ) continue;
-		
-		TKcluster* cluster = find_cluster(hits);
-		if( cluster != nullptr )
+		hits = filter_distant( hits );
+		int no_hits_before = 1e10;
+		while( hits.size() > 2 && no_hits_before > hits.size() )
 		{
-			clusters.push_back( cluster );
-			cluster->reconstruct_MLM( save_sinograms, run_number, event_number );
-			cluster->detect_ambiguity_type();
-			cluster->reconstruct_ambiguity();
+			//cout << "iteration start: " << endl;
+			no_hits_before = hits.size();
+			bool failed = false;
+			TKcluster* cluster = find_cluster(hits);			
+			if( cluster != nullptr )
+			{
+				//cout << "find_cluster succes" << endl; 
+				cluster->reconstruct_MLM( save_sinograms, run_number, event_number );
+				cluster->detect_ambiguity_type();
+				cluster->reconstruct_ambiguity();
+						
+				if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold )
+				{
+					//cout << "chi_squared good" << endl; 
+					cluster->get_track()->calculate_tr_hit_points();
+					if(cluster->get_track()->get_mirror_image() != nullptr)
+					{	
+						cluster->get_track()->get_mirror_image()->calculate_tr_hit_points();
+					}
+					clusters.push_back( cluster );
+				}
+				else
+				{
+					//cout << "chi_squared bad" << endl; 
+					failed = true;
+					delete cluster;
+				}
+			}
+			if( failed )
+			{
+				TKcluster* cluster = find_cluster_legendre(hits, save_sinograms);
+				if( cluster != nullptr )
+				{
+					//cout << "find_cluster_legendre succes" << endl; 
+					cluster->reconstruct_MLM( save_sinograms, run_number, event_number );
+					cluster->detect_ambiguity_type();
+					cluster->reconstruct_ambiguity();
+					if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold )
+					{
+						//cout << "chi_squared good" << endl; 
+						cluster->get_track()->calculate_tr_hit_points();
+						if(cluster->get_track()->get_mirror_image() != nullptr)
+						{	
+							cluster->get_track()->get_mirror_image()->calculate_tr_hit_points();
+						}
+						clusters.push_back( cluster );
+					}	
+					else
+					{
+						//cout << "chi_squared bad" << endl; 
+						delete cluster;
+					}
+				}
+			}
+			hits = filter_unassociated( hits );
+			hits = filter_distant( hits );
+			//hits = filter_unclustered( hits );
 		}
 	}
+	this->build_trajectories();
 }
+
 
 void TKEvent::reconstruct_ML_3D(bool save_sinograms)
 {
@@ -1305,7 +1333,281 @@ TKcluster* TKEvent::find_cluster(std::vector<TKtrhit*> hits)
 			cluster_hits.push_back(hits.at(j));
 		}
 	}
+	cluster_hits = filter_distant(cluster_hits);//TODO is this good? 
+	if(cluster_hits.size() < 3)
+	{
+		return nullptr;
+	}
 	TKcluster* cluster = new TKcluster(cluster_hits, phi_min, phi_max);
 	return cluster;
 }
+
+TKcluster* TKEvent::find_cluster_legendre(std::vector<TKtrhit*> hits, bool save_sinograms = false)
+{
+	gROOT->SetBatch(kTRUE);
+
+	double distance_limit = 6;
+	double limit_angle = 4;
+
+	// resolution of both dimensions of every 2D histogram	
+	int resolution = 250; 
+	
+	// number of zooming iterations into histogram
+	const int iterations = 2;
+
+	// peaks_phi, peak_R and peaks_value stores information about peak candidate
+	// each iteration takes those candidate and zooms around them
+	double peak_phi = M_PI/2.0;
+	double peak_R = 0.0;
+	double peak_value = 0.0;
+	
+	// size of region (delta_phi x delta_R) on witch each peak is calculated more precisely
+	double delta_phi = M_PI;
+	double delta_R = 5000.0;
+	
+	for(int iter = 0; iter < iterations; iter++)
+	{
+		double r_min = peak_R - (delta_R/2.0);
+		double r_max = peak_R + (delta_R/2.0);
+		double phi_min = peak_phi - (delta_phi/2.0);
+		double phi_max = peak_phi + (delta_phi/2.0);
+		
+		// sinograms are calculated for each bin of phi range - (offset = 1/2 of bin widht) 
+		double offset = (delta_phi)/(2.0*resolution);
+		TH2F *sinograms = new TH2F("sinograms", "sinograms; phi; r", resolution, phi_min + offset, phi_max + offset, resolution, r_min, r_max);								
+		
+		double phi;
+		double r;			
+		for(int hit = 0; hit < hits.size(); hit++)
+		{
+			double sigma = hits[hit]->get_sigma_R();
+			for(int k = 0; k <= resolution; k++)
+			{
+				phi = phi_min + ( k * delta_phi / double(resolution) );
+				// r - legendre transform of a center of a circle (Hough transform)
+				r = hits[hit]->get_xy('x')*sin(phi) - hits[hit]->get_xy('y')*cos(phi);
+				
+				double weight;
+				for(int half = 0; half < 2; half++)
+				{	
+					// mu - legendre transform of half circle (+r/-r)
+					double mu = (r + (2.0*half - 1.0)*hits[hit]->get_r());	
+					
+					// gauss is calculated only for -3 to 3 sigma region to cut time							
+					double r1 = mu - 3.0*sigma;
+					double r2 = mu + 3.0*sigma;
+					
+					// bin numbers coresponding to r1 and r2 values
+					int bin1 = (double(resolution) * (r1-r_min) / (r_max-r_min)) + 1;
+					int bin2 = (double(resolution) * (r2-r_min) / (r_max-r_min)) + 1;
+					
+					// real values of r coresponding to each bin 
+					double r_j1 = r_min + (r_max - r_min) * double(bin1) / double(resolution);
+					double r_j2;
+					for(int binj = bin1; binj < bin2 + 1; binj++)
+					{
+						r_j2 = r_j1 + (r_max - r_min) / double(resolution);
+						
+						// average probability density in a bin given by gauss distribution with mean in mu 
+						// (uniformly distributed with respect to phi)
+						weight = ( erf( (r_j2 - mu)/(sqrt(2.0)*sigma) ) - erf( (r_j1 - mu)/(sqrt(2.0)*sigma) ) ) / (2.0 * delta_R / double(resolution));
+						
+						// result is 2D histogram of several sinusoid functions f(phi) in convolution with gauss with respect to R
+						sinograms->Fill( phi, (r_j2 + r_j1)/2.0, weight );
+						r_j1 = r_j2;			
+					}								
+				}			
+			}	
+		}										
+
+		// Get bin number of maximum value
+		int maxBin = sinograms->GetMaximumBin();
+
+		// Get X and Y values corresponding to the maximum bin
+		int bin_phi, bin_R, bin_Z;
+		sinograms->GetBinXYZ(maxBin, bin_phi, bin_R, bin_Z);
+		peak_phi = sinograms->GetXaxis()->GetBinCenter(bin_phi);
+		peak_R = sinograms->GetYaxis()->GetBinCenter(bin_R);
+
+		delta_phi = delta_phi*0.1;
+		delta_R = delta_R*0.1;
+
+
+		if( save_sinograms ) 
+		{
+			TCanvas* c2 = new TCanvas("sinograms", "sinograms", 2000, 1600);
+			sinograms->SetStats(0);
+			sinograms->SetContour(100);
+			sinograms->Draw("COLZ");
+			c2->SaveAs(Form("Events_visu/clustering-run-%d_event-%d_iter-%d.png", run_number, event_number, iter));
+			c2->Close();
+			delete c2;
+		}
+		delete sinograms;
+	}
+	
+	vector<TKtrhit*> cluster_candidate = filter_close_hits(hits, peak_phi, peak_R, distance_limit);
+	
+	cluster_candidate = filter_distant(cluster_candidate); //TODO is this good?
+	if(cluster_candidate.size() < 3)
+	{
+		return nullptr;
+	}
+	else
+	{
+		TKcluster* cluster = new TKcluster(cluster_candidate, peak_phi - limit_angle, peak_phi + limit_angle);
+		return cluster;
+	}
+}
+
+void TKEvent::build_trajectories()
+{
+	cout << "building trajectory" << endl;
+	vector<TKtrack*> all_tracks = this->get_tracks();
+	for(int side = 0; side < 2; side++)
+	{
+		cout << "building side: " << side << endl;
+		vector<TKtrack*> all_tracks_from_side;
+		for(int i = 0; i < all_tracks.size(); i++)
+		{
+			if(all_tracks[i]->get_side() == side)
+			{
+				all_tracks_from_side.push_back(all_tracks[i]);
+			}
+		}		
+		const int no_tracks = all_tracks_from_side.size();
+		cout << no_tracks << " tracks available" << endl;
+		bool connections[no_tracks][no_tracks];
+		for(int i = 0; i < no_tracks; i++)
+		{
+			for(int j = 0; j < no_tracks; j++)
+			{
+				connections[i][j] = 0;
+			}
+		}
+		for(int i = 0; i < no_tracks; i++)
+		{
+			TKtrack* track1 = all_tracks_from_side[i];
+			for(int j = i+1; j < no_tracks; j++)
+			{
+				TKtrack* track2 = all_tracks_from_side[j];
+				if(track1->get_mirror_image() == track2) continue;
+				
+				double a1 = track1->get_a();
+				double a2 = track2->get_a();
+				double b1 = track1->get_b();
+				double b2 = track2->get_b();
+				double x = (b2-b1)/(a1-a2);
+				double y = a1*x + b1;
+				if(y < -2500.0 || y > 2500.0) continue;
+				if(x < -435.0 || x > 435.0) continue;
+				if(side == 0 && x > 20.0) continue;
+				if(side == 1 && x < -20.0) continue;				
+				double z1 = track1->get_c()*x + track1->get_d();
+				double z2 = track2->get_c()*x + track2->get_d();
+				if(z1 == 0 || z2 == 0) continue;
+				if(abs(z2 - z1) > 40.0) continue;
+				
+				connections[i][j] = 1;
+				connections[j][i] = 1;			
+			}
+		}
+		int connection_counter[no_tracks];	
+		for(int i = 0; i < no_tracks; i++)
+		{
+			connection_counter[i] = 0;
+			for(int j = 0; j < no_tracks; j++)
+			{
+				if(connections[j][i] == 1)
+				{
+					connection_counter[i]++;
+				}
+			}
+		}
+		bool trajectorized[no_tracks];
+		cout << "number of connections for each segment:" << endl;
+		for(int i = 0; i < no_tracks; i++)
+		{
+			trajectorized[i] = false;
+			cout << connection_counter[i] << endl; 
+		}
+		
+		cout << "connection matrix:" << endl;
+		for(int i = 0; i < no_tracks; i++)
+		{
+			for(int j = 0; j < no_tracks; j++)
+			{
+				cout << connections[i][j] << " ";	
+			}
+			cout << endl;
+		}
+		cout << endl;
+		
+		for(int i = 0; i < no_tracks; i++)
+		{
+			cout << "connecting track number: " << i << endl; 
+			if(connection_counter[i] == 0)
+			{
+				trajectories.push_back(new TKtrajectory(all_tracks_from_side[i]));
+				trajectorized[i] = true;
+				cout << i << " trajectorized" << endl;
+			}
+			else if(connection_counter[i] == 1 && trajectorized[i] == false)
+			{
+				vector<TKtrack*> composite_track;
+				composite_track.push_back(all_tracks_from_side[i]);
+				trajectorized[i] = true;
+				cout << i << " trajectorized" << endl;
+				int next_index;
+				bool is_valid = false;
+				for(int j = 0; j < no_tracks; j++)
+				{
+					if(connections[i][j] == 1 && trajectorized[j] == false)
+					{
+						next_index = j;
+						is_valid = true;
+						composite_track.push_back(all_tracks_from_side[next_index]);
+						trajectorized[next_index] = true;
+						cout << next_index << " trajectorized" << endl;
+						break;
+					}
+				}
+				
+				while(connection_counter[next_index] >= 2 && is_valid)
+				{
+					is_valid = false;
+					for(int j = 0; j < no_tracks; j++)
+					{
+						if(connections[next_index][j] == 1 && trajectorized[j] == false)
+						{
+							next_index = j;
+							is_valid = true;
+							composite_track.push_back(all_tracks_from_side[next_index]);
+							trajectorized[next_index] = true;
+							cout << next_index << " trajectorized" << endl;
+							break;
+						}
+					}
+				}
+				if(composite_track.size() > 1)
+				{
+					trajectories.push_back(new TKtrajectory(composite_track));
+				}
+				else if(composite_track.size() == 1)
+				{
+					trajectories.push_back(new TKtrajectory(composite_track[0]));
+				}
+			}
+		}
+	}
+	
+	cout << "trajectory:" << endl;
+	for(int i = 0; i < trajectories.size(); i++)
+	{
+		trajectories[i]->print();
+	}
+	
+	return;
+}
+
 

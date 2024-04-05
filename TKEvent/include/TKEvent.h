@@ -17,9 +17,11 @@
 #include "TFile.h"
 #include "TROOT.h"
 #include "TPolyLine3D.h"
+#include "TPolyLine.h"
 #include "TBox.h"
 #include "TLatex.h"
 #include "TLine.h"
+#include "TPoint.h"
 #include "TObject.h"
 #include <TStyle.h>
 #include <TF1.h>
@@ -29,6 +31,8 @@
 #include "TKtrack.h"
 #include "TKtrhit.h"
 #include "TKcluster.h"
+#include "TKpoint.h"
+#include "TKtrajectory.h"
 
 
 // note (29.10.2023): currently the main functions to use are the following:
@@ -56,6 +60,8 @@ class TKEvent: public TObject
 		std::vector<TKtrhit*>   tr_hits;
 		std::vector<TKtrack*>   tracks;
 		std::vector<TKcluster*> clusters;
+		std::vector<TKtrajectory*> trajectories;
+		
 	
 	public:
 	
@@ -65,21 +71,25 @@ class TKEvent: public TObject
 		TKEvent(int _run_number ,int _event_number);
 		~TKEvent();
 
-		std::vector<TKOMhit*>   get_OM_hits();
-		std::vector<TKtrhit*>   get_tr_hits();
-		std::vector<TKtrack*>   get_tracks();
-		std::vector<TKcluster*> get_clusters();
-		TKOMhit*   get_OM_hit(int _i);
-		TKtrhit*   get_tr_hit(int _i);
-		TKtrack*   get_track(int _i);
-		TKcluster* get_cluster(int _i);
+		std::vector<TKOMhit*>&      get_OM_hits();
+		std::vector<TKtrhit*>&      get_tr_hits();
+		std::vector<TKtrack*>      get_tracks();
+		std::vector<TKcluster*>&    get_clusters();
+		std::vector<TKtrajectory*>& get_trajectories();
+		TKOMhit*      get_OM_hit(int _i);
+		TKtrhit*      get_tr_hit(int _i);
+		TKtrack*      get_track(int _i);
+		TKcluster*    get_cluster(int _i);
+		TKtrajectory* get_trajectory(int _i);
 	
 		int get_run_number();
 		int get_event_number();
 		int get_no_tracks();
+		int get_no_trajectories();
 		
 		void print();
 		void print_tracks();
+		void print_trajectories();
 
 		void add_OM_hit(int _OM_num,  bool _is_HT, int64_t _OM_TDC, int16_t _OM_pcell);
 		void add_OM_hit(int _SWCR[4], bool _is_HT, int64_t _OM_TDC, int16_t _OM_pcell);
@@ -103,12 +113,17 @@ class TKEvent: public TObject
 	
 	// clustering functions section
 	
+		//TODO: předávat reference?
 		std::vector<TKtrhit*> filter_side(std::vector<TKtrhit*> _hits, int side);
 		std::vector<TKtrhit*> filter_usable(std::vector<TKtrhit*> _hits);
+		std::vector<TKtrhit*> filter_unassociated(std::vector<TKtrhit*> _hits);
+		std::vector<TKtrhit*> filter_unclustered(std::vector<TKtrhit*> _hits);
+		std::vector<TKtrhit*> filter_distant(std::vector<TKtrhit*> _hits);
 		std::vector<TKtrhit*> filter_close_hits(std::vector<TKtrhit*> _hits, double phi, double r, double distance_limit);
 		
 		// basic clustering - finds a largest subgroup of given hits such that is geometrically possible to have a single common line
 		TKcluster* find_cluster(std::vector<TKtrhit*> tr_hits);
+		TKcluster* find_cluster_legendre(std::vector<TKtrhit*> hits, bool save_sinograms);
 		
 	// reconstruction section	
 	
@@ -129,7 +144,7 @@ class TKEvent: public TObject
 		void reconstruct_ML(bool save_sinograms);
 		void reconstruct_ML_3D(bool save_sinograms);
 		
-		void reconstruct_ML_multi(bool save_sinograms);
+		void build_trajectories();
 		
 	// vizualization section
 		

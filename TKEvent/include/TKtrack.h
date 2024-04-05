@@ -11,6 +11,7 @@
 
 #include "TKOMhit.h"
 #include "TKtrhit.h"
+#include "TKpoint.h"
 
 // line in the form:
 //	y = ax + b
@@ -36,6 +37,11 @@
 //	r = -b/sqrt(a*a+1.0)
 //	theta = atan(c/sqrt(a*a+1.0))
 //	h = d - a*b*c/(a*a+1.0)
+
+// associated tracker hit point: (tracker hit - anode wire (xi,yi), vertical position zi)
+// 	x(t) = (xi*cos(phi)*+yi*sin(phi))*cos(phi) + r*sin(phi)
+// 	y(t) = (xi*cos(phi)*+yi*sin(phi))*sin(phi) - r*cos(phi)
+// 	z(t) = (xi*cos(phi)*+yi*sin(phi))*tan(theta) + h - zi
 
 class TKtrack: public TObject
 {
@@ -81,6 +87,7 @@ class TKtrack: public TObject
 		
 		// association_distance can be changed in reconstruction functions (3 sigma by default = 6mm)
 		std::vector<TKtrhit*> associated_tr_hits; 
+		std::vector<TKpoint*> associated_tr_hit_points; 
 
 	public:
 		
@@ -89,9 +96,14 @@ class TKtrack: public TObject
 		TKtrack(int _side, double _a, double _b, double _c, double _d);
 		~TKtrack();
 		
-		void add_associated_tr_hit(TKtrhit* trakcer_hit);
+		void add_associated_tr_hit(TKtrhit* tracker_hit);
 		std::vector<TKtrhit*> get_associated_tr_hits();
 		
+		void add_associated_tr_hit_point(TKpoint* tracker_hit_point);
+		std::vector<TKpoint*> get_associated_tr_hit_points();
+		
+		void calculate_tr_hit_points();
+			
 		void set_side(double _side);
 		
 		void set_a   (double _a);
@@ -154,7 +166,6 @@ class TKtrack: public TObject
 		void update_likelihood();
 		void reconstruct_vertical_least_square();
 		void reconstruct_vertical_MLM();
-
 
 		void print();
 		

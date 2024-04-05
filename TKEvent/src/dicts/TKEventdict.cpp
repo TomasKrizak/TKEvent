@@ -55,7 +55,7 @@ namespace ROOT {
       ::TKEvent *ptr = 0;
       static ::TVirtualIsAProxy* isa_proxy = new ::TInstrumentedIsAProxy< ::TKEvent >(0);
       static ::ROOT::TGenericClassInfo 
-         instance("TKEvent", ::TKEvent::Class_Version(), "TKEvent.h", 31,
+         instance("TKEvent", ::TKEvent::Class_Version(), "TKEvent.h", 48,
                   typeid(::TKEvent), ::ROOT::Internal::DefineBehavior(ptr, ptr),
                   &::TKEvent::Dictionary, isa_proxy, 4,
                   sizeof(::TKEvent) );
@@ -271,6 +271,71 @@ namespace ROOT {
       ((current_t*)p)->~current_t();
    }
 } // end of namespace ROOT for class vector<TKtrack*>
+
+namespace ROOT {
+   static TClass *vectorlETKclustermUgR_Dictionary();
+   static void vectorlETKclustermUgR_TClassManip(TClass*);
+   static void *new_vectorlETKclustermUgR(void *p = 0);
+   static void *newArray_vectorlETKclustermUgR(Long_t size, void *p);
+   static void delete_vectorlETKclustermUgR(void *p);
+   static void deleteArray_vectorlETKclustermUgR(void *p);
+   static void destruct_vectorlETKclustermUgR(void *p);
+
+   // Function generating the singleton type initializer
+   static TGenericClassInfo *GenerateInitInstanceLocal(const vector<TKcluster*>*)
+   {
+      vector<TKcluster*> *ptr = 0;
+      static ::TVirtualIsAProxy* isa_proxy = new ::TIsAProxy(typeid(vector<TKcluster*>));
+      static ::ROOT::TGenericClassInfo 
+         instance("vector<TKcluster*>", -2, "vector", 386,
+                  typeid(vector<TKcluster*>), ::ROOT::Internal::DefineBehavior(ptr, ptr),
+                  &vectorlETKclustermUgR_Dictionary, isa_proxy, 0,
+                  sizeof(vector<TKcluster*>) );
+      instance.SetNew(&new_vectorlETKclustermUgR);
+      instance.SetNewArray(&newArray_vectorlETKclustermUgR);
+      instance.SetDelete(&delete_vectorlETKclustermUgR);
+      instance.SetDeleteArray(&deleteArray_vectorlETKclustermUgR);
+      instance.SetDestructor(&destruct_vectorlETKclustermUgR);
+      instance.AdoptCollectionProxyInfo(TCollectionProxyInfo::Generate(TCollectionProxyInfo::Pushback< vector<TKcluster*> >()));
+
+      ::ROOT::AddClassAlternate("vector<TKcluster*>","std::vector<TKcluster*, std::allocator<TKcluster*> >");
+      return &instance;
+   }
+   // Static variable to force the class initialization
+   static ::ROOT::TGenericClassInfo *_R__UNIQUE_DICT_(Init) = GenerateInitInstanceLocal((const vector<TKcluster*>*)0x0); R__UseDummy(_R__UNIQUE_DICT_(Init));
+
+   // Dictionary for non-ClassDef classes
+   static TClass *vectorlETKclustermUgR_Dictionary() {
+      TClass* theClass =::ROOT::GenerateInitInstanceLocal((const vector<TKcluster*>*)0x0)->GetClass();
+      vectorlETKclustermUgR_TClassManip(theClass);
+   return theClass;
+   }
+
+   static void vectorlETKclustermUgR_TClassManip(TClass* ){
+   }
+
+} // end of namespace ROOT
+
+namespace ROOT {
+   // Wrappers around operator new
+   static void *new_vectorlETKclustermUgR(void *p) {
+      return  p ? ::new((::ROOT::Internal::TOperatorNewHelper*)p) vector<TKcluster*> : new vector<TKcluster*>;
+   }
+   static void *newArray_vectorlETKclustermUgR(Long_t nElements, void *p) {
+      return p ? ::new((::ROOT::Internal::TOperatorNewHelper*)p) vector<TKcluster*>[nElements] : new vector<TKcluster*>[nElements];
+   }
+   // Wrapper around operator delete
+   static void delete_vectorlETKclustermUgR(void *p) {
+      delete ((vector<TKcluster*>*)p);
+   }
+   static void deleteArray_vectorlETKclustermUgR(void *p) {
+      delete [] ((vector<TKcluster*>*)p);
+   }
+   static void destruct_vectorlETKclustermUgR(void *p) {
+      typedef vector<TKcluster*> current_t;
+      ((current_t*)p)->~current_t();
+   }
+} // end of namespace ROOT for class vector<TKcluster*>
 
 namespace ROOT {
    static TClass *vectorlETKOMhitmUgR_Dictionary();
