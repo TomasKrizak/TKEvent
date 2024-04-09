@@ -1,6 +1,6 @@
 // Do NOT change. Changes will be lost next time file is generated
 
-#define R__DICTIONARY_FILENAME dOdOdIlibdITKtrackdict
+#define R__DICTIONARY_FILENAME dOdOdIlibdITKtrajectorydict
 #define R__NO_DEPRECATION
 
 /*******************************************************************/
@@ -35,7 +35,7 @@
 #include "TDataMember.h"
 
 // Header files passed as explicit arguments
-#include "TKtrack.h"
+#include "TKtrajectory.h"
 
 // Header files passed via #pragma extra_include
 
@@ -43,169 +43,169 @@
 namespace std {} using namespace std;
 
 namespace ROOT {
-   static void *new_TKtrack(void *p = 0);
-   static void *newArray_TKtrack(Long_t size, void *p);
-   static void delete_TKtrack(void *p);
-   static void deleteArray_TKtrack(void *p);
-   static void destruct_TKtrack(void *p);
+   static void *new_TKtrajectory(void *p = 0);
+   static void *newArray_TKtrajectory(Long_t size, void *p);
+   static void delete_TKtrajectory(void *p);
+   static void deleteArray_TKtrajectory(void *p);
+   static void destruct_TKtrajectory(void *p);
 
    // Function generating the singleton type initializer
-   static TGenericClassInfo *GenerateInitInstanceLocal(const ::TKtrack*)
+   static TGenericClassInfo *GenerateInitInstanceLocal(const ::TKtrajectory*)
    {
-      ::TKtrack *ptr = 0;
-      static ::TVirtualIsAProxy* isa_proxy = new ::TInstrumentedIsAProxy< ::TKtrack >(0);
+      ::TKtrajectory *ptr = 0;
+      static ::TVirtualIsAProxy* isa_proxy = new ::TInstrumentedIsAProxy< ::TKtrajectory >(0);
       static ::ROOT::TGenericClassInfo 
-         instance("TKtrack", ::TKtrack::Class_Version(), "TKtrack.h", 46,
-                  typeid(::TKtrack), ::ROOT::Internal::DefineBehavior(ptr, ptr),
-                  &::TKtrack::Dictionary, isa_proxy, 4,
-                  sizeof(::TKtrack) );
-      instance.SetNew(&new_TKtrack);
-      instance.SetNewArray(&newArray_TKtrack);
-      instance.SetDelete(&delete_TKtrack);
-      instance.SetDeleteArray(&deleteArray_TKtrack);
-      instance.SetDestructor(&destruct_TKtrack);
+         instance("TKtrajectory", ::TKtrajectory::Class_Version(), "TKtrajectory.h", 17,
+                  typeid(::TKtrajectory), ::ROOT::Internal::DefineBehavior(ptr, ptr),
+                  &::TKtrajectory::Dictionary, isa_proxy, 4,
+                  sizeof(::TKtrajectory) );
+      instance.SetNew(&new_TKtrajectory);
+      instance.SetNewArray(&newArray_TKtrajectory);
+      instance.SetDelete(&delete_TKtrajectory);
+      instance.SetDeleteArray(&deleteArray_TKtrajectory);
+      instance.SetDestructor(&destruct_TKtrajectory);
       return &instance;
    }
-   TGenericClassInfo *GenerateInitInstance(const ::TKtrack*)
+   TGenericClassInfo *GenerateInitInstance(const ::TKtrajectory*)
    {
-      return GenerateInitInstanceLocal((::TKtrack*)0);
+      return GenerateInitInstanceLocal((::TKtrajectory*)0);
    }
    // Static variable to force the class initialization
-   static ::ROOT::TGenericClassInfo *_R__UNIQUE_DICT_(Init) = GenerateInitInstanceLocal((const ::TKtrack*)0x0); R__UseDummy(_R__UNIQUE_DICT_(Init));
+   static ::ROOT::TGenericClassInfo *_R__UNIQUE_DICT_(Init) = GenerateInitInstanceLocal((const ::TKtrajectory*)0x0); R__UseDummy(_R__UNIQUE_DICT_(Init));
 } // end of namespace ROOT
 
 //______________________________________________________________________________
-atomic_TClass_ptr TKtrack::fgIsA(0);  // static to hold class pointer
+atomic_TClass_ptr TKtrajectory::fgIsA(0);  // static to hold class pointer
 
 //______________________________________________________________________________
-const char *TKtrack::Class_Name()
+const char *TKtrajectory::Class_Name()
 {
-   return "TKtrack";
+   return "TKtrajectory";
 }
 
 //______________________________________________________________________________
-const char *TKtrack::ImplFileName()
+const char *TKtrajectory::ImplFileName()
 {
-   return ::ROOT::GenerateInitInstanceLocal((const ::TKtrack*)0x0)->GetImplFileName();
+   return ::ROOT::GenerateInitInstanceLocal((const ::TKtrajectory*)0x0)->GetImplFileName();
 }
 
 //______________________________________________________________________________
-int TKtrack::ImplFileLine()
+int TKtrajectory::ImplFileLine()
 {
-   return ::ROOT::GenerateInitInstanceLocal((const ::TKtrack*)0x0)->GetImplFileLine();
+   return ::ROOT::GenerateInitInstanceLocal((const ::TKtrajectory*)0x0)->GetImplFileLine();
 }
 
 //______________________________________________________________________________
-TClass *TKtrack::Dictionary()
+TClass *TKtrajectory::Dictionary()
 {
-   fgIsA = ::ROOT::GenerateInitInstanceLocal((const ::TKtrack*)0x0)->GetClass();
+   fgIsA = ::ROOT::GenerateInitInstanceLocal((const ::TKtrajectory*)0x0)->GetClass();
    return fgIsA;
 }
 
 //______________________________________________________________________________
-TClass *TKtrack::Class()
+TClass *TKtrajectory::Class()
 {
-   if (!fgIsA.load()) { R__LOCKGUARD(gInterpreterMutex); fgIsA = ::ROOT::GenerateInitInstanceLocal((const ::TKtrack*)0x0)->GetClass(); }
+   if (!fgIsA.load()) { R__LOCKGUARD(gInterpreterMutex); fgIsA = ::ROOT::GenerateInitInstanceLocal((const ::TKtrajectory*)0x0)->GetClass(); }
    return fgIsA;
 }
 
 //______________________________________________________________________________
-void TKtrack::Streamer(TBuffer &R__b)
+void TKtrajectory::Streamer(TBuffer &R__b)
 {
-   // Stream an object of class TKtrack.
+   // Stream an object of class TKtrajectory.
 
    if (R__b.IsReading()) {
-      R__b.ReadClassBuffer(TKtrack::Class(),this);
+      R__b.ReadClassBuffer(TKtrajectory::Class(),this);
    } else {
-      R__b.WriteClassBuffer(TKtrack::Class(),this);
+      R__b.WriteClassBuffer(TKtrajectory::Class(),this);
    }
 }
 
 namespace ROOT {
    // Wrappers around operator new
-   static void *new_TKtrack(void *p) {
-      return  p ? new(p) ::TKtrack : new ::TKtrack;
+   static void *new_TKtrajectory(void *p) {
+      return  p ? new(p) ::TKtrajectory : new ::TKtrajectory;
    }
-   static void *newArray_TKtrack(Long_t nElements, void *p) {
-      return p ? new(p) ::TKtrack[nElements] : new ::TKtrack[nElements];
+   static void *newArray_TKtrajectory(Long_t nElements, void *p) {
+      return p ? new(p) ::TKtrajectory[nElements] : new ::TKtrajectory[nElements];
    }
    // Wrapper around operator delete
-   static void delete_TKtrack(void *p) {
-      delete ((::TKtrack*)p);
+   static void delete_TKtrajectory(void *p) {
+      delete ((::TKtrajectory*)p);
    }
-   static void deleteArray_TKtrack(void *p) {
-      delete [] ((::TKtrack*)p);
+   static void deleteArray_TKtrajectory(void *p) {
+      delete [] ((::TKtrajectory*)p);
    }
-   static void destruct_TKtrack(void *p) {
-      typedef ::TKtrack current_t;
+   static void destruct_TKtrajectory(void *p) {
+      typedef ::TKtrajectory current_t;
       ((current_t*)p)->~current_t();
    }
-} // end of namespace ROOT for class ::TKtrack
+} // end of namespace ROOT for class ::TKtrajectory
 
 namespace ROOT {
-   static TClass *vectorlETKtrhitmUgR_Dictionary();
-   static void vectorlETKtrhitmUgR_TClassManip(TClass*);
-   static void *new_vectorlETKtrhitmUgR(void *p = 0);
-   static void *newArray_vectorlETKtrhitmUgR(Long_t size, void *p);
-   static void delete_vectorlETKtrhitmUgR(void *p);
-   static void deleteArray_vectorlETKtrhitmUgR(void *p);
-   static void destruct_vectorlETKtrhitmUgR(void *p);
+   static TClass *vectorlETKtrackmUgR_Dictionary();
+   static void vectorlETKtrackmUgR_TClassManip(TClass*);
+   static void *new_vectorlETKtrackmUgR(void *p = 0);
+   static void *newArray_vectorlETKtrackmUgR(Long_t size, void *p);
+   static void delete_vectorlETKtrackmUgR(void *p);
+   static void deleteArray_vectorlETKtrackmUgR(void *p);
+   static void destruct_vectorlETKtrackmUgR(void *p);
 
    // Function generating the singleton type initializer
-   static TGenericClassInfo *GenerateInitInstanceLocal(const vector<TKtrhit*>*)
+   static TGenericClassInfo *GenerateInitInstanceLocal(const vector<TKtrack*>*)
    {
-      vector<TKtrhit*> *ptr = 0;
-      static ::TVirtualIsAProxy* isa_proxy = new ::TIsAProxy(typeid(vector<TKtrhit*>));
+      vector<TKtrack*> *ptr = 0;
+      static ::TVirtualIsAProxy* isa_proxy = new ::TIsAProxy(typeid(vector<TKtrack*>));
       static ::ROOT::TGenericClassInfo 
-         instance("vector<TKtrhit*>", -2, "vector", 386,
-                  typeid(vector<TKtrhit*>), ::ROOT::Internal::DefineBehavior(ptr, ptr),
-                  &vectorlETKtrhitmUgR_Dictionary, isa_proxy, 0,
-                  sizeof(vector<TKtrhit*>) );
-      instance.SetNew(&new_vectorlETKtrhitmUgR);
-      instance.SetNewArray(&newArray_vectorlETKtrhitmUgR);
-      instance.SetDelete(&delete_vectorlETKtrhitmUgR);
-      instance.SetDeleteArray(&deleteArray_vectorlETKtrhitmUgR);
-      instance.SetDestructor(&destruct_vectorlETKtrhitmUgR);
-      instance.AdoptCollectionProxyInfo(TCollectionProxyInfo::Generate(TCollectionProxyInfo::Pushback< vector<TKtrhit*> >()));
+         instance("vector<TKtrack*>", -2, "vector", 386,
+                  typeid(vector<TKtrack*>), ::ROOT::Internal::DefineBehavior(ptr, ptr),
+                  &vectorlETKtrackmUgR_Dictionary, isa_proxy, 0,
+                  sizeof(vector<TKtrack*>) );
+      instance.SetNew(&new_vectorlETKtrackmUgR);
+      instance.SetNewArray(&newArray_vectorlETKtrackmUgR);
+      instance.SetDelete(&delete_vectorlETKtrackmUgR);
+      instance.SetDeleteArray(&deleteArray_vectorlETKtrackmUgR);
+      instance.SetDestructor(&destruct_vectorlETKtrackmUgR);
+      instance.AdoptCollectionProxyInfo(TCollectionProxyInfo::Generate(TCollectionProxyInfo::Pushback< vector<TKtrack*> >()));
 
-      ::ROOT::AddClassAlternate("vector<TKtrhit*>","std::vector<TKtrhit*, std::allocator<TKtrhit*> >");
+      ::ROOT::AddClassAlternate("vector<TKtrack*>","std::vector<TKtrack*, std::allocator<TKtrack*> >");
       return &instance;
    }
    // Static variable to force the class initialization
-   static ::ROOT::TGenericClassInfo *_R__UNIQUE_DICT_(Init) = GenerateInitInstanceLocal((const vector<TKtrhit*>*)0x0); R__UseDummy(_R__UNIQUE_DICT_(Init));
+   static ::ROOT::TGenericClassInfo *_R__UNIQUE_DICT_(Init) = GenerateInitInstanceLocal((const vector<TKtrack*>*)0x0); R__UseDummy(_R__UNIQUE_DICT_(Init));
 
    // Dictionary for non-ClassDef classes
-   static TClass *vectorlETKtrhitmUgR_Dictionary() {
-      TClass* theClass =::ROOT::GenerateInitInstanceLocal((const vector<TKtrhit*>*)0x0)->GetClass();
-      vectorlETKtrhitmUgR_TClassManip(theClass);
+   static TClass *vectorlETKtrackmUgR_Dictionary() {
+      TClass* theClass =::ROOT::GenerateInitInstanceLocal((const vector<TKtrack*>*)0x0)->GetClass();
+      vectorlETKtrackmUgR_TClassManip(theClass);
    return theClass;
    }
 
-   static void vectorlETKtrhitmUgR_TClassManip(TClass* ){
+   static void vectorlETKtrackmUgR_TClassManip(TClass* ){
    }
 
 } // end of namespace ROOT
 
 namespace ROOT {
    // Wrappers around operator new
-   static void *new_vectorlETKtrhitmUgR(void *p) {
-      return  p ? ::new((::ROOT::Internal::TOperatorNewHelper*)p) vector<TKtrhit*> : new vector<TKtrhit*>;
+   static void *new_vectorlETKtrackmUgR(void *p) {
+      return  p ? ::new((::ROOT::Internal::TOperatorNewHelper*)p) vector<TKtrack*> : new vector<TKtrack*>;
    }
-   static void *newArray_vectorlETKtrhitmUgR(Long_t nElements, void *p) {
-      return p ? ::new((::ROOT::Internal::TOperatorNewHelper*)p) vector<TKtrhit*>[nElements] : new vector<TKtrhit*>[nElements];
+   static void *newArray_vectorlETKtrackmUgR(Long_t nElements, void *p) {
+      return p ? ::new((::ROOT::Internal::TOperatorNewHelper*)p) vector<TKtrack*>[nElements] : new vector<TKtrack*>[nElements];
    }
    // Wrapper around operator delete
-   static void delete_vectorlETKtrhitmUgR(void *p) {
-      delete ((vector<TKtrhit*>*)p);
+   static void delete_vectorlETKtrackmUgR(void *p) {
+      delete ((vector<TKtrack*>*)p);
    }
-   static void deleteArray_vectorlETKtrhitmUgR(void *p) {
-      delete [] ((vector<TKtrhit*>*)p);
+   static void deleteArray_vectorlETKtrackmUgR(void *p) {
+      delete [] ((vector<TKtrack*>*)p);
    }
-   static void destruct_vectorlETKtrhitmUgR(void *p) {
-      typedef vector<TKtrhit*> current_t;
+   static void destruct_vectorlETKtrackmUgR(void *p) {
+      typedef vector<TKtrack*> current_t;
       ((current_t*)p)->~current_t();
    }
-} // end of namespace ROOT for class vector<TKtrhit*>
+} // end of namespace ROOT for class vector<TKtrack*>
 
 namespace ROOT {
    static TClass *vectorlETKpointmUgR_Dictionary();
@@ -273,9 +273,9 @@ namespace ROOT {
 } // end of namespace ROOT for class vector<TKpoint*>
 
 namespace {
-  void TriggerDictionaryInitialization_TKtrackdict_Impl() {
+  void TriggerDictionaryInitialization_TKtrajectorydict_Impl() {
     static const char* headers[] = {
-"TKtrack.h",
+"TKtrajectory.h",
 0
     };
     static const char* includePaths[] = {
@@ -284,41 +284,41 @@ namespace {
 0
     };
     static const char* fwdDeclCode = R"DICTFWDDCLS(
-#line 1 "TKtrackdict dictionary forward declarations' payload"
+#line 1 "TKtrajectorydict dictionary forward declarations' payload"
 #pragma clang diagnostic ignored "-Wkeyword-compat"
 #pragma clang diagnostic ignored "-Wignored-attributes"
 #pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
 extern int __Cling_AutoLoading_Map;
-class __attribute__((annotate("$clingAutoload$TKtrack.h")))  TKtrack;
+class __attribute__((annotate("$clingAutoload$TKtrajectory.h")))  TKtrajectory;
 )DICTFWDDCLS";
     static const char* payloadCode = R"DICTPAYLOAD(
-#line 1 "TKtrackdict dictionary payload"
+#line 1 "TKtrajectorydict dictionary payload"
 
 
 #define _BACKWARD_BACKWARD_WARNING_H
 // Inline headers
-#include "TKtrack.h"
+#include "TKtrajectory.h"
 
 #undef  _BACKWARD_BACKWARD_WARNING_H
 )DICTPAYLOAD";
     static const char* classesHeaders[] = {
-"TKtrack", payloadCode, "@",
+"TKtrajectory", payloadCode, "@",
 nullptr
 };
     static bool isInitialized = false;
     if (!isInitialized) {
-      TROOT::RegisterModule("TKtrackdict",
+      TROOT::RegisterModule("TKtrajectorydict",
         headers, includePaths, payloadCode, fwdDeclCode,
-        TriggerDictionaryInitialization_TKtrackdict_Impl, {}, classesHeaders, /*hasCxxModule*/false);
+        TriggerDictionaryInitialization_TKtrajectorydict_Impl, {}, classesHeaders, /*hasCxxModule*/false);
       isInitialized = true;
     }
   }
   static struct DictInit {
     DictInit() {
-      TriggerDictionaryInitialization_TKtrackdict_Impl();
+      TriggerDictionaryInitialization_TKtrajectorydict_Impl();
     }
   } __TheDictionaryInitializer;
 }
-void TriggerDictionaryInitialization_TKtrackdict() {
-  TriggerDictionaryInitialization_TKtrackdict_Impl();
+void TriggerDictionaryInitialization_TKtrajectorydict() {
+  TriggerDictionaryInitialization_TKtrajectorydict_Impl();
 }

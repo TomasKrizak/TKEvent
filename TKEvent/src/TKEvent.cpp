@@ -508,7 +508,7 @@ void TKEvent::set_sigma_Z()
 	}
 }
 		
-void TKEvent::make_top_projection(int option)
+void TKEvent::make_top_projection(int hits_option = 3, int tracking_option = 3)
 {
 	gROOT->SetBatch(true);
 	TCanvas *canvas = new TCanvas("canvas","", 5800, 1600);	
@@ -663,7 +663,7 @@ void TKEvent::make_top_projection(int option)
 				tracker_cell = new TEllipse(thit->get_xy('y'), -thit->get_xy('x'), radius, radius);
 				tracker_hits.push_back(tracker_cell);
 				tracker_cell->SetLineWidth(1);
-				switch(option)
+				switch(hits_option)
 				{
 					case 0:
 						break;
@@ -690,7 +690,7 @@ void TKEvent::make_top_projection(int option)
 				
 				if(is_associated)
 				{
-					switch(option)
+					switch(hits_option)
 					{
 						case 0:
 							tracker_cell->SetFillColor(kRed);
@@ -715,7 +715,7 @@ void TKEvent::make_top_projection(int option)
 				} 
 				else
 				{
-					switch(option)
+					switch(hits_option)
 					{
 						case 3:
 						if(has_height)
@@ -769,73 +769,81 @@ void TKEvent::make_top_projection(int option)
 	}
 	
 	// Drawing tracks
-	vector<TKtrack*> all_tracks = this->get_tracks();
 	vector<TLine*> lines;
-	for (int i = 0; i < this->get_no_tracks(); i++)
+	if(tracking_option == 0 || tracking_option == 1 || tracking_option == 3)
 	{
-		TLine* track;
-		double x, y;
-		
-		x = 435.0;
-		if( all_tracks[i]->get_side() == 0) 
+		vector<TKtrack*> all_tracks = this->get_tracks();
+		for (int i = 0; i < this->get_no_tracks(); i++)
 		{
-			x = -x;
-		}		
-		y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
-		
-		if( y > 2505.5 )
-		{
-			x = (2505.5-all_tracks[i]->get_b())/all_tracks[i]->get_a();
+			TLine* track;
+			double x, y;
+			
+			x = 435.0;
+			if( all_tracks[i]->get_side() == 0) 
+			{
+				x = -x;
+			}		
 			y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
 			
+			if( y > 2505.5 )
+			{
+				x = (2505.5-all_tracks[i]->get_b())/all_tracks[i]->get_a();
+				y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
+				
+			}
+			else if( y < -2505.5 )
+			{
+				x = (-2505.5-all_tracks[i]->get_b())/all_tracks[i]->get_a();
+				y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
+			}
+			
+			track = new TLine(all_tracks[i]->get_b(), 0.0, y, -x);	
+			lines.push_back(track);		
+			track->SetLineColor(kBlue);
+			track->SetLineWidth(2);
+			track->Draw("same");
 		}
-		else if( y < -2505.5 )
-		{
-			x = (-2505.5-all_tracks[i]->get_b())/all_tracks[i]->get_a();
-			y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
-		}
-		
-		track = new TLine(all_tracks[i]->get_b(), 0.0, y, -x);	
-		lines.push_back(track);		
-		track->SetLineColor(kBlue);
-		track->SetLineWidth(2);
-		track->Draw("same");
 	}
 	
 	// Drawing trajectories
 	vector<TPolyLine*> polylines;
-	for (int i = 0; i < trajectories.size(); i++)
+	if(tracking_option == 2 || tracking_option == 3)
 	{
-		TPolyLine* trajectory = new TPolyLine();
-		polylines.push_back(trajectory);
-		trajectory->SetLineColor(kOrange - 3);
-		trajectory->SetLineWidth(4);
-		for (int j = 0; j < trajectories[i]->get_track_points().size(); j++)
+		for (int i = 0; i < trajectories.size(); i++)
 		{
-			TKpoint* point = trajectories[i]->get_track_points()[j];
-			trajectory->SetPoint(j, point->get_y(), -point->get_x());
+			TPolyLine* trajectory = new TPolyLine();
+			polylines.push_back(trajectory);
+			trajectory->SetLineColor(kOrange - 3);
+			trajectory->SetLineWidth(4);
+			for (int j = 0; j < trajectories[i]->get_track_points().size(); j++)
+			{
+				TKpoint* point = trajectories[i]->get_track_points()[j];
+				trajectory->SetPoint(j, point->get_y(), -point->get_x());
+			}
+			trajectory->Draw("same");
 		}
-		trajectory->Draw("same");
 	}
 	
 	// Drawing avalanche origin points
 	vector<TGraph*> avalanche_origins;
-	for (int i = 0; i < this->get_no_tracks(); i++)
+	if(tracking_option == 1 || tracking_option == 2 || tracking_option == 3)
 	{
-		TGraph *graph = new TGraph();
-		avalanche_origins.push_back(graph);
-		TKtrack* track = this->get_tracks()[i];
-		for (int j = 0; j < track->get_associated_tr_hit_points().size(); j++)
-		{	
-			TKpoint* point = track->get_associated_tr_hit_points()[j];
-			graph->SetPoint(j, point->get_y(), -point->get_x());
-		}
-	   	graph->SetMarkerColor(kRed);
-   		graph->SetMarkerStyle(kFullCircle);
-   		graph->SetMarkerSize(1);
-		graph->Draw("sameP");
-   	}
-   	
+		for (int i = 0; i < this->get_no_tracks(); i++)
+		{
+			TGraph *graph = new TGraph();
+			avalanche_origins.push_back(graph);
+			TKtrack* track = this->get_tracks()[i];
+			for (int j = 0; j < track->get_associated_tr_hit_points().size(); j++)
+			{	
+				TKpoint* point = track->get_associated_tr_hit_points()[j];
+				graph->SetPoint(j, point->get_y(), -point->get_x());
+			}
+		   	graph->SetMarkerColor(kRed);
+	   		graph->SetMarkerStyle(kFullCircle);
+	   		graph->SetMarkerSize(1);
+			graph->Draw("sameP");
+	   	}
+	}
 
 	canvas->SaveAs(Form("./Events_visu/Run-%d_event-%d_2D.png", run_number, event_number));
 	delete canvas;
@@ -849,7 +857,7 @@ void TKEvent::make_top_projection(int option)
 	for (auto avalanche_origin : avalanche_origins) delete avalanche_origin;
 }
 		
-void TKEvent::build_event()
+void TKEvent::build_event(int tracking_option = 3)
 {	
 	gROOT->SetBatch(true);
 	
@@ -1018,66 +1026,72 @@ void TKEvent::build_event()
 	geom->CloseGeometry(); 
 	file->WriteObject(top, "demonstrator");
 
-	vector<TKtrack*> all_tracks = this->get_tracks(); 
-	for(int i = 0; i < this->get_no_tracks(); i++)
+	if(tracking_option == 0 || tracking_option == 1 || tracking_option == 3)
 	{
-		TPolyLine3D *track = new TPolyLine3D();
-		track->SetPoint(0, 0.0, all_tracks[i]->get_b(), all_tracks[i]->get_d());
-		double x,y,z;
-		
-		x = 435.0;
-		if( all_tracks[i]->get_side() == 0 ) 
+		vector<TKtrack*> all_tracks = this->get_tracks(); 
+		for(int i = 0; i < this->get_no_tracks(); i++)
 		{
-			x = -x;
-		}		
-		y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
-		
-		if( y > 2505.5 )
-		{
-			x = (2505.5-all_tracks[i]->get_b())/all_tracks[i]->get_a();
+			TPolyLine3D *track = new TPolyLine3D();
+			track->SetPoint(0, 0.0, all_tracks[i]->get_b(), all_tracks[i]->get_d());
+			double x,y,z;
+			
+			x = 435.0;
+			if( all_tracks[i]->get_side() == 0 ) 
+			{
+				x = -x;
+			}		
 			y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
 			
-		}
-		else if( y < -2505.5 )
-		{
-			x = (-2505.5-all_tracks[i]->get_b())/all_tracks[i]->get_a();
-			y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
-		}
-		z = all_tracks[i]->get_c()*x + all_tracks[i]->get_d();
-		
-		if( z > 1550.0 )
-		{
-			x = (1550.0-all_tracks[i]->get_d())/all_tracks[i]->get_c();
-			y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
+			if( y > 2505.5 )
+			{
+				x = (2505.5-all_tracks[i]->get_b())/all_tracks[i]->get_a();
+				y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
+				
+			}
+			else if( y < -2505.5 )
+			{
+				x = (-2505.5-all_tracks[i]->get_b())/all_tracks[i]->get_a();
+				y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
+			}
 			z = all_tracks[i]->get_c()*x + all_tracks[i]->get_d();
-		}
-		else if( z < -1550.0 )
-		{
-			x = (-1550.0-all_tracks[i]->get_d())/all_tracks[i]->get_c();
-			y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
-			z = all_tracks[i]->get_c()*x + all_tracks[i]->get_d();
-		}
-		track->SetPoint(1, x, y, z);			
+			
+			if( z > 1550.0 )
+			{
+				x = (1550.0-all_tracks[i]->get_d())/all_tracks[i]->get_c();
+				y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
+				z = all_tracks[i]->get_c()*x + all_tracks[i]->get_d();
+			}
+			else if( z < -1550.0 )
+			{
+				x = (-1550.0-all_tracks[i]->get_d())/all_tracks[i]->get_c();
+				y = all_tracks[i]->get_a()*x + all_tracks[i]->get_b();
+				z = all_tracks[i]->get_c()*x + all_tracks[i]->get_d();
+			}
+			track->SetPoint(1, x, y, z);			
 
-		track->SetLineColor(kBlue);
-		track->SetLineWidth(2);
-		file->WriteObject(track, Form("track-%d", i));
-		delete track;
+			track->SetLineColor(kBlue);
+			track->SetLineWidth(2);
+			file->WriteObject(track, Form("track-%d", i));
+			delete track;
+		}
 	}
 	
-	for (int i = 0; i < trajectories.size(); i++)
+	if(tracking_option == 2 || tracking_option == 3)
 	{
-		TPolyLine3D* trajectory = new TPolyLine3D();
-		trajectory->SetLineColor(kOrange - 3);
-		trajectory->SetLineWidth(4);
-		for (int j = 0; j < trajectories[i]->get_track_points().size(); j++)
+		for (int i = 0; i < trajectories.size(); i++)
 		{
-			TKpoint* point = trajectories[i]->get_track_points()[j];
-			trajectory->SetPoint(j, point->get_x(), point->get_y(), point->get_z());
-		}
-		file->WriteObject(trajectory, Form("trajectory-%d", i));
-		delete trajectory;
-	}	
+			TPolyLine3D* trajectory = new TPolyLine3D();
+			trajectory->SetLineColor(kOrange - 3);
+			trajectory->SetLineWidth(4);
+			for (int j = 0; j < trajectories[i]->get_track_points().size(); j++)
+			{
+				TKpoint* point = trajectories[i]->get_track_points()[j];
+				trajectory->SetPoint(j, point->get_x(), point->get_y(), point->get_z());
+			}
+			file->WriteObject(trajectory, Form("trajectory-%d", i));
+			delete trajectory;
+		}	
+	}
 
 	// Close file and delete dynamically allocated objects
 	file->Close();	 	

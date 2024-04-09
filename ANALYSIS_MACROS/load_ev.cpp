@@ -39,11 +39,11 @@ void load_ev()
 		event->set_h();		// calculates tracker hit heights
 		//event->set_sigma_Z(); 	// space for implementation of better Z uncertainty model
 		
-		event->reconstruct_ML(0); 	// currently best reconstuction method
+		event->reconstruct(0); 	// full reconstuction algorithm constructing trajectories (polyline objects)
 
-		event->make_top_projection(3);
+		event->make_top_projection(3, 2);
 		
-		event->build_event(); // creates a file with 3D model of the event
+		event->build_event(2); // creates a file with 3D model of the event
 		
 		delete event;
 	}

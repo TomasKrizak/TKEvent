@@ -36,6 +36,8 @@ class TKtrajectory: public TObject
 		int get_side();
 		std::vector<TKtrack*> get_segments();
 		std::vector<TKpoint*> get_track_points();
+		
+		void extrapolate();
 
 		void print();
 		

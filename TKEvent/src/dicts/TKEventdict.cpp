@@ -55,7 +55,7 @@ namespace ROOT {
       ::TKEvent *ptr = 0;
       static ::TVirtualIsAProxy* isa_proxy = new ::TInstrumentedIsAProxy< ::TKEvent >(0);
       static ::ROOT::TGenericClassInfo 
-         instance("TKEvent", ::TKEvent::Class_Version(), "TKEvent.h", 48,
+         instance("TKEvent", ::TKEvent::Class_Version(), "TKEvent.h", 49,
                   typeid(::TKEvent), ::ROOT::Internal::DefineBehavior(ptr, ptr),
                   &::TKEvent::Dictionary, isa_proxy, 4,
                   sizeof(::TKEvent) );
@@ -206,6 +206,71 @@ namespace ROOT {
       ((current_t*)p)->~current_t();
    }
 } // end of namespace ROOT for class vector<TKtrhit*>
+
+namespace ROOT {
+   static TClass *vectorlETKtrajectorymUgR_Dictionary();
+   static void vectorlETKtrajectorymUgR_TClassManip(TClass*);
+   static void *new_vectorlETKtrajectorymUgR(void *p = 0);
+   static void *newArray_vectorlETKtrajectorymUgR(Long_t size, void *p);
+   static void delete_vectorlETKtrajectorymUgR(void *p);
+   static void deleteArray_vectorlETKtrajectorymUgR(void *p);
+   static void destruct_vectorlETKtrajectorymUgR(void *p);
+
+   // Function generating the singleton type initializer
+   static TGenericClassInfo *GenerateInitInstanceLocal(const vector<TKtrajectory*>*)
+   {
+      vector<TKtrajectory*> *ptr = 0;
+      static ::TVirtualIsAProxy* isa_proxy = new ::TIsAProxy(typeid(vector<TKtrajectory*>));
+      static ::ROOT::TGenericClassInfo 
+         instance("vector<TKtrajectory*>", -2, "vector", 386,
+                  typeid(vector<TKtrajectory*>), ::ROOT::Internal::DefineBehavior(ptr, ptr),
+                  &vectorlETKtrajectorymUgR_Dictionary, isa_proxy, 0,
+                  sizeof(vector<TKtrajectory*>) );
+      instance.SetNew(&new_vectorlETKtrajectorymUgR);
+      instance.SetNewArray(&newArray_vectorlETKtrajectorymUgR);
+      instance.SetDelete(&delete_vectorlETKtrajectorymUgR);
+      instance.SetDeleteArray(&deleteArray_vectorlETKtrajectorymUgR);
+      instance.SetDestructor(&destruct_vectorlETKtrajectorymUgR);
+      instance.AdoptCollectionProxyInfo(TCollectionProxyInfo::Generate(TCollectionProxyInfo::Pushback< vector<TKtrajectory*> >()));
+
+      ::ROOT::AddClassAlternate("vector<TKtrajectory*>","std::vector<TKtrajectory*, std::allocator<TKtrajectory*> >");
+      return &instance;
+   }
+   // Static variable to force the class initialization
+   static ::ROOT::TGenericClassInfo *_R__UNIQUE_DICT_(Init) = GenerateInitInstanceLocal((const vector<TKtrajectory*>*)0x0); R__UseDummy(_R__UNIQUE_DICT_(Init));
+
+   // Dictionary for non-ClassDef classes
+   static TClass *vectorlETKtrajectorymUgR_Dictionary() {
+      TClass* theClass =::ROOT::GenerateInitInstanceLocal((const vector<TKtrajectory*>*)0x0)->GetClass();
+      vectorlETKtrajectorymUgR_TClassManip(theClass);
+   return theClass;
+   }
+
+   static void vectorlETKtrajectorymUgR_TClassManip(TClass* ){
+   }
+
+} // end of namespace ROOT
+
+namespace ROOT {
+   // Wrappers around operator new
+   static void *new_vectorlETKtrajectorymUgR(void *p) {
+      return  p ? ::new((::ROOT::Internal::TOperatorNewHelper*)p) vector<TKtrajectory*> : new vector<TKtrajectory*>;
+   }
+   static void *newArray_vectorlETKtrajectorymUgR(Long_t nElements, void *p) {
+      return p ? ::new((::ROOT::Internal::TOperatorNewHelper*)p) vector<TKtrajectory*>[nElements] : new vector<TKtrajectory*>[nElements];
+   }
+   // Wrapper around operator delete
+   static void delete_vectorlETKtrajectorymUgR(void *p) {
+      delete ((vector<TKtrajectory*>*)p);
+   }
+   static void deleteArray_vectorlETKtrajectorymUgR(void *p) {
+      delete [] ((vector<TKtrajectory*>*)p);
+   }
+   static void destruct_vectorlETKtrajectorymUgR(void *p) {
+      typedef vector<TKtrajectory*> current_t;
+      ((current_t*)p)->~current_t();
+   }
+} // end of namespace ROOT for class vector<TKtrajectory*>
 
 namespace ROOT {
    static TClass *vectorlETKtrackmUgR_Dictionary();

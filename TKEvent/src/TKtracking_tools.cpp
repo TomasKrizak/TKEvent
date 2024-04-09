@@ -3,6 +3,8 @@
 
 using namespace std;
 
+bool debug_mode = false;
+
 void TKEvent::reconstruct_track_from_hits(std::vector<TKtrhit*> hits, bool save_sinograms)
 {
 	// ancient algorithm - does not provide complete likelihood and (r,phi,theta,h) coordinates
@@ -1096,31 +1098,31 @@ void TKEvent::draw_likelihood_centred()
 	}
 }
 
-void TKEvent::reconstruct_ML(bool save_sinograms)
+void TKEvent::reconstruct(bool save_sinograms)
 {
+	const bool debug_mode = false;
 	const double chi_square_treshold = 5;
 	for(int side = 0; side < 2; side++)
 	{
-		//cout << "side: " << side << endl;
+		if(debug_mode) cout << "side: " << side << endl;
 		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
 		hits = filter_distant( hits );
 		int no_hits_before = 1e10;
 		while( hits.size() > 2 && no_hits_before > hits.size() )
 		{
-			//cout << "iteration start: " << endl;
+			if(debug_mode) cout << "iteration start: " << endl;
 			no_hits_before = hits.size();
 			bool failed = false;
 			TKcluster* cluster = find_cluster(hits);			
 			if( cluster != nullptr )
 			{
-				//cout << "find_cluster succes" << endl; 
-				cluster->reconstruct_MLM( save_sinograms, run_number, event_number );
-				cluster->detect_ambiguity_type();
-				cluster->reconstruct_ambiguity();
-						
+				if(debug_mode) cout << "find_cluster succes" << endl; 
+				cluster->reconstruct_MLM( save_sinograms, run_number, event_number );						
 				if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold )
 				{
-					//cout << "chi_squared good" << endl; 
+					if(debug_mode) cout << "chi_squared good" << endl;
+					cluster->detect_ambiguity_type();
+					cluster->reconstruct_ambiguity(); 
 					cluster->get_track()->calculate_tr_hit_points();
 					if(cluster->get_track()->get_mirror_image() != nullptr)
 					{	
@@ -1130,7 +1132,7 @@ void TKEvent::reconstruct_ML(bool save_sinograms)
 				}
 				else
 				{
-					//cout << "chi_squared bad" << endl; 
+					if(debug_mode) cout << "chi_squared bad" << endl; 
 					failed = true;
 					delete cluster;
 				}
@@ -1140,13 +1142,13 @@ void TKEvent::reconstruct_ML(bool save_sinograms)
 				TKcluster* cluster = find_cluster_legendre(hits, save_sinograms);
 				if( cluster != nullptr )
 				{
-					//cout << "find_cluster_legendre succes" << endl; 
+					if(debug_mode) cout << "find_cluster_legendre succes" << endl; 
 					cluster->reconstruct_MLM( save_sinograms, run_number, event_number );
-					cluster->detect_ambiguity_type();
-					cluster->reconstruct_ambiguity();
 					if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold )
 					{
-						//cout << "chi_squared good" << endl; 
+						if(debug_mode) cout << "chi_squared good" << endl; 
+						cluster->detect_ambiguity_type();
+						cluster->reconstruct_ambiguity();
 						cluster->get_track()->calculate_tr_hit_points();
 						if(cluster->get_track()->get_mirror_image() != nullptr)
 						{	
@@ -1156,7 +1158,7 @@ void TKEvent::reconstruct_ML(bool save_sinograms)
 					}	
 					else
 					{
-						//cout << "chi_squared bad" << endl; 
+						if(debug_mode) cout << "chi_squared bad" << endl; 
 						delete cluster;
 					}
 				}
@@ -1167,6 +1169,26 @@ void TKEvent::reconstruct_ML(bool save_sinograms)
 		}
 	}
 	this->build_trajectories();
+	this->extrapolate_trajectories();
+}
+
+
+void TKEvent::reconstruct_ML(bool save_sinograms)
+{
+	for(int side = 0; side < 2; side++)
+	{
+		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
+		if( hits.size() < 3 ) continue;
+		
+		TKcluster* cluster = find_cluster(hits);
+		if( cluster != nullptr )
+		{
+			clusters.push_back( cluster );
+			cluster->reconstruct_MLM( save_sinograms, run_number, event_number );
+			cluster->detect_ambiguity_type();
+			cluster->reconstruct_ambiguity();
+		}
+	}
 }
 
 
@@ -1462,11 +1484,11 @@ TKcluster* TKEvent::find_cluster_legendre(std::vector<TKtrhit*> hits, bool save_
 
 void TKEvent::build_trajectories()
 {
-	cout << "building trajectory" << endl;
+	if(debug_mode) cout << "building trajectory" << endl;
 	vector<TKtrack*> all_tracks = this->get_tracks();
 	for(int side = 0; side < 2; side++)
 	{
-		cout << "building side: " << side << endl;
+		if(debug_mode) cout << "building side: " << side << endl;
 		vector<TKtrack*> all_tracks_from_side;
 		for(int i = 0; i < all_tracks.size(); i++)
 		{
@@ -1476,7 +1498,7 @@ void TKEvent::build_trajectories()
 			}
 		}		
 		const int no_tracks = all_tracks_from_side.size();
-		cout << no_tracks << " tracks available" << endl;
+		if(debug_mode) cout << no_tracks << " tracks available" << endl;
 		bool connections[no_tracks][no_tracks];
 		for(int i = 0; i < no_tracks; i++)
 		{
@@ -1525,27 +1547,30 @@ void TKEvent::build_trajectories()
 			}
 		}
 		bool trajectorized[no_tracks];
-		cout << "number of connections for each segment:" << endl;
+		if(debug_mode) cout << "number of connections for each segment:" << endl;
 		for(int i = 0; i < no_tracks; i++)
 		{
 			trajectorized[i] = false;
-			cout << connection_counter[i] << endl; 
+			if(debug_mode) cout << connection_counter[i] << endl; 
 		}
 		
-		cout << "connection matrix:" << endl;
-		for(int i = 0; i < no_tracks; i++)
+		if(debug_mode)
 		{
-			for(int j = 0; j < no_tracks; j++)
+			cout << "connection matrix:" << endl;
+			for(int i = 0; i < no_tracks; i++)
 			{
-				cout << connections[i][j] << " ";	
+				for(int j = 0; j < no_tracks; j++)
+				{
+					cout << connections[i][j] << " ";	
+				}
+				cout << endl;
 			}
 			cout << endl;
 		}
-		cout << endl;
 		
 		for(int i = 0; i < no_tracks; i++)
 		{
-			cout << "connecting track number: " << i << endl; 
+			if(debug_mode) cout << "connecting track number: " << i << endl; 
 			if(connection_counter[i] == 0)
 			{
 				if(all_tracks_from_side[i]->get_associated_tr_hits().size() > 1) // in ideal case should be unnecessary
@@ -1553,14 +1578,14 @@ void TKEvent::build_trajectories()
 					trajectories.push_back(new TKtrajectory(all_tracks_from_side[i]));
 				}
 				trajectorized[i] = true;
-				cout << i << " trajectorized" << endl;
+				if(debug_mode) cout << i << " trajectorized" << endl;
 			}
 			else if(connection_counter[i] == 1 && trajectorized[i] == false)
 			{
 				vector<TKtrack*> composite_track;
 				composite_track.push_back(all_tracks_from_side[i]);
 				trajectorized[i] = true;
-				cout << i << " trajectorized" << endl;
+				if(debug_mode) cout << i << " trajectorized" << endl;
 				int next_index;
 				bool is_valid = false;
 				for(int j = 0; j < no_tracks; j++)
@@ -1571,7 +1596,7 @@ void TKEvent::build_trajectories()
 						is_valid = true;
 						composite_track.push_back(all_tracks_from_side[next_index]);
 						trajectorized[next_index] = true;
-						cout << next_index << " trajectorized" << endl;
+						if(debug_mode) cout << next_index << " trajectorized" << endl;
 						break;
 					}
 				}
@@ -1587,7 +1612,7 @@ void TKEvent::build_trajectories()
 							is_valid = true;
 							composite_track.push_back(all_tracks_from_side[next_index]);
 							trajectorized[next_index] = true;
-							cout << next_index << " trajectorized" << endl;
+							if(debug_mode) cout << next_index << " trajectorized" << endl;
 							break;
 						}
 					}
@@ -1607,13 +1632,23 @@ void TKEvent::build_trajectories()
 		}
 	}
 	
-	cout << "trajectory:" << endl;
-	for(int i = 0; i < trajectories.size(); i++)
+	if(debug_mode)
 	{
-		trajectories[i]->print();
+		cout << "trajectory:" << endl;
+		for(int i = 0; i < trajectories.size(); i++)
+		{
+			trajectories[i]->print();
+		}
 	}
 	
 	return;
 }
 
+void TKEvent::extrapolate_trajectories()
+{
+	for(auto& trajectory : trajectories)
+	{
+		trajectory->extrapolate();
+	}
+}
 

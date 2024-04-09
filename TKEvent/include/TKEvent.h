@@ -35,19 +35,16 @@
 #include "TKtrajectory.h"
 
 
-// note (29.10.2023): currently the main functions to use are the following:
+// note (9.4.): currently the main functions to use are the following:
 
-// 	reconstruct_single(bool save_sinograms);
-//	reconstruct_multi(bool save_sinograms);
-//	reconstruct_ML(bool save_sinograms);
-//	make_top_projection(int option);
-//	build_event();
-
-// rest of the functions are important mainly for tracking development or as 
-// inner functions of important reconstruction functions listed above
+// 	reconstruct(bool save_sinograms); full reconstruction including trajectory 
+//					   builder and verteces extrapolation
+//	reconstruct_ML(bool save_sinograms); for quick track finding
+//	make_top_projection(int hits_option, int tracking_option);
+//	build_event(int tracking_option);
 
 // In case you are looking for the implementation - all functions concerning 
-// maximum likelihood method are implemented in a file "tracking_tools.cpp"
+// the tracking are implemented in a file "tracking_tools.cpp"
 
 class TKEvent: public TObject
 {
@@ -62,7 +59,6 @@ class TKEvent: public TObject
 		std::vector<TKcluster*> clusters;
 		std::vector<TKtrajectory*> trajectories;
 		
-	
 	public:
 	
 	// basic functionality section:
@@ -73,9 +69,10 @@ class TKEvent: public TObject
 
 		std::vector<TKOMhit*>&      get_OM_hits();
 		std::vector<TKtrhit*>&      get_tr_hits();
-		std::vector<TKtrack*>      get_tracks();
+		std::vector<TKtrack*>       get_tracks();
 		std::vector<TKcluster*>&    get_clusters();
 		std::vector<TKtrajectory*>& get_trajectories();
+		
 		TKOMhit*      get_OM_hit(int _i);
 		TKtrhit*      get_tr_hit(int _i);
 		TKtrack*      get_track(int _i);
@@ -113,7 +110,6 @@ class TKEvent: public TObject
 	
 	// clustering functions section
 	
-		//TODO: předávat reference?
 		std::vector<TKtrhit*> filter_side(std::vector<TKtrhit*> _hits, int side);
 		std::vector<TKtrhit*> filter_usable(std::vector<TKtrhit*> _hits);
 		std::vector<TKtrhit*> filter_unassociated(std::vector<TKtrhit*> _hits);
@@ -124,8 +120,18 @@ class TKEvent: public TObject
 		// basic clustering - finds a largest subgroup of given hits such that is geometrically possible to have a single common line
 		TKcluster* find_cluster(std::vector<TKtrhit*> tr_hits);
 		TKcluster* find_cluster_legendre(std::vector<TKtrhit*> hits, bool save_sinograms);
-		
-	// reconstruction section	
+	
+	// full reconstruction functions
+	
+		// full reconstruction algorithm:
+		//	1. different clusterings to safe failed events 
+		//	2. maximum likelihood to obtain line tracks 
+		//	3. trajectory builder
+		//	4. trajectory extrapolator
+		 
+		void reconstruct(bool save_sinograms);
+				
+	// line track reconstruction section	
 	
 		// basic reconstruction - no uncertainties, one candidate
 		void reconstruct_track(bool save_sinograms);
@@ -143,12 +149,15 @@ class TKEvent: public TObject
 		// currently finds only solution per detector side
 		void reconstruct_ML(bool save_sinograms);
 		void reconstruct_ML_3D(bool save_sinograms);
-		
+	
+	// trajectory builder
+	
 		void build_trajectories();
+		void extrapolate_trajectories();
 		
 	// vizualization section
 		
-		// options:
+		// tracker hits options:
 		// 	0 - no unused hits	
 		//	    red	= used hits for reconstruction    
 		//
@@ -165,8 +174,19 @@ class TKEvent: public TObject
 		//	    green 	= associated hits to track, good vertical position
 		//	    teal	= associated hits to track, failed vertical position
 				 
-		void make_top_projection(int option);
-		void build_event();	
+		// tracking options:
+		//	0 - only tracks
+		//	1 - tracks
+		//	    reconstructed tracker hit avalanche origin points
+		//	2 - trajectories
+		//	    avalanche origin points
+		//	3 - tracks
+		//	    trajectories
+		//	    avalanche origin points
+				 
+				 
+		void make_top_projection(int hits_option, int tracking_option);
+		void build_event(int tracking_option);	
 
 	// tools for drawing certain mathematical functions 
 		void hough_transform(std::vector<TKtrhit*> hits, double phi_min, double phi_max, double R_min, double R_max, int ID);

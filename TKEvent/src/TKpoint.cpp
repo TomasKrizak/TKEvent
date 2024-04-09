@@ -6,11 +6,10 @@ using namespace std;
 ClassImp(TKpoint);
 
 
-TKpoint::TKpoint()
+TKpoint::TKpoint() :
+	x(0.0), y(0.0), z(0.0)
 {
-	x = 0.0;
-	y = 0.0;
-	z = 0.0;
+
 }
 
 TKpoint::TKpoint(double _x, double _y, double _z)
@@ -60,14 +59,14 @@ void TKpoint::print()
 	std::cout << "point (" << x << ", " << y << ", " << z << ")" << std::endl;
 }
 
-double distance_2D(TKpoint* point1, TKpoint* point2)
+double distance_2D(TKpoint &point1, TKpoint &point2)
 {
-	double temp = pow(point1->get_x(), 2) + pow(point1->get_y(), 2);
+	double temp = pow(point1.get_x() - point2.get_x(), 2) + pow(point1.get_y() - point2.get_y(), 2);
 	return sqrt(temp);
 }
 
-double distance_3D(TKpoint* point1, TKpoint* point2)
+double distance_3D(TKpoint &point1, TKpoint &point2)
 {
-	double temp = pow(point1->get_x(), 2) + pow(point1->get_y(), 2) + pow(point1->get_z(), 2);
+	double temp = pow(point1.get_x() - point2.get_x(), 2) + pow(point1.get_y() - point2.get_y(), 2) + pow(point1.get_z() - point2.get_z(), 2);
 	return sqrt(temp);
 }

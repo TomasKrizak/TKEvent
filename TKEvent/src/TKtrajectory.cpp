@@ -14,7 +14,6 @@ TKtrajectory::TKtrajectory()
 
 TKtrajectory::TKtrajectory(TKtrack* segment)
 {
-	//cout << "creating new simple trajectory" << endl;
 	side = segment->get_side();
 	composite_trajectory = false;
 	
@@ -52,7 +51,6 @@ TKtrajectory::TKtrajectory(TKtrack* segment)
 
 TKtrajectory::TKtrajectory(std::vector<TKtrack*> _segments)
 {
-	//cout << "creating new composite trajectory" << endl;
 	segments = std::vector<TKtrack*>();
 	for(int i = 0; i < _segments.size(); i++)
 	{
@@ -194,6 +192,126 @@ void TKtrajectory::add_track_point(TKpoint* track_point)
 std::vector<TKpoint*> TKtrajectory::get_track_points()
 {
 	return track_points;
+}
+
+void TKtrajectory::extrapolate()
+{
+	const double max_allowed_extrapolation = 150.0;
+
+	const double mainwall_x_position = 435.0;
+	const double Xwall_y_position = 2505.5;
+	const double Gveto_z_position = 1550.0;
+
+	if(track_points.size() < 2) return;
+	
+	double x0(0.0), y0(0.0), z0(0.0);
+	double x1 = track_points[0]->get_x();
+	double y1 = track_points[0]->get_y();
+	double z1 = track_points[0]->get_z();
+	double x2 = track_points[1]->get_x();
+	double y2 = track_points[1]->get_y();
+	double z2 = track_points[1]->get_z();
+
+	bool found = false;
+	if(x1 != x2)
+	{
+		x1 < x2 ? x0 = mainwall_x_position * (side-1) : x0 = side*mainwall_x_position; 
+		double Cx = (x1-x0)/(x2-x1);
+		y0 = y1 - Cx*(y2-y1);
+		z0 = z1 - Cx*(z2-z1);
+		if( Xwall_y_position > abs(y0) && Gveto_z_position > abs(z0) )
+		{
+			found = true;
+		}
+	}
+	if(!found && y1 != y2)
+	{
+		y1 < y2 ? y0 = -Xwall_y_position : y0 = Xwall_y_position; 
+		double Cy = (y1-y0)/(y2-y1);
+		x0 = x1 - Cy*(x2-x1);
+		z0 = z1 - Cy*(z2-z1);
+		if( mainwall_x_position/2.0 > abs(x0 - (double(side)-0.5)*mainwall_x_position) && Gveto_z_position > abs(z0) )
+		{
+			found = true;
+		}
+	}
+	if(!found && z1 != z2)
+	{
+		z1 < z2 ? z0 = -Gveto_z_position : z0 = Gveto_z_position; 
+		double Cz = (z1-z0)/(z2-z1);
+		x0 = x1 - Cz*(x2-x1);
+		y0 = y1 - Cz*(y2-y1);
+		if( mainwall_x_position/2.0 > abs(x0 - (double(side)-0.5)*mainwall_x_position) && Xwall_y_position > abs(y0) )
+		{
+			found = true;
+		}
+	}
+	
+	TKpoint* start_point = new TKpoint(x0, y0, z0);
+	if( distance_2D( *start_point, *track_points[0]) < max_allowed_extrapolation )
+	{
+		track_points.insert(track_points.begin(), start_point);
+	}
+	else
+	{
+		delete start_point;
+	}
+	x0 = 0.0;
+	y0 = 0.0; 
+	z0 = 0.0;
+	x1 = track_points.end()[-1]->get_x();
+	y1 = track_points.end()[-1]->get_y();
+	z1 = track_points.end()[-1]->get_z();
+	x2 = track_points.end()[-2]->get_x();
+	y2 = track_points.end()[-2]->get_y();
+	z2 = track_points.end()[-2]->get_z();
+
+	found = false;
+	if(x1 != x2)
+	{
+		x1 < x2 ? x0 = mainwall_x_position * (side-1) : x0 = side*mainwall_x_position; 
+		double Cx = (x1-x0)/(x2-x1);
+		y0 = y1 - Cx*(y2-y1);
+		z0 = z1 - Cx*(z2-z1);
+		if( Xwall_y_position > abs(y0) && Gveto_z_position > abs(z0) )
+		{
+			found = true;
+		}
+	}
+	if(!found && y1 != y2)
+	{
+		y1 < y2 ? y0 = -Xwall_y_position : y0 = Xwall_y_position; 
+		double Cy = (y1-y0)/(y2-y1);
+		x0 = x1 - Cy*(x2-x1);
+		z0 = z1 - Cy*(z2-z1);
+		if( mainwall_x_position/2.0 > abs(x0 - (double(side)-0.5)*mainwall_x_position) && Gveto_z_position > abs(z0) )
+		{
+			found = true;
+		}
+	}
+	if(!found && z1 != z2)
+	{
+		z1 < z2 ? z0 = -Gveto_z_position : z0 = Gveto_z_position; 
+		double Cz = (z1-z0)/(z2-z1);
+		x0 = x1 - Cz*(x2-x1);
+		y0 = y1 - Cz*(y2-y1);
+		if( mainwall_x_position/2.0 > abs(x0 - (double(side)-0.5)*mainwall_x_position) && Xwall_y_position > abs(y0) )
+		{
+			found = true;
+		}
+	}
+	
+	TKpoint* end_point = new TKpoint(x0, y0, z0);
+	if( distance_2D( *end_point, *track_points.end()[-1]) < max_allowed_extrapolation )
+	{
+		track_points.push_back(end_point);
+	}
+	else
+	{
+		delete end_point;
+	}
+	
+	
 }
 
 void TKtrajectory::print()

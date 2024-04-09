@@ -34,6 +34,11 @@ class TKpoint: public TObject
 		void print();
 		
 		ClassDef(TKpoint,1);
+		
+		
 };
+
+double distance_2D(TKpoint &point1, TKpoint &point2);
+double distance_3D(TKpoint &point1, TKpoint &point2);
 
 #endif
