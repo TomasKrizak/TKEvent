@@ -1118,7 +1118,7 @@ void TKEvent::reconstruct(bool save_sinograms)
 			{
 				if(debug_mode) cout << "find_cluster succes" << endl; 
 				cluster->reconstruct_MLM( save_sinograms, run_number, event_number );						
-				if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold )
+				if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold && cluster->get_track()->get_associated_tr_hits().size() > 3 )
 				{
 					if(debug_mode) cout << "chi_squared good" << endl;
 					cluster->detect_ambiguity_type();
@@ -1144,7 +1144,7 @@ void TKEvent::reconstruct(bool save_sinograms)
 				{
 					if(debug_mode) cout << "find_cluster_legendre succes" << endl; 
 					cluster->reconstruct_MLM( save_sinograms, run_number, event_number );
-					if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold )
+					if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold && cluster->get_track()->get_associated_tr_hits().size() > 3 )
 					{
 						if(debug_mode) cout << "chi_squared good" << endl; 
 						cluster->detect_ambiguity_type();
@@ -1171,7 +1171,6 @@ void TKEvent::reconstruct(bool save_sinograms)
 	this->build_trajectories();
 	this->extrapolate_trajectories();
 }
-
 
 void TKEvent::reconstruct_ML(bool save_sinograms)
 {

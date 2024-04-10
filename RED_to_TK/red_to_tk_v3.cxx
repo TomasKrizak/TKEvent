@@ -62,15 +62,21 @@ int main (int argc, char *argv[])
 		char input_filename_buffer[128];
 		if(run_number < 813)
 		{
+			std::cout << "Choose different red_to_tk version. Version v3 works for runs 1046 and higher." << cout::endl;
+			return 1;
+		/*
 			snprintf(input_filename_buffer, sizeof(input_filename_buffer),
 				"%s/snemo_run-%d_red.data.gz", red_path, run_number);
-			input_filename = std::string(input_filename_buffer);
+			input_filename = std::string(input_filename_buffer);*/
 		}
 		else if(run_number < 1046)
 		{
+			std::cout << "Choose different red_to_tk version. Version v3 works for runs 1046 and higher." << cout::endl;
+			return 1;
+			/*
 			snprintf(input_filename_buffer, sizeof(input_filename_buffer),
 				"/sps/nemo/snemo/snemo_data/raw_data/RED/delta-tdc-10us-v2/snemo_run-%d_red.data.gz", run_number);
-			input_filename = std::string(input_filename_buffer);
+			input_filename = std::string(input_filename_buffer);*/
 		}
 		else
 		{

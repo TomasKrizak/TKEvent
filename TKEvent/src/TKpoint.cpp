@@ -9,14 +9,11 @@ ClassImp(TKpoint);
 TKpoint::TKpoint() :
 	x(0.0), y(0.0), z(0.0)
 {
-
 }
 
-TKpoint::TKpoint(double _x, double _y, double _z)
+TKpoint::TKpoint(double _x, double _y, double _z) : 
+	x(_x), y(_y), z(_z)
 {
-	x = _x;
-	y = _y;
-	z = _z;
 }
 
 TKpoint::~TKpoint()

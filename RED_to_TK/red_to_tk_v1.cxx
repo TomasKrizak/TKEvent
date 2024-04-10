@@ -71,9 +71,11 @@ int main (int argc, char *argv[])
 		}
 		else
 		{
-			snprintf(input_filename_buffer, sizeof(input_filename_buffer),
+			std::cout << "Choose different red_to_tk version. Version v1 works for runs up to number 812" << cout::endl;
+			return 1;
+			/*snprintf(input_filename_buffer, sizeof(input_filename_buffer),
 			       "/sps/nemo/snemo/snemo_data/raw_data/RED/snemo_run-%d_red-v2.data.gz", run_number);
-			input_filename = std::string(input_filename_buffer);
+			input_filename = std::string(input_filename_buffer);*/
 		}
 	}
 

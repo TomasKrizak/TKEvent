@@ -108,7 +108,7 @@ class TKEvent: public TObject
 		void set_h();
 		void set_sigma_Z(); // currently unnecessary
 	
-	// clustering functions section
+	// tracker hit collection filtering
 	
 		std::vector<TKtrhit*> filter_side(std::vector<TKtrhit*> _hits, int side);
 		std::vector<TKtrhit*> filter_usable(std::vector<TKtrhit*> _hits);
@@ -117,8 +117,12 @@ class TKEvent: public TObject
 		std::vector<TKtrhit*> filter_distant(std::vector<TKtrhit*> _hits);
 		std::vector<TKtrhit*> filter_close_hits(std::vector<TKtrhit*> _hits, double phi, double r, double distance_limit);
 		
-		// basic clustering - finds a largest subgroup of given hits such that is geometrically possible to have a single common line
+	// clustering 
+	
+		// Hough transform based clutering - finds a largest subgroup of given hits
+		// such that is geometrically possible to have a single common line
 		TKcluster* find_cluster(std::vector<TKtrhit*> tr_hits);
+		// Legendre based clustering
 		TKcluster* find_cluster_legendre(std::vector<TKtrhit*> hits, bool save_sinograms);
 	
 	// full reconstruction functions
@@ -126,11 +130,12 @@ class TKEvent: public TObject
 		// full reconstruction algorithm:
 		//	1. different clusterings to safe failed events 
 		//	2. maximum likelihood to obtain line tracks 
-		//	3. trajectory builder
-		//	4. trajectory extrapolator
+		//	3. ambiguity checker and solver
+		//	4. trajectory builder from found segments
+		//	5. trajectory extrapolator
 		 
 		void reconstruct(bool save_sinograms);
-				
+		
 	// line track reconstruction section	
 	
 		// basic reconstruction - no uncertainties, one candidate
