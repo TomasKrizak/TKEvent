@@ -62,7 +62,7 @@ int main (int argc, char *argv[])
 		char input_filename_buffer[128];
 		if(run_number < 813)
 		{
-			std::cout << "Choose different red_to_tk version. Version v3 works for runs 1046 and higher." << cout::endl;
+			std::cout << "Choose different red_to_tk version. Version v3 works for runs 1046 and higher." << std::endl;
 			return 1;
 		/*
 			snprintf(input_filename_buffer, sizeof(input_filename_buffer),
@@ -71,7 +71,7 @@ int main (int argc, char *argv[])
 		}
 		else if(run_number < 1046)
 		{
-			std::cout << "Choose different red_to_tk version. Version v3 works for runs 1046 and higher." << cout::endl;
+			std::cout << "Choose different red_to_tk version. Version v3 works for runs 1046 and higher." << std::endl;
 			return 1;
 			/*
 			snprintf(input_filename_buffer, sizeof(input_filename_buffer),
