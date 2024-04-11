@@ -66,7 +66,7 @@ int main (int argc, char *argv[])
 			snprintf(input_filename_buffer, sizeof(input_filename_buffer),
 				"%s/snemo_run-%d_red.data.gz", red_path, run_number);
 			input_filename = std::string(input_filename_buffer);*/
-			std::cout << "Choose different red_to_tk version. Version v2 works for runs from 813 to 1043" << std::endl;
+			std::cout << "Choose different red_to_tk version. Version v2 works for runs from 813 to 1045" << std::endl;
 			return 1;
 		}
 		else if(run_number < 1046)
@@ -77,7 +77,7 @@ int main (int argc, char *argv[])
 		}
 		else
 		{
-			std::cout << "Choose different red_to_tk version. Version v2 works for runs from 813 to 1043" << std::endl;
+			std::cout << "Choose different red_to_tk version. Version v2 works for runs from 813 to 1045" << std::endl;
 			return 1;
 			/*
 			snprintf(input_filename_buffer, sizeof(input_filename_buffer),
