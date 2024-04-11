@@ -34,7 +34,7 @@ Class TKEvent can be used in two ways:
 		for runs up to 812 use:
 		$ source load_environment_v1.sh
 		
-		for runs from 813 to 1046 use:
+		for runs from 813 to 1045 use:
 		$ source load_environment_v2.sh
 
 		for runs 1046 and higher use:
