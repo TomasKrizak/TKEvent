@@ -1363,7 +1363,7 @@ TKcluster* TKEvent::find_cluster(std::vector<TKtrhit*> hits)
 	return cluster;
 }
 
-TKcluster* TKEvent::find_cluster_legendre(std::vector<TKtrhit*> hits, bool save_sinograms = false)
+TKcluster* TKEvent::find_cluster_legendre(std::vector<TKtrhit*> hits, bool save_sinograms)
 {
 	gROOT->SetBatch(kTRUE);
 
@@ -1483,11 +1483,11 @@ TKcluster* TKEvent::find_cluster_legendre(std::vector<TKtrhit*> hits, bool save_
 
 void TKEvent::build_trajectories()
 {
-	if(debug_mode) cout << "building trajectory" << endl;
+	//if(debug_mode) cout << "building trajectory" << endl;
 	vector<TKtrack*> all_tracks = this->get_tracks();
 	for(int side = 0; side < 2; side++)
 	{
-		if(debug_mode) cout << "building side: " << side << endl;
+		//if(debug_mode) cout << "building side: " << side << endl;
 		vector<TKtrack*> all_tracks_from_side;
 		for(int i = 0; i < all_tracks.size(); i++)
 		{
@@ -1497,7 +1497,7 @@ void TKEvent::build_trajectories()
 			}
 		}		
 		const int no_tracks = all_tracks_from_side.size();
-		if(debug_mode) cout << no_tracks << " tracks available" << endl;
+		//if(debug_mode) cout << no_tracks << " tracks available" << endl;
 		bool connections[no_tracks][no_tracks];
 		for(int i = 0; i < no_tracks; i++)
 		{
@@ -1520,10 +1520,10 @@ void TKEvent::build_trajectories()
 				double b2 = track2->get_b();
 				double x = (b2-b1)/(a1-a2);
 				double y = a1*x + b1;
-				if(y < -2500.0 || y > 2500.0) continue;
-				if(x < -435.0 || x > 435.0) continue;
-				if(side == 0 && x > 20.0) continue;
-				if(side == 1 && x < -20.0) continue;				
+				if(y < -2486.0 || y > 2486.0) continue;
+				if(x < -425.0 || x > 425.0) continue;
+				if(side == 0 && x > 29.0) continue;
+				if(side == 1 && x < -29.0) continue;				
 				double z1 = track1->get_c()*x + track1->get_d();
 				double z2 = track2->get_c()*x + track2->get_d();
 				if(z1 == 0 || z2 == 0) continue;
@@ -1546,13 +1546,13 @@ void TKEvent::build_trajectories()
 			}
 		}
 		bool trajectorized[no_tracks];
-		if(debug_mode) cout << "number of connections for each segment:" << endl;
+		//if(debug_mode) cout << "number of connections for each segment:" << endl;
 		for(int i = 0; i < no_tracks; i++)
 		{
 			trajectorized[i] = false;
 			if(debug_mode) cout << connection_counter[i] << endl; 
 		}
-		
+		/*
 		if(debug_mode)
 		{
 			cout << "connection matrix:" << endl;
@@ -1565,11 +1565,11 @@ void TKEvent::build_trajectories()
 				cout << endl;
 			}
 			cout << endl;
-		}
+		}*/
 		
 		for(int i = 0; i < no_tracks; i++)
 		{
-			if(debug_mode) cout << "connecting track number: " << i << endl; 
+			//if(debug_mode) cout << "connecting track number: " << i << endl; 
 			if(connection_counter[i] == 0)
 			{
 				if(all_tracks_from_side[i]->get_associated_tr_hits().size() > 1) // in ideal case should be unnecessary
@@ -1577,14 +1577,14 @@ void TKEvent::build_trajectories()
 					trajectories.push_back(new TKtrajectory(all_tracks_from_side[i]));
 				}
 				trajectorized[i] = true;
-				if(debug_mode) cout << i << " trajectorized" << endl;
+				//if(debug_mode) cout << i << " trajectorized" << endl;
 			}
 			else if(connection_counter[i] == 1 && trajectorized[i] == false)
 			{
 				vector<TKtrack*> composite_track;
 				composite_track.push_back(all_tracks_from_side[i]);
 				trajectorized[i] = true;
-				if(debug_mode) cout << i << " trajectorized" << endl;
+				//if(debug_mode) cout << i << " trajectorized" << endl;
 				int next_index;
 				bool is_valid = false;
 				for(int j = 0; j < no_tracks; j++)
@@ -1595,7 +1595,7 @@ void TKEvent::build_trajectories()
 						is_valid = true;
 						composite_track.push_back(all_tracks_from_side[next_index]);
 						trajectorized[next_index] = true;
-						if(debug_mode) cout << next_index << " trajectorized" << endl;
+						//if(debug_mode) cout << next_index << " trajectorized" << endl;
 						break;
 					}
 				}
@@ -1611,7 +1611,7 @@ void TKEvent::build_trajectories()
 							is_valid = true;
 							composite_track.push_back(all_tracks_from_side[next_index]);
 							trajectorized[next_index] = true;
-							if(debug_mode) cout << next_index << " trajectorized" << endl;
+							//if(debug_mode) cout << next_index << " trajectorized" << endl;
 							break;
 						}
 					}
@@ -1630,7 +1630,7 @@ void TKEvent::build_trajectories()
 			}
 		}
 	}
-	
+	/*
 	if(debug_mode)
 	{
 		cout << "trajectory:" << endl;
@@ -1638,7 +1638,7 @@ void TKEvent::build_trajectories()
 		{
 			trajectories[i]->print();
 		}
-	}
+	}*/
 	
 	return;
 }

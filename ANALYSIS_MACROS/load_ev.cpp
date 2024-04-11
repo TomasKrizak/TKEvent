@@ -31,8 +31,7 @@ void load_ev()
 	for(UInt_t i = lower_limit; i < upper_limit + 1; i++)	// Loop over events
 	{
 		event = new TKEvent();
-		tree->GetEntry(i);
-		
+		tree->GetEntry(i);		
 		
 		event->set_r("Manchester", "distance");	// calculates tracker hit radii
 		//event->set_sigma_R(); 	// space for implementation of better R uncertainty model
@@ -40,11 +39,11 @@ void load_ev()
 		event->set_h();		// calculates tracker hit heights
 		//event->set_sigma_Z(); 	// space for implementation of better Z uncertainty model
 		
-		event->reconstruct(0); 	// full reconstuction algorithm constructing trajectories (polyline objects)
+		event->reconstruct(); 	// full reconstuction algorithm constructing trajectories (polyline objects)
 		
-		event->make_top_projection(3, 2);
+		event->make_top_projection(3, 2); // the tracker hit and trackinh vizualization options are voluntary arguments 
 		
-		event->build_event(2); // creates a file with 3D model of the event
+		event->build_event(2); // creates a file with 3D model of the event. The vizualization option is voluntary
 		
 		delete event;
 	}

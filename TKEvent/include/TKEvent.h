@@ -101,7 +101,7 @@ class TKEvent: public TObject
 		// association_mode: "time" or "distance"
 		// 	"distance": minimazes distance between OM and tracker hit
 		// 	"time": minimazes time difference between OM and tracker hit
-		void set_r(std::string drift_model, std::string association_mode);
+		void set_r(std::string drift_model = "Manchester", std::string association_mode = "distance");
 		
 		// calls sigma_R, sigma_Z, h set functions for all tracker hits
 		void set_sigma_R(); // currently unnecessary
@@ -123,7 +123,7 @@ class TKEvent: public TObject
 		// such that is geometrically possible to have a single common line
 		TKcluster* find_cluster(std::vector<TKtrhit*> tr_hits);
 		// Legendre based clustering
-		TKcluster* find_cluster_legendre(std::vector<TKtrhit*> hits, bool save_sinograms);
+		TKcluster* find_cluster_legendre(std::vector<TKtrhit*> hits, bool save_sinograms = false);
 	
 	// full reconstruction functions
 	
@@ -134,26 +134,26 @@ class TKEvent: public TObject
 		//	4. trajectory builder from found segments
 		//	5. trajectory extrapolator
 		 
-		void reconstruct(bool save_sinograms);
+		void reconstruct(bool save_sinograms = false);
 		
 	// line track reconstruction section	
 	
 		// basic reconstruction - no uncertainties, one candidate
-		void reconstruct_track(bool save_sinograms);
-		void reconstruct_track_from_hits(std::vector<TKtrhit*> hits, bool save_sinograms);
+		void reconstruct_track(bool save_sinogram = false);
+		void reconstruct_track_from_hits(std::vector<TKtrhit*> hits, bool save_sinograms = false);
 		
 		// with uncertainties, one candidate - recommended function
-		void reconstruct_single(bool save_sinograms);
-		void reconstruct_single_from_hits(std::vector<TKtrhit*> hits, bool save_sinograms);
+		void reconstruct_single(bool save_sinograms = false);
+		void reconstruct_single_from_hits(std::vector<TKtrhit*> hits, bool save_sinograms = false);
 				
 		// with uncertainties, multiple candidates
-		void reconstruct_multi(bool save_sinograms);
+		void reconstruct_multi(bool save_sinograms = false);
 
 		// reconstruction based on maximum likelihood - currently best algorithm
 		// a combination of basic clustering and maximum likelihood method
 		// currently finds only solution per detector side
-		void reconstruct_ML(bool save_sinograms);
-		void reconstruct_ML_3D(bool save_sinograms);
+		void reconstruct_ML(bool save_sinograms = false);
+		void reconstruct_ML_3D(bool save_sinograms = false);
 	
 	// trajectory builder
 	
@@ -190,8 +190,8 @@ class TKEvent: public TObject
 		//	    avalanche origin points
 				 
 				 
-		void make_top_projection(int hits_option, int tracking_option);
-		void build_event(int tracking_option);	
+		void make_top_projection(int hits_option = 3, int tracking_option = 3);
+		void build_event(int tracking_option = 3);	
 
 	// tools for drawing certain mathematical functions 
 		void hough_transform(std::vector<TKtrhit*> hits, double phi_min, double phi_max, double R_min, double R_max, int ID);

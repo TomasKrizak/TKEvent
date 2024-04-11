@@ -508,7 +508,7 @@ void TKEvent::set_sigma_Z()
 	}
 }
 		
-void TKEvent::make_top_projection(int hits_option = 3, int tracking_option = 3)
+void TKEvent::make_top_projection(int hits_option, int tracking_option)
 {
 	gROOT->SetBatch(true);
 	TCanvas *canvas = new TCanvas("canvas","", 5800, 1600);	
@@ -857,7 +857,7 @@ void TKEvent::make_top_projection(int hits_option = 3, int tracking_option = 3)
 	for (auto avalanche_origin : avalanche_origins) delete avalanche_origin;
 }
 		
-void TKEvent::build_event(int tracking_option = 3)
+void TKEvent::build_event(int tracking_option)
 {	
 	gROOT->SetBatch(true);
 	
