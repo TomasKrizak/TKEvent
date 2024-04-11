@@ -31,11 +31,14 @@ Class TKEvent can be used in two ways:
 	2. source environment:
 		$ cd RED_to_TK/
 		
-		for old runs use
-		$ source load_environment.sh
+		for runs up to 812 use:
+		$ source load_environment_v1.sh
 		
-		for runs 813 and newer use
-		$ source load_environment_new.sh
+		for runs from 813 to 1046 use:
+		$ source load_environment_v2.sh
+
+		for runs 1046 and higher use:
+		$ source load_environment_v3.sh
 		
 	3. install TKEvent libraby on your cluster: 
 		$ cd ../TKEvent/
@@ -46,8 +49,8 @@ Class TKEvent can be used in two ways:
 		$ cd ../RED_to_TK/
 		$ chmod 755 install.sh
 		$ ./install.sh
-		(depending on what runs you want to use (0-812 or 813 and higher)
-		keep ".cxx" only in those scripts you will be using) 
+		(depending on what runs you want to use (0-812 or 813-1045 or 1046 and higher)
+		keep ".cxx" only for those scripts you will be using otherwise the compiling will fail) 
 	
 ===============================================================================
 	HOW TO USE:
