@@ -134,7 +134,8 @@ class TKEvent: public TObject
 		//	4. trajectory builder from found segments
 		//	5. trajectory extrapolator
 		 
-		void reconstruct(bool save_sinograms = false);
+		void reconstruct(bool save_sinograms = false); // full reconstruction
+		void reconstruct_simple(bool save_sinograms = false); // simpler quick algo for one track per side
 		
 	// line track reconstruction section	
 	

@@ -41,7 +41,7 @@ void load_ev()
 		
 		event->reconstruct(); 	// full reconstuction algorithm constructing trajectories (polyline objects)
 		
-		event->make_top_projection(3, 2); // the tracker hit and trackinh vizualization options are voluntary arguments 
+		event->make_top_projection(3, 3); // the tracker hit and trackinh vizualization options are voluntary arguments 
 		
 		event->build_event(2); // creates a file with 3D model of the event. The vizualization option is voluntary
 		

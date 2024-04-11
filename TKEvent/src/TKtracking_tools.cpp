@@ -1100,27 +1100,28 @@ void TKEvent::draw_likelihood_centred()
 
 void TKEvent::reconstruct(bool save_sinograms)
 {
-	const bool debug_mode = false;
+	//const bool debug_mode = false;
 	const double chi_square_treshold = 5;
 	for(int side = 0; side < 2; side++)
 	{
-		if(debug_mode) cout << "side: " << side << endl;
+		//if(debug_mode) cout << "side: " << side << endl;
 		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
 		hits = filter_distant( hits );
 		int no_hits_before = 1e10;
 		while( hits.size() > 2 && no_hits_before > hits.size() )
 		{
-			if(debug_mode) cout << "iteration start: " << endl;
+			//if(debug_mode) cout << "iteration start: " << endl;
 			no_hits_before = hits.size();
-			bool failed = false;
+			bool failed = true;
 			TKcluster* cluster = find_cluster(hits);			
 			if( cluster != nullptr )
 			{
-				if(debug_mode) cout << "find_cluster succes" << endl; 
+				//if(debug_mode) cout << "find_cluster succes" << endl; 
 				cluster->reconstruct_MLM( save_sinograms, run_number, event_number );						
 				if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold && cluster->get_track()->get_associated_tr_hits().size() > 3 )
 				{
-					if(debug_mode) cout << "chi_squared good" << endl;
+					//if(debug_mode) cout << "chi_squared good" << endl;
+					failed = false;
 					cluster->detect_ambiguity_type();
 					cluster->reconstruct_ambiguity(); 
 					cluster->get_track()->calculate_tr_hit_points();
@@ -1132,8 +1133,7 @@ void TKEvent::reconstruct(bool save_sinograms)
 				}
 				else
 				{
-					if(debug_mode) cout << "chi_squared bad" << endl; 
-					failed = true;
+					//if(debug_mode) cout << "chi_squared bad" << endl; 
 					delete cluster;
 				}
 			}
@@ -1142,11 +1142,11 @@ void TKEvent::reconstruct(bool save_sinograms)
 				TKcluster* cluster = find_cluster_legendre(hits, save_sinograms);
 				if( cluster != nullptr )
 				{
-					if(debug_mode) cout << "find_cluster_legendre succes" << endl; 
+					//if(debug_mode) cout << "find_cluster_legendre succes" << endl; 
 					cluster->reconstruct_MLM( save_sinograms, run_number, event_number );
 					if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold && cluster->get_track()->get_associated_tr_hits().size() > 3 )
 					{
-						if(debug_mode) cout << "chi_squared good" << endl; 
+						//if(debug_mode) cout << "chi_squared good" << endl; 
 						cluster->detect_ambiguity_type();
 						cluster->reconstruct_ambiguity();
 						cluster->get_track()->calculate_tr_hit_points();
@@ -1158,7 +1158,7 @@ void TKEvent::reconstruct(bool save_sinograms)
 					}	
 					else
 					{
-						if(debug_mode) cout << "chi_squared bad" << endl; 
+						//if(debug_mode) cout << "chi_squared bad" << endl; 
 						delete cluster;
 					}
 				}
@@ -1166,6 +1166,72 @@ void TKEvent::reconstruct(bool save_sinograms)
 			hits = filter_unassociated( hits );
 			hits = filter_distant( hits );
 			//hits = filter_unclustered( hits );
+		}
+	}
+	this->build_trajectories();
+	this->extrapolate_trajectories();
+}
+
+void TKEvent::reconstruct_simple(bool save_sinograms)
+{
+	//const bool debug_mode = true;
+	const double chi_square_treshold = 5;
+	for(int side = 0; side < 2; side++)
+	{
+		//if(debug_mode) cout << "side: " << side << endl;
+		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
+		hits = filter_distant( hits );
+		if( hits.size() < 3 ) continue; 
+		bool failed = true;
+		TKcluster* cluster = find_cluster(hits);			
+		if( cluster != nullptr )
+		{
+			//if(debug_mode) cout << "find_cluster succes" << endl; 
+			cluster->reconstruct_MLM( save_sinograms, run_number, event_number );						
+			if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold && cluster->get_track()->get_associated_tr_hits().size() > 2 )
+			{
+				failed = false;
+				//if(debug_mode) cout << "chi_squared good" << endl;
+				cluster->detect_ambiguity_type();
+				cluster->reconstruct_ambiguity(); 
+				cluster->get_track()->calculate_tr_hit_points();
+				if(cluster->get_track()->get_mirror_image() != nullptr)
+				{	
+					cluster->get_track()->get_mirror_image()->calculate_tr_hit_points();
+				}
+				clusters.push_back( cluster );
+			}
+			else
+			{
+				//if(debug_mode) cout << "chi_squared bad" << endl; 
+				delete cluster;
+			}
+		}
+		if( failed )
+		{
+			TKcluster* cluster = find_cluster_legendre(hits, save_sinograms);
+			if( cluster != nullptr )
+			{
+				//if(debug_mode) cout << "find_cluster_legendre succes" << endl; 
+				cluster->reconstruct_MLM( save_sinograms, run_number, event_number );
+				if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold && cluster->get_track()->get_associated_tr_hits().size() > 2 )
+				{
+					//if(debug_mode) cout << "chi_squared good" << endl; 
+					cluster->detect_ambiguity_type();
+					cluster->reconstruct_ambiguity();
+					cluster->get_track()->calculate_tr_hit_points();
+					if(cluster->get_track()->get_mirror_image() != nullptr)
+					{	
+						cluster->get_track()->get_mirror_image()->calculate_tr_hit_points();
+					}
+					clusters.push_back( cluster );
+				}	
+				else
+				{
+					//if(debug_mode) cout << "chi_squared bad" << endl; 
+					delete cluster;
+				}
+			}
 		}
 	}
 	this->build_trajectories();
@@ -1367,6 +1433,12 @@ TKcluster* TKEvent::find_cluster_legendre(std::vector<TKtrhit*> hits, bool save_
 {
 	gROOT->SetBatch(kTRUE);
 
+	if( hits.size() < 3 ) 
+	{
+		cout << "cluster not found - too few usable hits" << endl;
+		return nullptr;
+	}
+
 	double distance_limit = 6;
 	double limit_angle = 4;
 
@@ -1522,8 +1594,8 @@ void TKEvent::build_trajectories()
 				double y = a1*x + b1;
 				if(y < -2486.0 || y > 2486.0) continue;
 				if(x < -425.0 || x > 425.0) continue;
-				if(side == 0 && x > 29.0) continue;
-				if(side == 1 && x < -29.0) continue;				
+				if(side == 0 && x > -29.0) continue;
+				if(side == 1 && x < 29.0) continue;				
 				double z1 = track1->get_c()*x + track1->get_d();
 				double z2 = track2->get_c()*x + track2->get_d();
 				if(z1 == 0 || z2 == 0) continue;
