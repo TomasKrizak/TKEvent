@@ -55,7 +55,7 @@ namespace ROOT {
       ::TKcluster *ptr = 0;
       static ::TVirtualIsAProxy* isa_proxy = new ::TInstrumentedIsAProxy< ::TKcluster >(0);
       static ::ROOT::TGenericClassInfo 
-         instance("TKcluster", ::TKcluster::Class_Version(), "TKcluster.h", 21,
+         instance("TKcluster", ::TKcluster::Class_Version(), "TKcluster.h", 23,
                   typeid(::TKcluster), ::ROOT::Internal::DefineBehavior(ptr, ptr),
                   &::TKcluster::Dictionary, isa_proxy, 4,
                   sizeof(::TKcluster) );

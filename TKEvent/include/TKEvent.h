@@ -34,6 +34,8 @@
 #include "TKpoint.h"
 #include "TKtrajectory.h"
 
+#include "TKtimer.h"
+
 
 // note (9.4.): currently the main functions to use are the following:
 
@@ -134,7 +136,7 @@ class TKEvent: public TObject
 		//	4. trajectory builder from found segments
 		//	5. trajectory extrapolator
 		 
-		void reconstruct(bool save_sinograms = false); // full reconstruction
+		void reconstruct( TKtimer& timer, bool save_sinograms = false); // full reconstruction
 		void reconstruct_simple(bool save_sinograms = false); // simpler quick algo for one track per side
 		
 	// line track reconstruction section	

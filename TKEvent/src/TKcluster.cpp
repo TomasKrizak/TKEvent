@@ -306,7 +306,7 @@ void TKcluster::reconstruct_ambiguity()
 }
 
 
-void TKcluster::reconstruct_MLM(bool save_sinograms, int run_number, int event_number)
+void TKcluster::reconstruct_MLM(bool save_sinograms, int run_number, int event_number, TKtimer& timer)
 {
 	gROOT->SetBatch(kTRUE);
 	// resolution of first iteration is always 0.01rad x 1mm

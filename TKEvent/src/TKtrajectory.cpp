@@ -166,7 +166,6 @@ TKtrajectory::~TKtrajectory()
 		delete track_points[i];
 	}
 	track_points.clear();
-
 }
 
 void TKtrajectory::set_side(double _side)

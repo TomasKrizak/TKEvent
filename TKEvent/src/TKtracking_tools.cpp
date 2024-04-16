@@ -1098,8 +1098,9 @@ void TKEvent::draw_likelihood_centred()
 	}
 }
 
-void TKEvent::reconstruct(bool save_sinograms)
+void TKEvent::reconstruct(TKtimer& timer, bool save_sinograms)
 {
+	clock_t tic;
 	//const bool debug_mode = false;
 	const double chi_square_treshold = 5;
 	for(int side = 0; side < 2; side++)
@@ -1113,11 +1114,20 @@ void TKEvent::reconstruct(bool save_sinograms)
 			//if(debug_mode) cout << "iteration start: " << endl;
 			no_hits_before = hits.size();
 			bool failed = true;
+			
+			tic = clock();
 			TKcluster* cluster = find_cluster(hits);			
+			timer.time_clustering_hough += (clock() - tic) / (double) CLOCKS_PER_SEC;
+			timer.count_clustering_hough++;
+			
 			if( cluster != nullptr )
 			{
 				//if(debug_mode) cout << "find_cluster succes" << endl; 
-				cluster->reconstruct_MLM( save_sinograms, run_number, event_number );						
+				tic = clock();
+				cluster->reconstruct_MLM( save_sinograms, run_number, event_number, timer );						
+				timer.time_reconstruct_ML += (clock() - tic) / (double) CLOCKS_PER_SEC;
+				timer.count_reconstruct_ML += 1;
+				
 				if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold && cluster->get_track()->get_associated_tr_hits().size() > 3 )
 				{
 					//if(debug_mode) cout << "chi_squared good" << endl;
@@ -1139,11 +1149,19 @@ void TKEvent::reconstruct(bool save_sinograms)
 			}
 			if( failed )
 			{
+				tic = clock();
 				TKcluster* cluster = find_cluster_legendre(hits, save_sinograms);
+				timer.time_clustering_legendre += (clock() - tic) / (double) CLOCKS_PER_SEC;
+				timer.count_clustering_legendre++;
+				
 				if( cluster != nullptr )
 				{
 					//if(debug_mode) cout << "find_cluster_legendre succes" << endl; 
-					cluster->reconstruct_MLM( save_sinograms, run_number, event_number );
+					tic = clock();
+					cluster->reconstruct_MLM( save_sinograms, run_number, event_number, timer );
+					timer.time_reconstruct_ML += (clock() - tic) / (double) CLOCKS_PER_SEC;
+					timer.count_reconstruct_ML += 1;
+					
 					if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold && cluster->get_track()->get_associated_tr_hits().size() > 3 )
 					{
 						//if(debug_mode) cout << "chi_squared good" << endl; 
@@ -1168,12 +1186,20 @@ void TKEvent::reconstruct(bool save_sinograms)
 			//hits = filter_unclustered( hits );
 		}
 	}
+	tic = clock();
 	this->build_trajectories();
+	timer.time_build_trajectories += (clock() - tic) / (double) CLOCKS_PER_SEC;
+	timer.count_build_trajectories++;
+	
+	tic = clock();
 	this->extrapolate_trajectories();
+	timer.time_extrapolate += (clock() - tic) / (double) CLOCKS_PER_SEC;
+	timer.count_extrapolate++;
 }
 
 void TKEvent::reconstruct_simple(bool save_sinograms)
 {
+	TKtimer timer;
 	//const bool debug_mode = true;
 	const double chi_square_treshold = 5;
 	for(int side = 0; side < 2; side++)
@@ -1187,7 +1213,7 @@ void TKEvent::reconstruct_simple(bool save_sinograms)
 		if( cluster != nullptr )
 		{
 			//if(debug_mode) cout << "find_cluster succes" << endl; 
-			cluster->reconstruct_MLM( save_sinograms, run_number, event_number );						
+			cluster->reconstruct_MLM( save_sinograms, run_number, event_number, timer );						
 			if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold && cluster->get_track()->get_associated_tr_hits().size() > 2 )
 			{
 				failed = false;
@@ -1213,7 +1239,7 @@ void TKEvent::reconstruct_simple(bool save_sinograms)
 			if( cluster != nullptr )
 			{
 				//if(debug_mode) cout << "find_cluster_legendre succes" << endl; 
-				cluster->reconstruct_MLM( save_sinograms, run_number, event_number );
+				cluster->reconstruct_MLM( save_sinograms, run_number, event_number, timer );
 				if( cluster->get_track()->get_chi_squared_R() < chi_square_treshold && cluster->get_track()->get_associated_tr_hits().size() > 2 )
 				{
 					//if(debug_mode) cout << "chi_squared good" << endl; 
@@ -1240,6 +1266,7 @@ void TKEvent::reconstruct_simple(bool save_sinograms)
 
 void TKEvent::reconstruct_ML(bool save_sinograms)
 {
+	TKtimer timer;
 	for(int side = 0; side < 2; side++)
 	{
 		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
@@ -1249,7 +1276,7 @@ void TKEvent::reconstruct_ML(bool save_sinograms)
 		if( cluster != nullptr )
 		{
 			clusters.push_back( cluster );
-			cluster->reconstruct_MLM( save_sinograms, run_number, event_number );
+			cluster->reconstruct_MLM( save_sinograms, run_number, event_number, timer );
 			cluster->detect_ambiguity_type();
 			cluster->reconstruct_ambiguity();
 		}

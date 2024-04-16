@@ -1,0 +1,43 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/TKEvent.dir/src/TKEvent.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/TKEvent.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/TKOMhit.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/TKOMhit.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/TKcluster.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/TKcluster.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/TKpoint.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/TKpoint.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/TKtimer.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/TKtimer.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/TKtrack.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/TKtrack.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/TKtracking_tools.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/TKtracking_tools.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/TKtrajectory.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/TKtrajectory.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/TKtrhit.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/TKtrhit.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKEventdict.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKEventdict.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKOMhitdict.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKOMhitdict.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKclusterdict.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKclusterdict.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKpointdict.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKpointdict.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKtimerdict.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKtimerdict.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKtrackdict.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKtrackdict.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKtrajectorydict.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKtrajectorydict.cpp.o.d"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKtrhitdict.cpp.o"
+  "CMakeFiles/TKEvent.dir/src/dicts/TKtrhitdict.cpp.o.d"
+  "libTKEvent.pdb"
+  "libTKEvent.so"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/TKEvent.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

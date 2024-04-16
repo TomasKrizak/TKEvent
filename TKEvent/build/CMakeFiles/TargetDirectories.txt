@@ -1,0 +1,3 @@
+/home/tomas/TKEvent/TKEvent/build/CMakeFiles/TKEvent.dir
+/home/tomas/TKEvent/TKEvent/build/CMakeFiles/edit_cache.dir
+/home/tomas/TKEvent/TKEvent/build/CMakeFiles/rebuild_cache.dir

@@ -24,6 +24,9 @@ echo " "
       	      rootcling -f ../lib/TKtrajectorydict.cpp  TKtrajectory.h+
       	echo "rootcling: ./include/TKpoint.h     -> ./include/TKpointdict.pcm       + ./include/TKpointdict.cpp"
       	      rootcling -f ../lib/TKpointdict.cpp  TKpoint.h+
+      	      
+      	echo "rootcling: ./include/TKtimer.h     -> ./include/TKtimerdict.pcm       + ./include/TKtimerdict.cpp"
+      	      rootcling -f ../lib/TKtimerdict.cpp  TKtimer.h+
 	echo " "
 	echo "Dictionaries generated!"
 	echo " "
