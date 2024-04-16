@@ -1439,8 +1439,8 @@ TKcluster* TKEvent::find_cluster_legendre(std::vector<TKtrhit*> hits, bool save_
 		return nullptr;
 	}
 
-	double distance_limit = 6;
-	double limit_angle = 4;
+	const double distance_limit = 6.0;
+	const double limit_angle = 5.0*M_PI/180.0;
 
 	// resolution of both dimensions of every 2D histogram	
 	int resolution = 250; 
