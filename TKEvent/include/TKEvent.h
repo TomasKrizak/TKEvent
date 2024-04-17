@@ -75,7 +75,6 @@ class TKEvent: public TObject
 		
 		TKOMhit*      get_OM_hit(int _i);
 		TKtrhit*      get_tr_hit(int _i);
-		TKtrack*      get_track(int _i);
 		TKcluster*    get_cluster(int _i);
 		TKtrajectory* get_trajectory(int _i);
 	
@@ -110,20 +109,20 @@ class TKEvent: public TObject
 	
 	// tracker hit collection filtering
 	
-		std::vector<TKtrhit*> filter_side(std::vector<TKtrhit*> _hits, int side);
-		std::vector<TKtrhit*> filter_usable(std::vector<TKtrhit*> _hits);
-		std::vector<TKtrhit*> filter_unassociated(std::vector<TKtrhit*> _hits);
-		std::vector<TKtrhit*> filter_unclustered(std::vector<TKtrhit*> _hits);
-		std::vector<TKtrhit*> filter_distant(std::vector<TKtrhit*> _hits);
-		std::vector<TKtrhit*> filter_close_hits(std::vector<TKtrhit*> _hits, double phi, double r, double distance_limit);
+		std::vector<TKtrhit*> filter_side(std::vector<TKtrhit*>& _hits, int side);
+		std::vector<TKtrhit*> filter_usable(std::vector<TKtrhit*>& _hits);
+		std::vector<TKtrhit*> filter_unassociated(std::vector<TKtrhit*>& _hits);
+		std::vector<TKtrhit*> filter_unclustered(std::vector<TKtrhit*>& _hits);
+		std::vector<TKtrhit*> filter_distant(std::vector<TKtrhit*>& _hits);
+		std::vector<TKtrhit*> filter_close_hits(std::vector<TKtrhit*>& _hits, double phi, double r, double distance_limit);
 		
 	// clustering 
 	
 		// Hough transform based clutering - finds a largest subgroup of given hits
 		// such that is geometrically possible to have a single common line
-		TKcluster* find_cluster(std::vector<TKtrhit*> tr_hits);
+		TKcluster* find_cluster(std::vector<TKtrhit*>& tr_hits);
 		// Legendre based clustering
-		TKcluster* find_cluster_legendre(std::vector<TKtrhit*> hits, bool save_sinograms = false);
+		TKcluster* find_cluster_legendre(std::vector<TKtrhit*>& hits, bool save_sinograms = false);
 	
 	// full reconstruction functions
 	
@@ -141,11 +140,11 @@ class TKEvent: public TObject
 	
 		// basic reconstruction - no uncertainties, one candidate
 		void reconstruct_track(bool save_sinogram = false);
-		void reconstruct_track_from_hits(std::vector<TKtrhit*> hits, bool save_sinograms = false);
+		void reconstruct_track_from_hits(std::vector<TKtrhit*>& hits, bool save_sinograms = false);
 		
 		// with uncertainties, one candidate - recommended function
 		void reconstruct_single(bool save_sinograms = false);
-		void reconstruct_single_from_hits(std::vector<TKtrhit*> hits, bool save_sinograms = false);
+		void reconstruct_single_from_hits(std::vector<TKtrhit*>& hits, bool save_sinograms = false);
 				
 		// with uncertainties, multiple candidates
 		void reconstruct_multi(bool save_sinograms = false);
@@ -158,6 +157,7 @@ class TKEvent: public TObject
 	
 	// trajectory builder
 	
+		void calculate_tr_hit_points();
 		void build_trajectories();
 		void extrapolate_trajectories();
 		
@@ -195,7 +195,7 @@ class TKEvent: public TObject
 		void build_event(int tracking_option = 3);	
 
 	// tools for drawing certain mathematical functions 
-		void hough_transform(std::vector<TKtrhit*> hits, double phi_min, double phi_max, double R_min, double R_max, int ID);
+		void hough_transform(std::vector<TKtrhit*>& hits, double phi_min, double phi_max, double R_min, double R_max, int ID);
 		void draw_likelihood();
 		void draw_likelihood_centred();
 		void draw_sinusoids();

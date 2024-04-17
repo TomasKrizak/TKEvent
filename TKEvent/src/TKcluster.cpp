@@ -14,7 +14,7 @@ TKcluster::TKcluster()
 	track = nullptr;
 }
 
-TKcluster::TKcluster(std::vector<TKtrhit*> tr_hits, double _phi_min, double _phi_max)
+TKcluster::TKcluster(std::vector<TKtrhit*>& tr_hits, double _phi_min, double _phi_max)
 {
 	ambiguity_type = 0;
 	side = tr_hits.at(0)->get_SRL('s');
@@ -318,12 +318,12 @@ void TKcluster::reconstruct_MLM(bool save_sinograms, int run_number, int event_n
 	double S_rX = 0.0;
 	double S_rY = 0.0;
 	double const_R;
-	for(int i = 0; i < cluster_tr_hits.size();i++)
+	for(auto& hit : cluster_tr_hits)
 	{
-		const_R = pow(cluster_tr_hits[i]->get_sigma_R(), -2.0);
+		const_R = pow(hit->get_sigma_R(), -2.0);
 		S_r = S_r + const_R;
-		S_rX = S_rX + cluster_tr_hits[i]->get_xy('x')*const_R;
-		S_rY = S_rY + cluster_tr_hits[i]->get_xy('y')*const_R;
+		S_rX = S_rX + hit->get_xy('x')*const_R;
+		S_rY = S_rY + hit->get_xy('y')*const_R;
 	}
 	
 	double phi1 = phi_min;
@@ -341,8 +341,8 @@ void TKcluster::reconstruct_MLM(bool save_sinograms, int run_number, int event_n
 		double delta_phi = phi2 - phi1;
 		double delta_R = R2 - R1;
 		
-		double offset_phi = delta_phi/(2.0*resolution_phi);
-		double offset_R = delta_R/(2.0*resolution_R);
+		double offset_phi = delta_phi / (2.0 * resolution_phi);
+		double offset_R = delta_R / (2.0 * resolution_R);
 		
 		TH2F *chi_squared = new TH2F("chi_squared", "chi_squared; phi[rad]; r[mm]", resolution_phi, phi1 + offset_phi, phi2 + offset_phi, resolution_R, R1 + offset_R, R2 + offset_R);	
 				 

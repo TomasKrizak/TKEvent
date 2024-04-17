@@ -23,8 +23,10 @@ TKtrajectory::TKtrajectory(TKtrack* segment)
 	segments.push_back( segment );
 	vector<TKpoint*> tr_hit_points = segment->get_associated_tr_hit_points();
 	// TODO: Run 974 | Event 1376: only 1 associated hit
-	if(tr_hit_points.size() < 2) cout << "WARNING: only 1 associated tracker hit... Cannot create a trajectory" << endl;
-	
+	if(tr_hit_points.size() < 2)
+	{
+		cout << "WARNING: only 1 associated tracker hit... Cannot create a trajectory" << endl;
+	}
 	double y_min = 2500.0;
 	double y_max = -2500.0;
 	

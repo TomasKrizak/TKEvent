@@ -5,7 +5,7 @@ using namespace std;
 
 bool debug_mode = false;
 
-void TKEvent::reconstruct_track_from_hits(std::vector<TKtrhit*> hits, bool save_sinograms)
+void TKEvent::reconstruct_track_from_hits(std::vector<TKtrhit*>& hits, bool save_sinograms)
 {
 	// ancient algorithm - does not provide complete likelihood and (r,phi,theta,h) coordinates
 
@@ -229,7 +229,8 @@ void TKEvent::reconstruct_multi(bool save_sinograms)
 	for(int side = 0; side < 2; side++)
 	{		
 		// filtering good tracker hits for reconstruction (no missing time stamps...)
-		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
+		vector<TKtrhit*> hits_from_side = filter_side(tr_hits, side); 
+		vector<TKtrhit*> hits = filter_usable(hits_from_side);
 
 		if( hits.size() < 3 ) continue;
 		
@@ -498,7 +499,7 @@ void TKEvent::reconstruct_single(bool save_sinograms)
 	reconstruct_single_from_hits(tr_hits, save_sinograms);
 }
 
-void TKEvent::reconstruct_single_from_hits(std::vector<TKtrhit*> _hits, bool save_sinograms)
+void TKEvent::reconstruct_single_from_hits(std::vector<TKtrhit*>& _hits, bool save_sinograms)
 {
 	gROOT->SetBatch(kTRUE);
 
@@ -512,7 +513,8 @@ void TKEvent::reconstruct_single_from_hits(std::vector<TKtrhit*> _hits, bool sav
 	for(int side = 0; side < 2; side++)
 	{	
 		// filtering good tracker hits for reconstruction (no missing time stamps...)
-		vector<TKtrhit*> hits = filter_usable( filter_side(_hits, side) );
+		vector<TKtrhit*> hits_from_side = filter_side(_hits, side); 
+		vector<TKtrhit*> hits = filter_usable(hits_from_side);
 		if( hits.size() < 3 ) continue;
 
 		// peaks_Theta, peak_R and peaks_value stores information about peak candidate
@@ -672,8 +674,8 @@ void TKEvent::draw_sinusoids()
 	
 	for(int side = 0; side < 2; side++)
 	{
-		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
-		
+		vector<TKtrhit*> hits_from_side = filter_side(tr_hits, side); 
+		vector<TKtrhit*> hits = filter_usable(hits_from_side);
 		if( hits.size() < 1 ) continue;
 		
 		TCanvas* canvas = new TCanvas("sinusoids");
@@ -709,7 +711,8 @@ void TKEvent::draw_likelihood()
 
 	for(int side = 0; side < 2; side++)
 	{
-		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
+		vector<TKtrhit*> hits_from_side = filter_side(tr_hits, side); 
+		vector<TKtrhit*> hits = filter_usable(hits_from_side);
 
 		if( hits.size() < 3 ) continue;
 	
@@ -845,7 +848,7 @@ void TKEvent::draw_likelihood()
 	}
 }
 
-void TKEvent::hough_transform(std::vector<TKtrhit*> hits, double phi_min, double phi_max, double R_min, double R_max, int ID)
+void TKEvent::hough_transform(std::vector<TKtrhit*>& hits, double phi_min, double phi_max, double R_min, double R_max, int ID)
 {
 	gROOT->SetBatch(kTRUE);
 
@@ -949,7 +952,8 @@ void TKEvent::draw_likelihood_centred()
 
 	for(int side = 0; side < 2; side++)
 	{
-		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
+		vector<TKtrhit*> hits_from_side = filter_side(tr_hits, side); 
+		vector<TKtrhit*> hits = filter_usable(hits_from_side);
 		if( hits.size() < 3 ) continue;
 
 		double S_r = 0.0;
@@ -1105,7 +1109,8 @@ void TKEvent::reconstruct(bool save_sinograms)
 	for(int side = 0; side < 2; side++)
 	{
 		//if(debug_mode) cout << "side: " << side << endl;
-		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
+		vector<TKtrhit*> hits = filter_side(tr_hits, side); 
+		hits = filter_usable( hits );
 		hits = filter_distant( hits );
 		int no_hits_before = 1e10;
 		while( hits.size() > 2 && no_hits_before > hits.size() )
@@ -1179,7 +1184,8 @@ void TKEvent::reconstruct_simple(bool save_sinograms)
 	for(int side = 0; side < 2; side++)
 	{
 		//if(debug_mode) cout << "side: " << side << endl;
-		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
+		vector<TKtrhit*> hits = filter_side(tr_hits, side); 
+		hits = filter_usable( hits );
 		hits = filter_distant( hits );
 		if( hits.size() < 3 ) continue; 
 		bool failed = true;
@@ -1242,7 +1248,9 @@ void TKEvent::reconstruct_ML(bool save_sinograms)
 {
 	for(int side = 0; side < 2; side++)
 	{
-		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
+		vector<TKtrhit*> hits = filter_side(tr_hits, side); 
+		hits = filter_usable( hits );
+		hits = filter_distant( hits );
 		if( hits.size() < 3 ) continue;
 		
 		TKcluster* cluster = find_cluster(hits);
@@ -1261,7 +1269,9 @@ void TKEvent::reconstruct_ML_3D(bool save_sinograms)
 {
 	for(int side = 0; side < 2; side++)
 	{
-		vector<TKtrhit*> hits = filter_usable( filter_side(tr_hits, side) );
+		vector<TKtrhit*> hits = filter_side(tr_hits, side); 
+		hits = filter_usable( hits );
+		hits = filter_distant( hits );
 		if( hits.size() < 3 ) continue;
 		
 		TKcluster* cluster = find_cluster(hits);
@@ -1275,7 +1285,7 @@ void TKEvent::reconstruct_ML_3D(bool save_sinograms)
 	}
 }
 
-TKcluster* TKEvent::find_cluster(std::vector<TKtrhit*> hits)
+TKcluster* TKEvent::find_cluster(std::vector<TKtrhit*>& hits)
 {
 	//number of different values of phi among which the cluster is being searched for
 	const int bins_phi = 100;
@@ -1429,7 +1439,7 @@ TKcluster* TKEvent::find_cluster(std::vector<TKtrhit*> hits)
 	return cluster;
 }
 
-TKcluster* TKEvent::find_cluster_legendre(std::vector<TKtrhit*> hits, bool save_sinograms)
+TKcluster* TKEvent::find_cluster_legendre(std::vector<TKtrhit*>& hits, bool save_sinograms)
 {
 	gROOT->SetBatch(kTRUE);
 
@@ -1557,6 +1567,9 @@ void TKEvent::build_trajectories()
 {
 	//if(debug_mode) cout << "building trajectory" << endl;
 	vector<TKtrack*> all_tracks = this->get_tracks();
+	
+	
+	
 	for(int side = 0; side < 2; side++)
 	{
 		//if(debug_mode) cout << "building side: " << side << endl;
@@ -1565,6 +1578,7 @@ void TKEvent::build_trajectories()
 		{
 			if(all_tracks[i]->get_side() == side)
 			{
+				if(all_tracks[i]->get_associated_tr_hit_points().size() > 1)
 				all_tracks_from_side.push_back(all_tracks[i]);
 			}
 		}		
@@ -1644,10 +1658,8 @@ void TKEvent::build_trajectories()
 			//if(debug_mode) cout << "connecting track number: " << i << endl; 
 			if(connection_counter[i] == 0)
 			{
-				if(all_tracks_from_side[i]->get_associated_tr_hits().size() > 1) // in ideal case should be unnecessary
-				{
-					trajectories.push_back(new TKtrajectory(all_tracks_from_side[i]));
-				}
+				//if(all_tracks_from_side[i]->get_associated_tr_hits().size() > 1) // in ideal case should be unnecessary
+				trajectories.push_back(new TKtrajectory(all_tracks_from_side[i]));
 				trajectorized[i] = true;
 				//if(debug_mode) cout << i << " trajectorized" << endl;
 			}
@@ -1694,10 +1706,8 @@ void TKEvent::build_trajectories()
 				}
 				else if(composite_track.size() == 1)
 				{
-					if(composite_track[0]->get_associated_tr_hits().size() > 1) // in ideal case should be unnecessary
-					{
-						trajectories.push_back(new TKtrajectory(composite_track[0]));
-					}
+					//if(composite_track[0]->get_associated_tr_hits().size() > 1) // in ideal case should be unnecessary
+					trajectories.push_back(new TKtrajectory(composite_track[0]));
 				}
 			}
 		}
@@ -1720,6 +1730,15 @@ void TKEvent::extrapolate_trajectories()
 	for(auto& trajectory : trajectories)
 	{
 		trajectory->extrapolate();
+	}
+}
+
+void TKEvent::calculate_tr_hit_points()
+{
+	vector<TKtrack*> all_tracks = this->get_tracks();
+	for(auto& track : all_tracks)
+	{
+		track->calculate_tr_hit_points();
 	}
 }
 

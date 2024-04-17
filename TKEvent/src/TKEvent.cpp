@@ -53,26 +53,11 @@ TKEvent::TKEvent(int _run_number ,int _event_number)
 
 TKEvent::~TKEvent()
 {
-	for(int i = 0;i < OM_hits.size();i++)
-	{
-		delete OM_hits[i];
-	}
-	for(int i = 0;i < tr_hits.size();i++)
-	{
-		delete tr_hits[i];
-	}
-	for(int i = 0;i < tracks.size();i++)
-	{
-		delete tracks[i];
-	}
-	for(int i = 0;i < clusters.size();i++)
-	{
-		delete clusters[i];
-	}
-	for(int i = 0;i < trajectories.size();i++)
-	{
-		delete trajectories[i];
-	}
+	for(auto& OM_hit : OM_hits) delete OM_hit;
+	for(auto& tr_hit : tr_hits) delete tr_hit;
+	for(auto& track : tracks) delete track;
+	for(auto& cluster : clusters) delete cluster;
+	for(auto& trajectory : trajectories) delete trajectory;
 	
 	OM_hits.clear();
 	tr_hits.clear();
@@ -94,18 +79,18 @@ std::vector<TKtrhit*>& TKEvent::get_tr_hits()
 std::vector<TKtrack*> TKEvent::get_tracks()
 {
 	vector<TKtrack*> all_tracks;
-	for(int i = 0; i < tracks.size(); i++)
+	for(auto& track : tracks)
 	{
-		all_tracks.push_back( tracks[i] );
+		all_tracks.push_back( track );
 	}
-	for(int i = 0; i < clusters.size(); i++)
+	for(auto& cluster : clusters)
 	{
-		if( clusters[i]->get_track() != nullptr )
+		if( cluster->get_track() != nullptr )
 		{
-			all_tracks.push_back( clusters[i]->get_track() );
-			if( clusters[i]->get_track()->get_mirror_image() != nullptr )
+			all_tracks.push_back( cluster->get_track() );
+			if( cluster->get_track()->get_mirror_image() != nullptr )
 			{
-				all_tracks.push_back( clusters[i]->get_track()->get_mirror_image() );
+				all_tracks.push_back( cluster->get_track()->get_mirror_image() );
 			}
 		}
 	}
@@ -132,27 +117,6 @@ TKtrhit* TKEvent::get_tr_hit(int _i)
 	return tr_hits[_i];
 }
 
-TKtrack* TKEvent::get_track(int _i)
-{
-	vector<TKtrack*> all_tracks;
-	for(int i = 0; i < tracks.size(); i++)
-	{
-		all_tracks.push_back( tracks[i] );
-	}
-	for(int i = 0; i < clusters.size(); i++)
-	{
-		if( clusters[i]->get_track() != nullptr )
-		{
-			all_tracks.push_back( clusters[i]->get_track() );
-			if( clusters[i]->get_track()->get_mirror_image() != nullptr )
-			{
-				all_tracks.push_back( clusters[i]->get_track()->get_mirror_image() );
-			}
-		}
-	}
-	return all_tracks[_i];
-}
-
 TKcluster* TKEvent::get_cluster(int _i)
 {
 	return clusters[_i];
@@ -175,22 +139,7 @@ int TKEvent::get_event_number()
 
 int TKEvent::get_no_tracks()
 {
-	vector<TKtrack*> all_tracks;
-	for(int i = 0; i < tracks.size(); i++)
-	{
-		all_tracks.push_back( tracks[i] );
-	}
-	for(int i = 0; i < clusters.size(); i++)
-	{
-		if( clusters[i]->get_track() != nullptr )
-		{
-			all_tracks.push_back( clusters[i]->get_track() );
-			if( clusters[i]->get_track()->get_mirror_image() != nullptr )
-			{
-				all_tracks.push_back( clusters[i]->get_track()->get_mirror_image() );
-			}
-		}
-	}
+	vector<TKtrack*> all_tracks = this->get_tracks();
 	return all_tracks.size();
 }
 
@@ -205,25 +154,26 @@ void TKEvent::print()
 	std::cout << "RUN " << run_number << " | EVENT " << event_number << std::endl << std::endl;
 	std::cout << "Collection of OM hits: " << std::endl;
 
-	for (int i = 0; i < OM_hits.size(); i++)
+	for(auto& OM_hit : OM_hits) 
 	{
-		OM_hits[i]->print();
+		OM_hit->print();
 	}
-
+	
 	std::cout << std::endl;
 	std::cout << "Collection of tracker hits: " << std::endl;
 	
-	for (int i = 0; i < tr_hits.size(); i++)
+	for(auto& tr_hit : tr_hits) 
 	{
-		tr_hits[i]->print();
+		tr_hit->print();
 	}
 
 	std::cout << std::endl;
 	std::cout << "Collection of tracks: " << std::endl;
 	
-	for (int i = 0; i < this->get_tracks().size(); i++)
-	{
-		this->get_tracks()[i]->print();
+	vector<TKtrack*> all_tracks = this->get_tracks();
+	for(auto& track : all_tracks)
+	{	
+		track->print();
 	}
 	std::cout << std::endl;
 }
@@ -232,9 +182,10 @@ void TKEvent::print_tracks()
 {
 	std::cout << std::endl;
 	std::cout << "RUN " << run_number << " | EVENT " << event_number << std::endl << std::endl;
-	for (int i = 0; i < this->get_tracks().size(); i++)
-	{
-		this->get_tracks()[i]->print();
+	vector<TKtrack*> all_tracks = this->get_tracks();
+	for(auto& track : all_tracks)
+	{	
+		track->print();
 	}
 	std::cout << std::endl;	
 }
@@ -243,9 +194,9 @@ void TKEvent::print_trajectories()
 {
 	std::cout << std::endl;
 	std::cout << "RUN " << run_number << " | EVENT " << event_number << std::endl << std::endl;
-	for (int i = 0; i < trajectories.size(); i++)
+	for(auto& trajectory : trajectories)
 	{
-		trajectories[i]->print();
+		trajectory->print();
 	}
 	std::cout << std::endl;
 	
@@ -271,49 +222,47 @@ void TKEvent::add_tracker_hit(int _SRL[3], int64_t _tsp[7])
 	tr_hits.push_back(new TKtrhit(_SRL, _tsp));
 }
 
-std::vector<TKtrhit*> TKEvent::filter_side(std::vector<TKtrhit*> _hits, int side)
+std::vector<TKtrhit*> TKEvent::filter_side(std::vector<TKtrhit*>& _hits, int side)
 {
 	vector<TKtrhit*> hits;	
-	for(int i = 0; i < _hits.size(); i++)
+	for(auto& hit : _hits)
 	{
-		if( side == _hits[i]->get_SRL('s'))
+		if( side == hit->get_SRL('s'))
 		{
-			hits.push_back( _hits[i] );
+			hits.push_back( hit );
 		}
 	}
 	return hits;
 }
 
-std::vector<TKtrhit*> TKEvent::filter_usable(std::vector<TKtrhit*> _hits)
+std::vector<TKtrhit*> TKEvent::filter_usable(std::vector<TKtrhit*>& _hits)
 {
 	vector<TKtrhit*> hits;	
-	for(int i = 0; i < _hits.size(); i++)
+	for(auto& hit : _hits)
 	{
-		
 		// not using broken or too big (incorrectly associated) tracker hits
-		if( _hits[i]->get_r() != -1.0 && _hits[i]->get_r() < 35.0 && _hits[i]->get_r() > 2.0 )
+		if( hit->get_r() != -1.0 && hit->get_r() < 35.0 && hit->get_r() > 2.0 )
 		{
-			hits.push_back( _hits[i] );
+			hits.push_back( hit );
 		}
 	}
 	return hits;
 }
 
-std::vector<TKtrhit*> TKEvent::filter_unassociated(std::vector<TKtrhit*> _hits)
+std::vector<TKtrhit*> TKEvent::filter_unassociated(std::vector<TKtrhit*>& _hits)
 {
 	vector<TKtrhit*> hits;	
-	for(int i = 0; i < _hits.size(); i++)
+	for(auto& hit : _hits)
 	{
-		if( _hits[i]->get_associated_track() == nullptr )
+		if( hit->get_associated_track() == nullptr )
 		{
-			hits.push_back( _hits[i] );
+			hits.push_back( hit );
 		}
 	}
 	return hits;
 }
 
-
-std::vector<TKtrhit*> TKEvent::filter_distant(std::vector<TKtrhit*> _hits)
+std::vector<TKtrhit*> TKEvent::filter_distant(std::vector<TKtrhit*>& _hits)
 {
 	double distance = 3; // in cells: 1 == 44mm
 	vector<TKtrhit*> hits;
@@ -338,14 +287,12 @@ std::vector<TKtrhit*> TKEvent::filter_distant(std::vector<TKtrhit*> _hits)
 	return hits;
 }
 
-
-
-std::vector<TKtrhit*> TKEvent::filter_unclustered(std::vector<TKtrhit*> _hits)
+std::vector<TKtrhit*> TKEvent::filter_unclustered(std::vector<TKtrhit*>& _hits)
 {
 	vector<TKtrhit*> hits;
-	for(int i = 0; i < _hits.size(); i++)
+	for(auto& hit : _hits)
 	{
-		int SRL[3] = {_hits[i]->get_SRL('S'), _hits[i]->get_SRL('R'),_hits[i]->get_SRL('L')};
+		int SRL[3] = {hit->get_SRL('S'), hit->get_SRL('R'), hit->get_SRL('L')};
 		bool clustered = false;			
 		for(int j = 0; j < clusters.size(); j++)
 		{	
@@ -361,25 +308,24 @@ std::vector<TKtrhit*> TKEvent::filter_unclustered(std::vector<TKtrhit*> _hits)
 		}
 		if( clustered  == false )
 		{
-			hits.push_back( _hits[i] );
+			hits.push_back( hit );
 		}
 	}
 	return hits;
 }
 
-
-std::vector<TKtrhit*> TKEvent::filter_close_hits(std::vector<TKtrhit*> _hits, double phi, double r, double distance_limit)
+std::vector<TKtrhit*> TKEvent::filter_close_hits(std::vector<TKtrhit*>& _hits, double phi, double r, double distance_limit)
 {
 	vector<TKtrhit*> hits;	
-	for(int i = 0; i < _hits.size(); i++)
+	for(auto& hit : _hits)
 	{
-		double R = _hits[i]->get_r();
-		double x = _hits[i]->get_xy('x');
-		double y = _hits[i]->get_xy('y');
+		double R = hit->get_r();
+		double x = hit->get_xy('x');
+		double y = hit->get_xy('y');
 		double distance = abs(r - x*sin(phi) + y*cos(phi)) - R;
 		if( abs(distance) <= distance_limit )
 		{
-			hits.push_back( _hits[i] );
+			hits.push_back( hit );
 		}
 	}
 	return hits;
@@ -627,27 +573,27 @@ void TKEvent::make_top_projection(int hits_option, int tracking_option)
 		bool is_associated = false;
 		bool has_height = false;
 		
-		for(int hit = 0; hit < tr_hits.size(); hit++)
+		for(auto& hit : tr_hits)
 		{
-			if(cell_num == tr_hits[hit]->get_cell_num())
+			if(cell_num == hit->get_cell_num())
 			{
 				is_hit = true;
-				if( tr_hits[hit]->get_r() > 35.0 || tr_hits[hit]->get_r() == -1.0 )
+				if( hit->get_r() > 35.0 || hit->get_r() == -1.0 )
 				{
 					is_broken = true;
 				}
 				else
 				{
-					radius = tr_hits[hit]->get_r();
-					sigma = tr_hits[hit]->get_sigma_R();
+					radius = hit->get_r();
+					sigma = hit->get_sigma_R();
 				}	
 				
-				if( tr_hits[hit]->get_associated_track() != nullptr )
+				if( hit->get_associated_track() != nullptr )
 				{
 					is_associated = true;
 				}
 				
-				if( tr_hits[hit]->get_h() != 0.0 )
+				if( hit->get_h() != 0.0 )
 				{
 					has_height = true;
 				}		
@@ -826,35 +772,38 @@ void TKEvent::make_top_projection(int hits_option, int tracking_option)
 	
 	// Drawing avalanche origin points
 	vector<TGraph*> avalanche_origins;
+	vector<TKtrack*> all_tracks = this->get_tracks();
 	if(tracking_option == 1 || tracking_option == 2 || tracking_option == 3)
 	{
-		for (int i = 0; i < this->get_no_tracks(); i++)
+		for(auto& track : all_tracks)
 		{
-			TGraph *graph = new TGraph();
-			avalanche_origins.push_back(graph);
-			TKtrack* track = this->get_tracks()[i];
-			for (int j = 0; j < track->get_associated_tr_hit_points().size(); j++)
-			{	
-				TKpoint* point = track->get_associated_tr_hit_points()[j];
-				graph->SetPoint(j, point->get_y(), -point->get_x());
+			if(track->get_associated_tr_hit_points().size() > 0)
+			{
+				TGraph *graph = new TGraph();
+				avalanche_origins.push_back(graph);
+				for (int j = 0; j < track->get_associated_tr_hit_points().size(); j++)
+				{	
+					TKpoint* point = track->get_associated_tr_hit_points()[j];
+					graph->SetPoint(j, point->get_y(), -point->get_x());
+				}
+			   	graph->SetMarkerColor(kRed);
+		   		graph->SetMarkerStyle(kFullCircle);
+		   		graph->SetMarkerSize(1);
+				graph->Draw("sameP");
 			}
-		   	graph->SetMarkerColor(kRed);
-	   		graph->SetMarkerStyle(kFullCircle);
-	   		graph->SetMarkerSize(1);
-			graph->Draw("sameP");
 	   	}
 	}
 
 	canvas->SaveAs(Form("./Events_visu/Run-%d_event-%d_2D.png", run_number, event_number));
 	delete canvas;
 	
-	for (auto box : calorimeter_blocks) delete box;
-	for (auto title : calorimeter_block_titles) delete title;
-	for (auto tracker_cell : tracker_hits) delete tracker_cell;
-	for (auto Bi_source : sources) delete Bi_source;
-	for (auto track : lines) delete track;
-	for (auto trajetory : polylines) delete trajetory;
-	for (auto avalanche_origin : avalanche_origins) delete avalanche_origin;
+	for (auto& box : calorimeter_blocks) delete box;
+	for (auto& title : calorimeter_block_titles) delete title;
+	for (auto& tracker_cell : tracker_hits) delete tracker_cell;
+	for (auto& Bi_source : sources) delete Bi_source;
+	for (auto& track : lines) delete track;
+	for (auto& trajetory : polylines) delete trajetory;
+	for (auto& avalanche_origin : avalanche_origins) delete avalanche_origin;
 }
 		
 void TKEvent::build_event(int tracking_option)

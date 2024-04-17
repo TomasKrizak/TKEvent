@@ -39,7 +39,7 @@ class TKcluster: public TObject
 	public:
 		
 		TKcluster();
-		TKcluster(std::vector<TKtrhit*> tr_hits, double _phi_min, double _phi_max);
+		TKcluster(std::vector<TKtrhit*>& tr_hits, double _phi_min, double _phi_max);
 		~TKcluster();
 		
 		void add_tr_hit(TKtrhit* tracker_hit);
