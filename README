@@ -47,11 +47,16 @@ Class TKEvent can be used in two ways:
 		
 	4. install RED to TKEvent converter:
 		$ cd ../RED_to_TK/
+
+		!!! only one version coresponding to the loaded environment can be installed.
+		For example, if you sourced "load_environment_v1.sh" only "red_to_tk_v1.cxx" 
+		can be installed. To prevent the compiling from failing, either remove other
+		versions of red_to_tk or change their ".cxx" extension to anything else as
+		the compiler tries to process everything with ".cxx" extention !!! 
+
 		$ chmod 755 install.sh
 		$ ./install.sh
-		(depending on what runs you want to use (0-812 or 813-1045 or 1046 and higher)
-		keep ".cxx" only for those scripts you will be using otherwise the compiling will fail) 
-	
+
 ===============================================================================
 	HOW TO USE:
 ===============================================================================
